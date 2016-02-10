@@ -1,0 +1,24 @@
+1
+Open the Visual Studio Command Prompt
+
+
+2
+dumpbin /exports jmlaser.dll > jmlaser.def
+
+
+3
+Edit jmlaser.def to have only
+EXPORTS
+function_1_name
+function_2_name
+function_3_name
+...
+
+
+4
+lib /def:jmlaser.def /out:jmlaser.lib /machine:x86
+
+
+5
+Create a header with the function declarations and prepend the following to each function:
+extern "C"
