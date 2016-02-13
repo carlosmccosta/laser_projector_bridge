@@ -1,11 +1,11 @@
 + Project properties -> C/C++ -> General -> Additional Include Directories
-libs\jmlaser
+lib\jmlaser
 
 + Project properties -> Linker -> General -> Additional Library Directories
-libs\jmlaser
+lib\jmlaser
 
 + Project properties -> Linker -> Input -> Additional Dependencies
 jmlaser.lib
 
 + Project properties -> Debugging -> Environment
-PATH=%PATH%;$(ProjectDir)\libs\jmlaser
+PATH=%PATH%;$(ProjectDir)\lib\jmlaser

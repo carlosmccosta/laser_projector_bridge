@@ -1,18 +1,32 @@
 #pragma once
 
+/************************************************************************/
+/* DLL Macros                                                           */
+/************************************************************************/
+
+#define CALL_CONVENTION __cdecl
+//#define EXPORTING_DLL 1
+
+#ifdef EXPORTING_DLL
+#define DLL_DECLSPEC __declspec(dllimport)
+#else
+#define DLL_DECLSPEC __declspec(dllexport)
+#endif
+
+
 
 /************************************************************************/
 /* Macros                                                               */
 /************************************************************************/
-#define JMLASER_ERROR_NOT_ENUMERATED - 1
-#define JMLASER_ERROR_INVALID_HANDLE - 2
-#define JMLASER_ERROR_DEVICE_NOT_OPEN - 3
-#define JMLASER_ERROR_DEVICE_NOT_FOUND - 4
-#define JMLASER_ERROR_OUTPUT_NOT_STARTED - 5
-#define JMLASER_ERROR_INVALID_UNIVERSE - 6
-#define JMLASER_ERROR_OUT_OF_RANGE - 7
-#define JMLASER_ERROR_DEVICE_BUSY - 8
-#define JMLASER_ERROR_IO - 9
+#define JMLASER_ERROR_NOT_ENUMERATED -1
+#define JMLASER_ERROR_INVALID_HANDLE -2
+#define JMLASER_ERROR_DEVICE_NOT_OPEN -3
+#define JMLASER_ERROR_DEVICE_NOT_FOUND -4
+#define JMLASER_ERROR_OUTPUT_NOT_STARTED -5
+#define JMLASER_ERROR_INVALID_UNIVERSE -6
+#define JMLASER_ERROR_OUT_OF_RANGE -7
+#define JMLASER_ERROR_DEVICE_BUSY -8
+#define JMLASER_ERROR_IO -9
 
 
 
@@ -34,23 +48,22 @@ struct JMVectorStruct {;
 };
 
 
-
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /**
  * @brief Enumerate all output devices.
  * 
- * This function creates or refreshes the list of all output devices that are connected locally or via
- * network.
+ * This function creates or refreshes the list of all output devices that are connected locally or via network.
  * The device list length is returned.
  * 
- * @return The number of devices found, which equal the device list length. A value less then 0 is
- * returned on error.
+ * @return The number of devices found, which equal the device list length. A value less then 0 is returned on error.
  */
- extern "C" int jmLaserEnumerateDevices();
+DLL_DECLSPEC int CALL_CONVENTION jmLaserEnumerateDevices();
 
-
-
-/**
+ /**
  * @brief Get an entry from the devices list.
  *
  * Use this function to retrieve an entry from the devices list. A devices list entry is a null
@@ -67,7 +80,7 @@ struct JMVectorStruct {;
  * @param[in] index The index of the device list. Valid range is 0 to the length returned by jmLaserGetDeviceListEntryLength() - 1
  * @param[in] deviceName Buffer into which the device list entry will be placed. Has to be allocated by the application.
  * @param[in] The length of the deviceName buffer including terminating zero.
- * 
+ *
  * @return Returns 0 on success.
  * A negative value indicates an error. Possible error codes include:
  * - JMLASER_ERROR_NOT_ENUMERATED
@@ -75,7 +88,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_OUT_OF_RANGE
  *   index is out of range
  */
- extern "C" int jmLaserGetDeviceListEntry(unsigned int index, char deviceName, unsigned int length);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntry(unsigned int index, char* deviceName, unsigned int length);
 
 
 
@@ -96,7 +109,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_OUT_OF_RANGE
  *   index is out of range
  */
- extern "C" int jmLaserGetDeviceListEntryLength(unsigned int index);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntryLength(unsigned int index);
 
 
 
@@ -127,7 +140,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
- extern "C" int jmLaserGetDeviceName(int handle, char _deviceName, unsigned int length);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceName(int handle, char _deviceName, unsigned int length);
 
 
 
@@ -150,7 +163,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
- extern "C" int jmLaserGetDeviceNameLength(int handle);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceNameLength(int handle);
 
 
 
@@ -176,7 +189,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the name deviceName was not found.
  */
- extern "C" int jmLaserGetDeviceFamilyName(char _deviceName, char deviceFamilyName, unsigned int length);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char _deviceName, char deviceFamilyName, unsigned int length);
 
 
 
@@ -202,7 +215,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
- extern "C" int jmLaserSetFriendlyName(int handle, char _deviceFriendlyName);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char _deviceFriendlyName);
 
 
 
@@ -226,7 +239,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the name deviceName was not found.
  */
- extern "C" int jmLaserGetFriendlyNameLength(char _deviceName);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char _deviceName);
 
 
 
@@ -255,7 +268,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the device name was not found.
  */
- extern "C" int jmLaserGetFriendlyName(char _deviceName, char _deviceFriendlyName, unsigned int length);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char _deviceName, char _deviceFriendlyName, unsigned int length);
 
 
 
@@ -284,7 +297,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_IO
  *   IO Error
  */
- extern "C" int jmLaserOpenDevice(char _deviceName);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char _deviceName);
 
 
 
@@ -306,7 +319,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_IO
  *   IO Error
  */
- extern "C" int jmLaserCloseDevice(int handle);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDevice(int handle);
 
 
 
@@ -330,7 +343,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_IO
  *   IO Error
  */
- extern "C" int jmLaserStartOutput(int handle);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserStartOutput(int handle);
 
 
 
@@ -378,7 +391,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_IO
  *   IO Error
  */
- extern "C" int jmLaserWriteFrame(int handle, JMVectorStruct *vectors, unsigned int count, unsigned int speed, unsigned int repetitions);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserWriteFrame(int handle, JMVectorStruct *vectors, unsigned int count, unsigned int speed, unsigned int repetitions);
 
 
 
@@ -407,7 +420,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_IO
  *   IO Error
  */
- extern "C" int jmLaserWaitForDeviceReady(int handle);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserWaitForDeviceReady(int handle);
 
 
 
@@ -438,7 +451,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_IO
  *   IO Error
  */
- extern "C" int jmLaserIsDeviceReady(int handle);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserIsDeviceReady(int handle);
 
 
 
@@ -464,7 +477,7 @@ struct JMVectorStruct {;
  * - JMLASER_ERROR_IO
  *   IO Error
  */
- extern "C" int jmLaserStopOutput(int handle);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserStopOutput(int handle);
 
 
 
@@ -475,4 +488,10 @@ struct JMVectorStruct {;
  *
  * @return 0 on success, a value less then 0 on error.
  */
- extern "C" int jmLaserCloseDll();
+DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDll();
+
+
+
+#ifdef __cplusplus
+} // __cplusplus defined.
+#endif

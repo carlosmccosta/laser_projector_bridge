@@ -1,5 +1,5 @@
 1
-Open the Visual Studio Command Prompt
+Open the "Developer Command Prompt for VS2015
 
 
 2
@@ -8,6 +8,7 @@ dumpbin /exports jmlaser.dll > jmlaser.def
 
 3
 Edit jmlaser.def to have only
+LIBRARY jmlaser.dll
 EXPORTS
 function_1_name
 function_2_name
