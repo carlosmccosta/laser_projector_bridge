@@ -1,12 +1,15 @@
-https://support.microsoft.com/en-us/kb/131313
+http://www.mingw.org/wiki/createimportlibraries
 
 
 1
-Open the "Developer Command Prompt for VS2015"
+Open cmd
 
 
 2
-dumpbin /exports jmlaser.dll > jmlaser.def
+dlltool -z jmlaser.def --export-all-symbol jmlaser.dll
+
+or use
+http://www.dependencywalker.com/
 
 
 3
@@ -20,9 +23,11 @@ function_3_name
 
 
 4
-lib /def:jmlaser.def /out:jmlaser.lib /machine:x86
+dlltool -d jmlaser.def -l jmlaser.a
 
 
 5
 Create a header with the function declarations and prepend the following to each function:
 extern "C"
+
+http://www.mingw.org/wiki/sampleDLL

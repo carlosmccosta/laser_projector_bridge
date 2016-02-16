@@ -1,0 +1,13 @@
+https://support.microsoft.com/en-us/kb/131313
+
+
+1
+Open the "Developer Command Prompt for VS2015
+
+
+2
+CL /c /Ob0 jmlaser.cpp
+
+
+3
+LIB /def: jmlaser.obj /out:jmlaser.lib /machine:x86

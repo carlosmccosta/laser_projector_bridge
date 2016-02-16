@@ -4,7 +4,7 @@
 /* DLL Macros                                                           */
 /************************************************************************/
 
-#define CALL_CONVENTION __cdecl
+#define CALL_CONVENTION __stdcall
 //#define EXPORTING_DLL 1
 
 #ifdef EXPORTING_DLL
@@ -63,7 +63,9 @@ extern "C"
  */
 DLL_DECLSPEC int CALL_CONVENTION jmLaserEnumerateDevices();
 
- /**
+
+
+/**
  * @brief Get an entry from the devices list.
  *
  * Use this function to retrieve an entry from the devices list. A devices list entry is a null
@@ -140,14 +142,14 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntryLength(unsigned int in
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceName(int handle, char _deviceName, unsigned int length);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceName(int handle, char* deviceName, unsigned int length);
 
 
 
 /**
  * @brief Get device name length.
  *
- * This function may be called before jmLaserGetDeviceName() to get the length of the device�s
+ * This function may be called before jmLaserGetDeviceName() to get the length of the device’s
  * name.
  * The output device must have been opened with jmLaserOpenDevice() prior to calling this
  * function. Additionally jmLaserEnumerateDevices() must have been called at least once.
@@ -179,7 +181,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceNameLength(int handle);
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
  * function.
  *
- * @param[in] _deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ * @param[in] deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
  * @param[in] deviceFamilyName Buffer that the device's family name string will be placed into.
  * @param[in] length Length of the deviceFamilyName Buffer.
  * 
@@ -189,57 +191,29 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceNameLength(int handle);
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the name deviceName was not found.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char _deviceName, char deviceFamilyName, unsigned int length);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char* deviceName, char* deviceFamilyName, unsigned int length);
 
 
 
 /**
- * @brief Set user-friendly device name.
+ * @brief Get device family name length.
  *
- * This function will set the device's friendly name to the ASCII/UTF-8 encoded string the
- * buffer device-FriendlyName points to.
- * The friendly name adds a description to the hard to remember device ID.
- * It is possible, for example, to set a friendly name "Projector left of table" for the device
- * "NetPort". The friendly name should be displayed to the user next to the device id.
- * The friendly name can be read using jmLaserGetFriendlyName() and
- * jmLaserGetFriendlyNameLength().
- *
- * @param[in] handle A handle for an open output device as returned by jmLaserOpenDevice().
- * @param[in] _deviceFriendlyName Buffer that contains the device's friendly name string. This string is ASCII/UTF-8 encoded and zero-terminated.
- * 
- * @return Returns 0 on success. A negative value indicates an error. Possible error codes include
- * - JMLASER_ERROR_NOT_ENUMERATED
- *   jmLaserEnumerateDevices() has not been called.
- * - JMLASER_ERROR_INVALID_HANDLE
- *   The handle parameter is invalid.
- * - JMLASER_ERROR_DEVICE_NOT_OPEN
- *   The device has not been opened with jmLaserOpenDevice() or has been removed.
- */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char _deviceFriendlyName);
-
-
-
-/**
- * @brief Get user-friendly device name length.
- *
- * This function may be called before jmLaserGetFriendlyName() to get the length of the
- * device's friendly name. This function takes the device name as returned by
- * jmLaserGetDeviceName() or jmLaserGetDeviceListEntry() as argument. The device does not
- * need to be open.
+ * This function may be called before jmLaserGetDeviceFamilyName() to get the length of the device’s
+ * family name.
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
  * function.
  *
- * @param[in] _deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
- * 
- * @return Returns the length of the device friendly name string, including terminating zero.
- * 
+ * @param[in] deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ *
+ * @return Returns the length of the device family name string, including terminating zero.
+ *
  * This value may be 0. A negative value indicates an error. Possible error codes include:
  * - JMLASER_ERROR_NOT_ENUMERATED
  *   jmLaserEnumerateDevices() has not been called.
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the name deviceName was not found.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char _deviceName);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyNameLength(char* deviceName);
 
 
 
@@ -268,7 +242,57 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char _deviceName);
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the device name was not found.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char _deviceName, char _deviceFriendlyName, unsigned int length);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char* deviceName, char* deviceFriendlyName, unsigned int length);
+
+
+
+/**
+ * @brief Get user-friendly device name length.
+ *
+ * This function may be called before jmLaserGetFriendlyName() to get the length of the
+ * device's friendly name. This function takes the device name as returned by
+ * jmLaserGetDeviceName() or jmLaserGetDeviceListEntry() as argument. The device does not
+ * need to be open.
+ * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
+ * function.
+ *
+ * @param[in] deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ *
+ * @return Returns the length of the device friendly name string, including terminating zero.
+ *
+ * This value may be 0. A negative value indicates an error. Possible error codes include:
+ * - JMLASER_ERROR_NOT_ENUMERATED
+ *   jmLaserEnumerateDevices() has not been called.
+ * - JMLASER_ERROR_DEVICE_NOT_FOUND
+ *   A device with the name deviceName was not found.
+ */
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char* deviceName);
+
+
+
+/**
+ * @brief Set user-friendly device name.
+ *
+ * This function will set the device's friendly name to the ASCII/UTF-8 encoded string the
+ * buffer device-FriendlyName points to.
+ * The friendly name adds a description to the hard to remember device ID.
+ * It is possible, for example, to set a friendly name "Projector left of table" for the device
+ * "NetPort". The friendly name should be displayed to the user next to the device id.
+ * The friendly name can be read using jmLaserGetFriendlyName() and
+ * jmLaserGetFriendlyNameLength().
+ *
+ * @param[in] handle A handle for an open output device as returned by jmLaserOpenDevice().
+ * @param[in] _deviceFriendlyName Buffer that contains the device's friendly name string. This string is ASCII/UTF-8 encoded and zero-terminated.
+ *
+ * @return Returns 0 on success. A negative value indicates an error. Possible error codes include
+ * - JMLASER_ERROR_NOT_ENUMERATED
+ *   jmLaserEnumerateDevices() has not been called.
+ * - JMLASER_ERROR_INVALID_HANDLE
+ *   The handle parameter is invalid.
+ * - JMLASER_ERROR_DEVICE_NOT_OPEN
+ *   The device has not been opened with jmLaserOpenDevice() or has been removed.
+ */
+DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char _deviceFriendlyName);
 
 
 
@@ -297,7 +321,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char _deviceName, char _
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char _deviceName);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char* deviceName);
 
 
 
