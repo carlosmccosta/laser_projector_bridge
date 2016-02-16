@@ -8,9 +8,9 @@
 //#define EXPORTING_DLL 1
 
 #ifdef EXPORTING_DLL
-#define DLL_DECLSPEC __declspec(dllimport)
+	#define DLL_DECLSPEC __declspec(dllimport)
 #else
-#define DLL_DECLSPEC __declspec(dllexport)
+	#define DLL_DECLSPEC __declspec(dllexport)
 #endif
 
 
@@ -34,7 +34,7 @@
 /* 16bit hardware resolution X/Y deflection value.                      */
 /* Represented in 32bit range: -2147483648 - 2147483647                 */
 /************************************************************************/
-struct JMVectorStruct {;
+struct JMVectorStruct {
 	int x;
 	int y;
 	unsigned short r;
@@ -292,7 +292,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char* deviceName);
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char _deviceFriendlyName);
+DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char* deviceFriendlyName);
 
 
 

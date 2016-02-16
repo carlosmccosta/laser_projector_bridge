@@ -28,7 +28,7 @@
 /* 16bit hardware resolution X/Y deflection value.                      */
 /* Represented in 32bit range: -2147483648 - 2147483647                 */
 /************************************************************************/
-struct JMVectorStruct {;
+struct JMVectorStruct {
 	int x;
 	int y;
 	unsigned short r;
@@ -56,7 +56,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char* deviceName, ch
 DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyNameLength(char* deviceName) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char* deviceName, char* deviceFriendlyName, unsigned int length) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char* deviceName) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char _deviceFriendlyName) { return 0; }
+DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char* deviceFriendlyName) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char* deviceName) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDevice(int handle) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserStartOutput(int handle) { return 0; }
