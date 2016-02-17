@@ -70,6 +70,7 @@ class JMLaserProjector {
 		static std::string jmLaserBridgeGetFriendlyName(const std::string& projector_name);
 		static bool jmLaserBridgeSetFriendlyName(int projector_handle, const std::string& projector_friendly_name);
 		static int jmLaserBridgeOpenDevice(const std::string& projector_name);
+		static int jmLaserBridgeGetMaxFrameSize(int projector_handle);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -90,6 +91,7 @@ class JMLaserProjector {
 		inline static int getNumberOfProjectors() { return s_number_of_projectors_; }
 		inline unsigned int getProjectorListEntryIndex() const { return projector_list_entry_index_; }
 		inline int getProjectorHandle() const { return projector_handle_; }
+		inline int getMaximumNumberOfVectorsPerFrame() const { return maximum_number_of_vectors_per_frame_; }
 		inline bool isProjectorOutputStarted() const { return projector_output_started_; }
 		inline const std::string &getProjectorName() const { return projector_name_; }
 		inline const std::string &getProjectorNameFromHandle() const { return projector_name_from_handle_; }
@@ -108,6 +110,7 @@ class JMLaserProjector {
 		static int s_number_of_projectors_;
 		unsigned int projector_list_entry_index_;
 		int projector_handle_;
+		int maximum_number_of_vectors_per_frame_;
 		bool projector_output_started_;
 		std::string projector_name_;
 		std::string projector_name_from_handle_;

@@ -7,11 +7,13 @@
 #define CALL_CONVENTION __stdcall
 #define DLL_DECLSPEC __declspec(dllexport)
 
+#include <climits>
 
 
 /************************************************************************/
 /* Macros                                                               */
 /************************************************************************/
+#define JMLASER_DEVICE_READY 1
 #define JMLASER_ERROR_NOT_ENUMERATED -1
 #define JMLASER_ERROR_INVALID_HANDLE -2
 #define JMLASER_ERROR_DEVICE_NOT_OPEN -3
@@ -29,6 +31,12 @@
 /* Represented in 32bit range: -2147483648 - 2147483647                 */
 /************************************************************************/
 struct JMVectorStruct {
+	JMVectorStruct(int _x = 0, int _y = 0, unsigned short _i = 0,
+				   unsigned short _r = 0, unsigned short _g = 0, unsigned short _b = 0,
+				   unsigned short _deepblue = 0, unsigned short _yellow = 0, unsigned short _cyan = 0, unsigned short _user4 = 0) :
+			x(_x), y(_y),
+			r(_r), g(_g), b(_b), i(_i),
+			deepblue(_deepblue), yellow(_yellow), cyan(_cyan), user4(_user4) {}
 	int x;
 	int y;
 	unsigned short r;

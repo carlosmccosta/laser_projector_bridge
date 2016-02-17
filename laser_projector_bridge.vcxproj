@@ -122,10 +122,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\test_jmlaser_api.cpp" />
+    <ClCompile Include="lib\jmlaser\test_jmlaser_projector.cpp" />
+    <ClCompile Include="src\JMLaserProjector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="libs\jmlaser\jmlaser.h" />
+    <ClInclude Include="include\laser_projector_bridge\JMLaserProjector.h" />
     <ClInclude Include="lib\jmlaser\jmlaser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

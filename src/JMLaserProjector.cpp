@@ -143,6 +143,10 @@ int JMLaserProjector::jmLaserBridgeOpenDevice(const std::string& projector_name)
 	projector_name_c.push_back('\0');
 	return jmLaserOpenDevice(projector_name_c.data());
 }
+
+int JMLaserProjector::jmLaserBridgeGetMaxFrameSize(int projector_handle) {
+	return jmLaserGetMaxFrameSize(projector_handle);
+}
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -192,7 +196,8 @@ bool JMLaserProjector::setupProjectorUsingIndex(unsigned int projector_index) {
 
 		if (projector_handle_ >= 0) {
 			projector_name_from_handle_ = JMLaserProjector::jmLaserBridgeGetDeviceName(projector_handle_);
-			return true;
+			maximum_number_of_vectors_per_frame_ = JMLaserProjector::jmLaserBridgeGetMaxFrameSize(projector_handle_);
+			if (maximum_number_of_vectors_per_frame_ > 0) { return true; }
 		}
 	}
 	resetProjector();
@@ -232,7 +237,10 @@ bool JMLaserProjector::startOutput() {
 }
 
 bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed, unsigned int repetitions) {
-	if (projector_handle_ >= 0 && !points.empty() && speed > 0 && repetitions >= 0) {
+	if (projector_handle_ >= 0 && !points.empty() && speed > 0 && repetitions >= 0 && maximum_number_of_vectors_per_frame_ > 0) {
+		if (points.size() > (size_t)maximum_number_of_vectors_per_frame_) {
+			points.resize((size_t)maximum_number_of_vectors_per_frame_);
+		}
 		int wait_status = jmLaserWaitForDeviceReady(projector_handle_);
 		if (wait_status == JMLASER_ERROR_OUTPUT_NOT_STARTED) {
 			if (startOutput()) {
@@ -243,7 +251,7 @@ bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& p
 		}
 
 		if (wait_status == JMLASER_DEVICE_READY) {
-			jmLaserWriteFrame(projector_handle_, points.data(), points.size(), speed, repetitions);
+			return (jmLaserWriteFrame(projector_handle_, points.data(), points.size(), speed, repetitions) == 0);
 		}
 	}
 	return false;
@@ -261,14 +269,15 @@ bool JMLaserProjector::stopOutput() {
 
 std::ostream& operator<<(std::ostream& os, const JMLaserProjector& jmlp) {
 	os << "############################## JMLaserProjector ###############################\n";
-	os << "# number_of_projectors:\t\t" 		<< JMLaserProjector::s_number_of_projectors_ << "\n";
-	os << "# projector_list_entry_index:\t" 	<< jmlp.projector_list_entry_index_ << "\n";
-	os << "# projector_handle:\t\t" 			<< jmlp.projector_handle_ << "\n";
-	os << "# projector_name:\t\t" 				<< jmlp.projector_name_ << "\n";
-	os << "# projector_name_from_handle:\t" 	<< jmlp.projector_name_from_handle_ << "\n";
-	os << "# projector_friendly_name:\t" 		<< jmlp.projector_friendly_name_<< "\n";
-	os << "# projector_family_name:\t" 		<< jmlp.projector_family_name_ << "\n";
-	os << "# projector_output_started:\t" 	<< jmlp.projector_output_started_ << "\n";
+	os << "# number_of_projectors:\t\t\t" 				<< JMLaserProjector::s_number_of_projectors_ << "\n";
+	os << "# projector_list_entry_index:\t\t" 			<< jmlp.projector_list_entry_index_ << "\n";
+	os << "# projector_handle:\t\t\t" 					<< jmlp.projector_handle_ << "\n";
+	os << "# maximum_number_of_vectors_per_frame:\t" 	<< jmlp.maximum_number_of_vectors_per_frame_ << "\n";
+	os << "# projector_name:\t\t\t" 					<< jmlp.projector_name_ << "\n";
+	os << "# projector_name_from_handle:\t\t" 			<< jmlp.projector_name_from_handle_ << "\n";
+	os << "# projector_friendly_name:\t\t" 				<< jmlp.projector_friendly_name_<< "\n";
+	os << "# projector_family_name:\t\t" 				<< jmlp.projector_family_name_ << "\n";
+	os << "# projector_output_started:\t\t" 			<< jmlp.projector_output_started_ << "\n";
 	os << "###############################################################################" << std::endl;
 	return os;
 }

@@ -15,15 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="libs\jmlaser\jmlaser.h">
+    <ClInclude Include="lib\jmlaser\jmlaser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\jmlaser\jmlaser.h">
+    <ClInclude Include="include\laser_projector_bridge\JMLaserProjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\test_jmlaser_api.cpp">
+    <ClCompile Include="lib\jmlaser\test_jmlaser_projector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JMLaserProjector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
