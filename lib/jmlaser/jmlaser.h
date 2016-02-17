@@ -18,6 +18,7 @@
 /************************************************************************/
 /* Macros                                                               */
 /************************************************************************/
+#define JMLASER_DEVICE_READY 0
 #define JMLASER_ERROR_NOT_ENUMERATED -1
 #define JMLASER_ERROR_INVALID_HANDLE -2
 #define JMLASER_ERROR_DEVICE_NOT_OPEN -3

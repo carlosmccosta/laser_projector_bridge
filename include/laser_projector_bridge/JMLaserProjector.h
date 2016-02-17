@@ -16,6 +16,7 @@
 // std includes
 #include <string>
 #include <vector>
+#include <iostream>
 
 // external libs includes
 #include <jmlaser/jmlaser.h>
@@ -50,9 +51,19 @@ class JMLaserProjector {
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <constructors-destructor>    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		JMLaserProjector();
 		virtual ~JMLaserProjector();
+		void resetProjector();
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </constructors-destructor>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+		/**
+		 * Should be called only once when all the projectors are connected.
+		 * jmLaserEnumerateDevices is not able to update the list when a new projector is connected.
+		 * After the first call, jmLaserEnumerateDevices will return 0 even if there are connected projectors.
+		 * As such this function stores the number of devices as a static variable on the first call.
+		 * After the first call this function will return the static variable instead of calling jmLaserEnumerateDevices
+		 */
+		static int jmLaserBridgeEnumerateDevices();
 		static std::string jmLaserBridgeGetDeviceListEntry(unsigned int list_index);
 		static std::string jmLaserBridgeGetDeviceName(int projector_handle);
 		static std::string jmLaserBridgeGetDeviceFamilyName(std::string projector_name);
@@ -65,9 +76,12 @@ class JMLaserProjector {
 		bool setupProjector();
 		bool setupProjectorUsingName(std::string projector_name);
 		bool setupProjectorUsingFriendlyName(std::string projector_friendly_name);
+		bool setupProjectorUsingIndex(unsigned int projector_index);
+		bool closeProjector();
 		bool startOutput();
-		bool sendVectorImage(std::vector<JMVectorStruct> points, unsigned int speed, unsigned int repetitions);
+		bool sendVectorImageToProjector(std::vector<JMVectorStruct> points, unsigned int speed, unsigned int repetitions);
 		bool stopOutput();
+		friend std::ostream& operator<<(std::ostream& os, const JMLaserProjector& dt);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -82,9 +96,12 @@ class JMLaserProjector {
 
 	// ============================================================================   <protected-section>   =======================================================================
 	protected:
+		static int s_number_of_projectors_;
 		unsigned int projector_list_entry_index_;
 		int projector_handle_;
+		bool projector_output_started_;
 		std::string projector_name_;
+		std::string projector_name_from_handle_;
 		std::string projector_friendly_name_;
 		std::string projector_family_name_;
 	// ============================================================================   <protected-section>   =======================================================================
