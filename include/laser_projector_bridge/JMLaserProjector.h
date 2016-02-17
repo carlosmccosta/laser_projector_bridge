@@ -66,26 +66,35 @@ class JMLaserProjector {
 		static int jmLaserBridgeEnumerateDevices();
 		static std::string jmLaserBridgeGetDeviceListEntry(unsigned int list_index);
 		static std::string jmLaserBridgeGetDeviceName(int projector_handle);
-		static std::string jmLaserBridgeGetDeviceFamilyName(std::string projector_name);
-		static std::string jmLaserBridgeGetFriendlyName(std::string projector_name);
-		static bool jmLaserBridgeSetFriendlyName(int projector_handle, std::string projector_friendly_name);
-		static int jmLaserBridgeOpenDevice(std::string projector_name);
+		static std::string jmLaserBridgeGetDeviceFamilyName(const std::string& projector_name);
+		static std::string jmLaserBridgeGetFriendlyName(const std::string& projector_name);
+		static bool jmLaserBridgeSetFriendlyName(int projector_handle, const std::string& projector_friendly_name);
+		static int jmLaserBridgeOpenDevice(const std::string& projector_name);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		bool setupProjector();
-		bool setupProjectorUsingName(std::string projector_name);
-		bool setupProjectorUsingFriendlyName(std::string projector_friendly_name);
+		bool setupProjectorUsingName(const std::string& projector_name);
+		bool setupProjectorUsingFriendlyName(const std::string& projector_friendly_name);
 		bool setupProjectorUsingIndex(unsigned int projector_index);
 		bool closeProjector();
+		bool setProjectorFriendlyName(const std::string& projector_friendly_name);
 		bool startOutput();
-		bool sendVectorImageToProjector(std::vector<JMVectorStruct> points, unsigned int speed, unsigned int repetitions);
+		bool sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed, unsigned int repetitions);
 		bool stopOutput();
 		friend std::ostream& operator<<(std::ostream& os, const JMLaserProjector& dt);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <gets>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		inline static int getNumberOfProjectors() { return s_number_of_projectors_; }
+		inline unsigned int getProjectorListEntryIndex() const { return projector_list_entry_index_; }
+		inline int getProjectorHandle() const { return projector_handle_; }
+		inline bool isProjectorOutputStarted() const { return projector_output_started_; }
+		inline const std::string &getProjectorName() const { return projector_name_; }
+		inline const std::string &getProjectorNameFromHandle() const { return projector_name_from_handle_; }
+		inline const std::string &getProjectorFriendlyName() const { return projector_friendly_name_; }
+		inline const std::string &getProjectorFamilyName() const { return projector_family_name_; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </gets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

@@ -63,6 +63,7 @@ int JMLaserProjector::jmLaserBridgeEnumerateDevices() {
 }
 
 std::string JMLaserProjector::jmLaserBridgeGetDeviceListEntry(unsigned int list_index) {
+	if (list_index < 0) { return std::string(""); }
 	int device_name_length = jmLaserGetDeviceListEntryLength(list_index);
 	if (device_name_length == JMLASER_ERROR_NOT_ENUMERATED) {
 		if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return std::string(""); }
@@ -81,6 +82,7 @@ std::string JMLaserProjector::jmLaserBridgeGetDeviceListEntry(unsigned int list_
 }
 
 std::string JMLaserProjector::jmLaserBridgeGetDeviceName(int projector_handle) {
+	if (projector_handle < 0) { return std::string(""); }
 	int device_name_from_handle_length = jmLaserGetDeviceNameLength(projector_handle);
 	if (device_name_from_handle_length > 0) {
 		char *device_name_from_handle = new char[device_name_from_handle_length];
@@ -94,9 +96,8 @@ std::string JMLaserProjector::jmLaserBridgeGetDeviceName(int projector_handle) {
 	return std::string("");
 }
 
-std::string JMLaserProjector::jmLaserBridgeGetDeviceFamilyName(std::string projector_name) {
+std::string JMLaserProjector::jmLaserBridgeGetDeviceFamilyName(const std::string& projector_name) {
 	if (projector_name.empty()) { return std::string(""); }
-
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
 	int device_family_name_length = jmLaserGetDeviceFamilyNameLength(projector_name_c.data());
@@ -112,7 +113,7 @@ std::string JMLaserProjector::jmLaserBridgeGetDeviceFamilyName(std::string proje
 	return std::string("");
 }
 
-std::string JMLaserProjector::jmLaserBridgeGetFriendlyName(std::string projector_name) {
+std::string JMLaserProjector::jmLaserBridgeGetFriendlyName(const std::string& projector_name) {
 	if (projector_name.empty()) { return std::string(""); }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
@@ -129,14 +130,14 @@ std::string JMLaserProjector::jmLaserBridgeGetFriendlyName(std::string projector
 	return std::string("");
 }
 
-bool JMLaserProjector::jmLaserBridgeSetFriendlyName(int projector_handle, std::string projector_friendly_name) {
-	if (projector_friendly_name.empty()) { return false; }
+bool JMLaserProjector::jmLaserBridgeSetFriendlyName(int projector_handle, const std::string& projector_friendly_name) {
+	if (projector_handle < 0 || projector_friendly_name.empty()) { return false; }
 	std::vector<char> projector_friendly_name_c(projector_friendly_name.begin(), projector_friendly_name.end());
 	projector_friendly_name_c.push_back('\0');
 	return (jmLaserSetFriendlyName(projector_handle, projector_friendly_name_c.data()) == 0);
 }
 
-int JMLaserProjector::jmLaserBridgeOpenDevice(std::string projector_name) {
+int JMLaserProjector::jmLaserBridgeOpenDevice(const std::string& projector_name) {
 	if (projector_name.empty()) { return false; }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
@@ -154,7 +155,8 @@ bool JMLaserProjector::setupProjector() {
 	return false;
 }
 
-bool JMLaserProjector::setupProjectorUsingName(std::string projector_name) {
+bool JMLaserProjector::setupProjectorUsingName(const std::string& projector_name) {
+	if (projector_name.empty()) { return false; }
 	if (JMLaserProjector::s_number_of_projectors_ > 0) {
 		for (int i = 0; i < s_number_of_projectors_; ++i) {
 			if (JMLaserProjector::jmLaserBridgeGetDeviceListEntry(i) == projector_name) {
@@ -165,7 +167,8 @@ bool JMLaserProjector::setupProjectorUsingName(std::string projector_name) {
 	return false;
 }
 
-bool JMLaserProjector::setupProjectorUsingFriendlyName(std::string projector_friendly_name) {
+bool JMLaserProjector::setupProjectorUsingFriendlyName(const std::string& projector_friendly_name) {
+	if (projector_friendly_name.empty()) { return false; }
 	if (JMLaserProjector::s_number_of_projectors_ > 0) {
 		for (int i = 0; i < s_number_of_projectors_; ++i) {
 			std::string projector_name = JMLaserProjector::jmLaserBridgeGetDeviceListEntry(i);
@@ -178,6 +181,7 @@ bool JMLaserProjector::setupProjectorUsingFriendlyName(std::string projector_fri
 }
 
 bool JMLaserProjector::setupProjectorUsingIndex(unsigned int projector_index) {
+	if (projector_index < 0) { return false; }
 	resetProjector();
 	projector_list_entry_index_ = projector_index;
 	projector_name_ = JMLaserProjector::jmLaserBridgeGetDeviceListEntry(projector_index);
@@ -205,6 +209,18 @@ bool JMLaserProjector::closeProjector() {
 	return false;
 }
 
+
+bool JMLaserProjector::setProjectorFriendlyName(const std::string& projector_friendly_name) {
+	if (!projector_friendly_name.empty() && projector_handle_ >= 0) {
+		if (jmLaserBridgeSetFriendlyName(projector_handle_, projector_friendly_name)) {
+			projector_friendly_name_ = JMLaserProjector::jmLaserBridgeGetFriendlyName(projector_name_);
+			return !projector_friendly_name_.empty();
+		}
+	}
+	return false;
+}
+
+
 bool JMLaserProjector::startOutput() {
 	if (projector_handle_ >= 0) {
 		if (jmLaserStartOutput(projector_handle_) == 0) {
@@ -215,8 +231,8 @@ bool JMLaserProjector::startOutput() {
 	return false;
 }
 
-bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct> points, unsigned int speed, unsigned int repetitions) {
-	if (projector_handle_ >= 0 && !points.empty()) {
+bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed, unsigned int repetitions) {
+	if (projector_handle_ >= 0 && !points.empty() && speed > 0 && repetitions >= 0) {
 		int wait_status = jmLaserWaitForDeviceReady(projector_handle_);
 		if (wait_status == JMLASER_ERROR_OUTPUT_NOT_STARTED) {
 			if (startOutput()) {

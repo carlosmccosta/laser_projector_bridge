@@ -27,9 +27,14 @@ void test_jmlaser_projector(int number_of_projectors) {
 		laser_projector.setupProjector();
 		cout << laser_projector << "\n\n" << endl;
 
+		std::string friendly_name = laser_projector.getProjectorFriendlyName();
+		laser_projector.setProjectorFriendlyName(friendly_name + " TestFriendlyName");
+
 		cout << "setupProjectorUsingIndex(i)" << endl;
 		laser_projector.setupProjectorUsingIndex(i);
 		cout << laser_projector << "\n\n" << endl;
+
+		laser_projector.setProjectorFriendlyName(friendly_name);
 
 		cout << "setupProjectorUsingName(std::string(\"Netlase 1552 #0\"))" << endl;
 		laser_projector.setupProjectorUsingName(std::string("Netlase 1552 #0"));
