@@ -1,4 +1,6 @@
 http://www.mingw.org/wiki/createimportlibraries
+http://www.mingw.org/wiki/MSVC_and_MinGW_DLLs
+http://www.mingw.org/wiki/sampleDLL
 
 
 1
@@ -6,6 +8,9 @@ Open cmd
 
 
 2
+pexports jmlaser.dll > jmlaser.def
+
+or 
 dlltool -z jmlaser.def --export-all-symbol jmlaser.dll
 
 or use
@@ -23,11 +28,10 @@ function_3_name
 
 
 4
-dlltool -d jmlaser.def -l jmlaser.a
+dlltool -U -d jmlaser.def -l jmlaser.a
 
 
 5
 Create a header with the function declarations and prepend the following to each function:
 extern "C"
 
-http://www.mingw.org/wiki/sampleDLL

@@ -1,5 +1,12 @@
 #pragma once
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 /************************************************************************/
 /* DLL Macros                                                           */
 /************************************************************************/
@@ -7,13 +14,14 @@
 #define CALL_CONVENTION __stdcall
 //#define EXPORTING_DLL 1
 
-#ifdef EXPORTING_DLL
-	#define DLL_DECLSPEC __declspec(dllimport)
-#else
-	#define DLL_DECLSPEC __declspec(dllexport)
-#endif
+//#ifdef EXPORTING_DLL
+//	#define DLL_DECLSPEC __declspec(dllexport)
+//#else
+//	#define DLL_DECLSPEC __declspec(dllimport)
+//#endif
 
-#include <climits>
+#define DLL_DECLSPEC
+
 
 
 /************************************************************************/
@@ -34,32 +42,22 @@
 
 /************************************************************************/
 /* 16bit hardware resolution X/Y deflection value.                      */
-/* Represented in 32bit range: -2147483648 - 2147483647                 */
+/* Represented in 32bit range: [-2147483648, 2147483647]                */
 /************************************************************************/
 struct JMVectorStruct {
-	JMVectorStruct(int _x = 0, int _y = 0, unsigned short _i = 0,
-				   unsigned short _r = 0, unsigned short _g = 0, unsigned short _b = 0,
-				   unsigned short _deepblue = 0, unsigned short _yellow = 0, unsigned short _cyan = 0, unsigned short _user4 = 0) :
-			x(_x), y(_y),
-			r(_r), g(_g), b(_b), i(_i),
-			deepblue(_deepblue), yellow(_yellow), cyan(_cyan), user4(_user4) {}
-	int x;
-	int y;
-	unsigned short r;
-	unsigned short g;
-	unsigned short b;
-	unsigned short i;
-	unsigned short deepblue;
-	unsigned short yellow;
-	unsigned short cyan;
-	unsigned short user4;
+	int x;						// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
+	int y;						// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
+	unsigned short r;			// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short g;			// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short b;			// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short i;			// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short deepblue;	// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short yellow;		// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short cyan;		// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short user4;		// 8 bit unsigned	[0, UCHAR_MAX]
 };
 
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 /**
  * @brief Enumerate all output devices.

@@ -7,8 +7,4 @@ Open the "Developer Command Prompt for VS2015
 
 
 2
-CL /c /Ob0 jmlaser.cpp
-
-
-3
-LIB /def: jmlaser.obj /out:jmlaser.lib /machine:x86
+g++ -shared -o jmlaser.dll jmlaser.cpp -Wl,--out-implib,jmlaser.a

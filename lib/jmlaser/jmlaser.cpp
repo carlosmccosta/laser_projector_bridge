@@ -1,5 +1,13 @@
 #pragma once
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
+
 /************************************************************************/
 /* DLL Macros                                                           */
 /************************************************************************/
@@ -7,7 +15,6 @@
 #define CALL_CONVENTION __stdcall
 #define DLL_DECLSPEC __declspec(dllexport)
 
-#include <climits>
 
 
 /************************************************************************/
@@ -31,12 +38,6 @@
 /* Represented in 32bit range: -2147483648 - 2147483647                 */
 /************************************************************************/
 struct JMVectorStruct {
-	JMVectorStruct(int _x = 0, int _y = 0, unsigned short _i = 0,
-				   unsigned short _r = 0, unsigned short _g = 0, unsigned short _b = 0,
-				   unsigned short _deepblue = 0, unsigned short _yellow = 0, unsigned short _cyan = 0, unsigned short _user4 = 0) :
-			x(_x), y(_y),
-			r(_r), g(_g), b(_b), i(_i),
-			deepblue(_deepblue), yellow(_yellow), cyan(_cyan), user4(_user4) {}
 	int x;
 	int y;
 	unsigned short r;
@@ -49,11 +50,6 @@ struct JMVectorStruct {
 	unsigned short user4;
 };
 
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 DLL_DECLSPEC int CALL_CONVENTION jmLaserEnumerateDevices() { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntry(unsigned int index, char* deviceName, unsigned int length) { return 0; }
@@ -68,11 +64,14 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char* device
 DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char* deviceName) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDevice(int handle) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserStartOutput(int handle) { return 0; }
+DLL_DECLSPEC int CALL_CONVENTION jmLaserGetMaxFrameSize(int handle) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserWriteFrame(int handle, JMVectorStruct *vectors, unsigned int count, unsigned int speed, unsigned int repetitions) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserWaitForDeviceReady(int handle) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserIsDeviceReady(int handle) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserStopOutput(int handle) { return 0; }
 DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDll() { return 0; }
+
+
 
 #ifdef __cplusplus
 } // __cplusplus defined.

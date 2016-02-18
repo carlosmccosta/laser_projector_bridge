@@ -1,4 +1,4 @@
-LIBRARY jmlaser.dll
+LIBRARY JMLASER.dll
 EXPORTS
 EasyLaseClose
 EasyLaseDMXIn
@@ -52,6 +52,9 @@ NetLaseWriteFrameFC
 NetLaseWriteFrameNR
 NetLaseWriteFrameNRFC
 NetLaseWriteTTL
+_EasyLaseReConnect@4
+_MLOutClose@8
+_MLOutOpen@8
 jmLaserCloseDevice
 jmLaserCloseDll
 jmLaserDeviceIsInUse

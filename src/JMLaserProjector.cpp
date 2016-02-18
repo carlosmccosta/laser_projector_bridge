@@ -63,7 +63,6 @@ int JMLaserProjector::jmLaserBridgeEnumerateDevices() {
 }
 
 std::string JMLaserProjector::jmLaserBridgeGetDeviceListEntry(unsigned int list_index) {
-	if (list_index < 0) { return std::string(""); }
 	int device_name_length = jmLaserGetDeviceListEntryLength(list_index);
 	if (device_name_length == JMLASER_ERROR_NOT_ENUMERATED) {
 		if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return std::string(""); }

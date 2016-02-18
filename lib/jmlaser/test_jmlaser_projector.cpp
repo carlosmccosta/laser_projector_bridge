@@ -1,63 +1,75 @@
+#include <string>
 #include <iostream>
 #include <vector>
 #include <climits>
 #include <laser_projector_bridge/JMLaserProjector.h>
 
-using namespace std;
-using namespace laser_projector_bridge;
-
 
 void test_jmlaser_projector_without_enumeration() {
-	std::string projector_name = JMLaserProjector::jmLaserBridgeGetDeviceListEntry(0);
-	projector_name = JMLaserProjector::jmLaserBridgeGetDeviceListEntry(0);
-	cout << "Projector name: " << projector_name << endl;
+	std::string projector_name = laser_projector_bridge::JMLaserProjector::jmLaserBridgeGetDeviceListEntry(0);
+	projector_name = laser_projector_bridge::JMLaserProjector::jmLaserBridgeGetDeviceListEntry(0);
+	std::cout << "Projector name: " << projector_name << std::endl;
 }
 
 
-void test_jmlaser_projector(int number_of_projectors) {
+void test_jmlaser_projector_setup(int number_of_projectors) {
 	for (int i = 0; i < number_of_projectors; ++i) {
-		JMLaserProjector laser_projector;
+		laser_projector_bridge::JMLaserProjector laser_projector;
 
-		cout << ">>> |setupProjector()" << endl;
+		std::cout << ">>> |setupProjector()" << std::endl;
 		laser_projector.setupProjector();
-		cout << laser_projector << "\n\n" << endl;
+		std::cout << laser_projector << "\n\n" << std::endl;
 
 		std::string friendly_name = laser_projector.getProjectorFriendlyName();
 		laser_projector.setProjectorFriendlyName(friendly_name + " TestFriendlyName");
 
-		cout << ">>> |setupProjectorUsingIndex(i)" << endl;
+		std::cout << ">>> |setupProjectorUsingIndex(i)" << std::endl;
 		laser_projector.setupProjectorUsingIndex(i);
-		cout << laser_projector << "\n\n" << endl;
+		std::cout << laser_projector << "\n\n" << std::endl;
 
 		laser_projector.setProjectorFriendlyName(friendly_name);
 
-		cout << ">>> |setupProjectorUsingName(std::string(\"Netlase 1552 #0\"))" << endl;
+		std::cout << ">>> |setupProjectorUsingName(std::string(\"Netlase 1552 #0\"))" << std::endl;
 		laser_projector.setupProjectorUsingName(std::string("Netlase 1552 #0"));
-		cout << laser_projector << "\n\n" << endl;
+		std::cout << laser_projector << "\n\n" << std::endl;
 
-		cout << ">>> |setupProjectorUsingFriendlyName(std::string(\"ILP 622 LAN\"))" << endl;
+		std::cout << ">>> |setupProjectorUsingFriendlyName(std::string(\"ILP 622 LAN\"))" << std::endl;
 		laser_projector.setupProjectorUsingFriendlyName(std::string("ILP 622 LAN"));
-		cout << laser_projector << "\n\n" << endl;
+		std::cout << laser_projector << "\n\n" << std::endl;
 	}
 }
 
 
 void create_laser_output_pattern(std::vector<JMVectorStruct>& points) {
-//	points.push_back(JMVectorStruct(0, 0, USHRT_MAX));
-//	points.push_back(JMVectorStruct(0.1*INT_MAX, 0, USHRT_MAX));
-//	points.push_back(JMVectorStruct(0, 0, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX));
-//	points.push_back(JMVectorStruct(0.1*INT_MAX, 0, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX));
+	int position_limit = INT_MAX;
+	unsigned short color_limit = USHRT_MAX;
+	unsigned short limit_intensity = USHRT_MAX;
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.1), (int)(position_limit * 0.1), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.2), (int)(position_limit * 0.2), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
 
-//	points.push_back(JMVectorStruct(0, 0, UCHAR_MAX));
-//	points.push_back(JMVectorStruct(0.1*INT_MAX, 0, UCHAR_MAX));
-//	points.push_back(JMVectorStruct(0, 0, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX));
-//	points.push_back(JMVectorStruct(0.1*INT_MAX, 0, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX));
+	position_limit = SHRT_MAX;
+	color_limit = USHRT_MAX;
+	limit_intensity = USHRT_MAX;
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.1), (int)(position_limit * 0.1), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.2), (int)(position_limit * 0.2), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
 
-//	points.push_back(JMVectorStruct(0, 0, 100, 100, 100, 100, 100, 100, 100, 100));
-//	points.push_back(JMVectorStruct(0.1*INT_MAX, 0, 100, 100, 100, 100, 100, 100, 100, 100));
+	position_limit = 1000;
+	color_limit = UCHAR_MAX;
+	limit_intensity = UCHAR_MAX;
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.1), (int)(position_limit * 0.1), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.2), (int)(position_limit * 0.2), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
 
-	points.push_back(JMVectorStruct(100, 100, 100, 100, 100, 100, 100, 100, 100, 100));
-	points.push_back(JMVectorStruct(500, 500, 0, 100, 100, 100, 100, 100, 100, 100));
+	position_limit = 100;
+	color_limit = 100;
+	limit_intensity = 100;
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.1), (int)(position_limit * 0.1), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.2), (int)(position_limit * 0.2), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
+
+	position_limit = 10;
+	color_limit = 0;
+	limit_intensity = 100;
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.1), (int)(position_limit * 0.1), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
+	points.push_back(JMVectorStruct{(int)(position_limit * 0.2), (int)(position_limit * 0.2), color_limit, color_limit, color_limit, limit_intensity, color_limit, color_limit, color_limit, color_limit});
 }
 
 
@@ -66,17 +78,20 @@ void test_jmlaser_output(int number_of_projectors) {
 	create_laser_output_pattern(points);
 
 	for (int i = 0; i < number_of_projectors; ++i) {
-		JMLaserProjector laser_projector;
-
-		cout << ">>> |setupProjectorUsingIndex(i)" << endl;
+		laser_projector_bridge::JMLaserProjector laser_projector;
+		std::cout << ">>> |setupProjectorUsingIndex(i)" << std::endl;
 		laser_projector.setupProjectorUsingIndex(i);
-		cout << laser_projector << "\n\n" << endl;
-
-		cout << ">>> Sending pattern to projector" << endl;
 		laser_projector.startOutput();
-		if (laser_projector.sendVectorImageToProjector(points, 60000, 1000)) {
-			cout << ">>> Pattern was sent successfully" << endl;
+		std::cout << laser_projector << "\n\n" << std::endl;
+		std::cout << ">>> Sending pattern to projector " << i << std::endl;
+		if (laser_projector.sendVectorImageToProjector(points, 10000, 0)) {
+			std::cout << ">>> - Pattern was sent successfully" << std::endl;
+		} else {
+			std::cout << ">>> - Failed to send pattern" << std::endl;
 		}
+		std::cout << ">>> - Press ENTER to continue..." << std::endl;
+		std::string temp;
+		std::getline(std::cin, temp);
 		laser_projector.stopOutput();
 	}
 }
@@ -84,18 +99,18 @@ void test_jmlaser_output(int number_of_projectors) {
 
 
 int main(int argc, char **argv) {
-	cout << "===============================================================================" << endl;
-	cout << ">>>> Testing laser_projector_bridge::JMLaserProjector" << endl;
-	cout << "===============================================================================\n" << endl;
+	std::cout << "===============================================================================" << std::endl;
+	std::cout << ">>> Testing laser_projector_bridge::JMLaserProjector" << std::endl;
+	std::cout << "===============================================================================\n" << std::endl;
 
 //	test_jmlaser_projector_without_enumeration();
 
-	int number_of_projectors = JMLaserProjector::jmLaserBridgeEnumerateDevices();
+	int number_of_projectors = laser_projector_bridge::JMLaserProjector::jmLaserBridgeEnumerateDevices();
 	if (number_of_projectors <= 0) {
-		cout << ">>> No projectors were found!" << endl;
+		std::cout << ">>> No projectors were found!" << std::endl;
 		return -1;
 	} else {
-//		test_jmlaser_projector(number_of_projectors);
+//		test_jmlaser_projector_setup(number_of_projectors);
 		test_jmlaser_output(number_of_projectors);
 	}
 
