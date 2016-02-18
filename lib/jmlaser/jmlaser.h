@@ -8,23 +8,6 @@ extern "C"
 
 
 /************************************************************************/
-/* DLL Macros                                                           */
-/************************************************************************/
-
-#define CALL_CONVENTION __stdcall
-//#define EXPORTING_DLL 1
-
-//#ifdef EXPORTING_DLL
-//	#define DLL_DECLSPEC __declspec(dllexport)
-//#else
-//	#define DLL_DECLSPEC __declspec(dllimport)
-//#endif
-
-#define DLL_DECLSPEC
-
-
-
-/************************************************************************/
 /* Macros                                                               */
 /************************************************************************/
 #define JMLASER_DEVICE_READY 1
@@ -67,7 +50,7 @@ struct JMVectorStruct {
  * 
  * @return The number of devices found, which equal the device list length. A value less then 0 is returned on error.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserEnumerateDevices();
+int jmLaserEnumerateDevices();
 
 
 
@@ -86,7 +69,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserEnumerateDevices();
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this function.
  *
  * @param[in] index The index of the device list. Valid range is 0 to the length returned by jmLaserGetDeviceListEntryLength() - 1
- * @param[in] deviceName Buffer into which the device list entry will be placed. Has to be allocated by the application.
+ * @param[in] device_name Buffer into which the device list entry will be placed. Has to be allocated by the application.
  * @param[in] The length of the deviceName buffer including terminating zero.
  *
  * @return Returns 0 on success.
@@ -96,7 +79,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserEnumerateDevices();
  * - JMLASER_ERROR_OUT_OF_RANGE
  *   index is out of range
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntry(unsigned int index, char* deviceName, unsigned int length);
+int __stdcall jmLaserGetDeviceListEntry(unsigned int index, char* device_name, unsigned int length);
 
 
 
@@ -117,7 +100,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntry(unsigned int index, c
  * - JMLASER_ERROR_OUT_OF_RANGE
  *   index is out of range
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntryLength(unsigned int index);
+int __stdcall jmLaserGetDeviceListEntryLength(unsigned int index);
 
 
 
@@ -137,7 +120,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntryLength(unsigned int in
  * function. Additionally jmLaserEnumerateDevices() must have been called at least once.
  *
  * @param[in] handle A handle for an open output device as returned by jmLaserOpenDevice().
- * @param[in] _deviceName Buffer that the device's friendly name string will be placed into.
+ * @param[in] device_name Buffer that the device's friendly name string will be placed into.
  * @param[in] length Length of the deviceFriendlyName Buffer.
  * 
  * @return Returns 0 on success. A negative value indicates an error. Possible error codes include:
@@ -148,7 +131,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntryLength(unsigned int in
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceName(int handle, char* deviceName, unsigned int length);
+int __stdcall jmLaserGetDeviceName(int handle, char* device_name, unsigned int length);
 
 
 
@@ -171,7 +154,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceName(int handle, char* deviceNa
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceNameLength(int handle);
+int __stdcall jmLaserGetDeviceNameLength(int handle);
 
 
 
@@ -187,8 +170,8 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceNameLength(int handle);
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
  * function.
  *
- * @param[in] deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
- * @param[in] deviceFamilyName Buffer that the device's family name string will be placed into.
+ * @param[in] device_name A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ * @param[in] device_family_name Buffer that the device's family name string will be placed into.
  * @param[in] length Length of the deviceFamilyName Buffer.
  * 
  * @return Returns 0 on success. A negative value indicates an error. Possible error codes include
@@ -197,7 +180,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceNameLength(int handle);
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the name deviceName was not found.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char* deviceName, char* deviceFamilyName, unsigned int length);
+int __stdcall jmLaserGetDeviceFamilyName(char* device_name, char* device_family_name, unsigned int length);
 
 
 
@@ -209,7 +192,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char* deviceName, ch
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
  * function.
  *
- * @param[in] deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ * @param[in] device_name A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
  *
  * @return Returns the length of the device family name string, including terminating zero.
  *
@@ -219,8 +202,8 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char* deviceName, ch
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the name deviceName was not found.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyNameLength(char* deviceName);
-
+int __stdcall jmLaserGetDeviceFamilyNameLength(char* device_name);
+//int __userpurge jmLaserGetDeviceFamilyNameLength@<eax>(int a1@<esi>, void *a2);
 
 
 /**
@@ -238,8 +221,8 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyNameLength(char* deviceNa
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
  * function.
  *
- * @param[in] _deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
- * @param[in] _deviceFriendlyName Buffer that the device's friendly name string will be placed into.
+ * @param[in] device_name A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ * @param[in] device_friendly_name Buffer that the device's friendly name string will be placed into.
  * @param[in] length Length of the deviceFriendlyName Buffer.
  * 
  * @return Returns 0 on success. A negative value indicates an error. Possible error codes include
@@ -248,7 +231,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyNameLength(char* deviceNa
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the device name was not found.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char* deviceName, char* deviceFriendlyName, unsigned int length);
+int __stdcall jmLaserGetFriendlyName(char* device_name, char* device_friendly_name, unsigned int length);
 
 
 
@@ -262,7 +245,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char* deviceName, char* 
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
  * function.
  *
- * @param[in] deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ * @param[in] device_name A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
  *
  * @return Returns the length of the device friendly name string, including terminating zero.
  *
@@ -272,8 +255,8 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char* deviceName, char* 
  * - JMLASER_ERROR_DEVICE_NOT_FOUND
  *   A device with the name deviceName was not found.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char* deviceName);
-
+int __stdcall jmLaserGetFriendlyNameLength(char* device_name);
+//int __userpurge jmLaserGetFriendlyNameLength@<eax>(int a1@<esi>, void *a2);
 
 
 /**
@@ -288,7 +271,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char* deviceName);
  * jmLaserGetFriendlyNameLength().
  *
  * @param[in] handle A handle for an open output device as returned by jmLaserOpenDevice().
- * @param[in] _deviceFriendlyName Buffer that contains the device's friendly name string. This string is ASCII/UTF-8 encoded and zero-terminated.
+ * @param[in] device_friendly_name Buffer that contains the device's friendly name string. This string is ASCII/UTF-8 encoded and zero-terminated.
  *
  * @return Returns 0 on success. A negative value indicates an error. Possible error codes include
  * - JMLASER_ERROR_NOT_ENUMERATED
@@ -298,7 +281,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char* deviceName);
  * - JMLASER_ERROR_DEVICE_NOT_OPEN
  *   The device has not been opened with jmLaserOpenDevice() or has been removed.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char* deviceFriendlyName);
+int __stdcall jmLaserSetFriendlyName(int handle, char* device_friendly_name);
 
 
 
@@ -315,7 +298,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char* device
  * Only open the devices that you are going to use in your application. If you are done with the
  * device, close it using jmLaserCloseDevice().
  *
- * @param[in] _deviceName A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
+ * @param[in] device_name A device name string as returned by jmLaserGetDeviceName() or jmLaserGetDeviceListEntry().
  * 
  * @return Returns a device handle on success. A negative value indicates an error. Possible error codes include
  * - JMLASER_ERROR_NOT_ENUMERATED
@@ -327,7 +310,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char* device
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char* deviceName);
+int __stdcall jmLaserOpenDevice(char* device_name);
 
 
 
@@ -349,7 +332,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char* deviceName);
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDevice(int handle);
+int __stdcall jmLaserCloseDevice(int handle);
 
 
 
@@ -373,14 +356,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDevice(int handle);
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserStartOutput(int handle);
-
-
-
-/**
- * \brief query the maximum number of JMVectorStruct that a frame may contain
- */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetMaxFrameSize(int handle);
+int __stdcall jmLaserStartOutput(int handle);
 
 
 
@@ -428,7 +404,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserGetMaxFrameSize(int handle);
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserWriteFrame(int handle, JMVectorStruct *vectors, unsigned int count, unsigned int speed, unsigned int repetitions);
+int __stdcall jmLaserWriteFrame(int handle, JMVectorStruct *vectors, unsigned int count, unsigned int speed, unsigned int repetitions);
 
 
 
@@ -457,7 +433,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserWriteFrame(int handle, JMVectorStruct *v
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserWaitForDeviceReady(int handle);
+int __stdcall jmLaserWaitForDeviceReady(int handle);
 
 
 
@@ -488,7 +464,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserWaitForDeviceReady(int handle);
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserIsDeviceReady(int handle);
+int __stdcall jmLaserIsDeviceReady(int handle);
 
 
 
@@ -514,7 +490,7 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserIsDeviceReady(int handle);
  * - JMLASER_ERROR_IO
  *   IO Error
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserStopOutput(int handle);
+int __stdcall jmLaserStopOutput(int handle);
 
 
 
@@ -525,7 +501,35 @@ DLL_DECLSPEC int CALL_CONVENTION jmLaserStopOutput(int handle);
  *
  * @return 0 on success, a value less then 0 on error.
  */
-DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDll();
+int jmLaserCloseDll();
+
+
+int __stdcall jmLaserDeviceIsInUse(char* device_name);
+int __stdcall jmLaserDeviceIsRemote(char* device_name);
+int jmLaserGetDeviceListLength();
+int __stdcall jmLaserGetIsNetworkDevice(char* device_name);
+int __stdcall jmLaserGetMaxFrameSize(int handle);
+int __stdcall jmLaserGetMaxSpeed(int handle);
+int __stdcall jmLaserGetMinSpeed(int handle);
+int __stdcall jmLaserGetNetworkAddress(char* device_name, char* network_address, unsigned int length);
+int __stdcall jmLaserGetNetworkAddressLength(char* device_name);
+int __stdcall jmLaserGetNumColorChannels(int handle);
+int __stdcall jmLaserGetNumUniverses(int handle, bool a2);
+int __stdcall jmLaserGetNumUsedColorChannels(int handle);
+int __stdcall jmLaserGetSpeedStep(int handle);
+int __stdcall jmLaserGetUniverseName(int handle, bool a2, int a3, char* universe_name, unsigned int length);
+int __stdcall jmLaserGetUniverseNameLength(int handle, bool a2, int a3);
+int __stdcall jmLaserGetUniverseNumChannels(int handle, bool a2, int a3);
+int __stdcall jmLaserGetUniverseResolution(int handle, bool a2, int a3);
+int jmLaserOpenDll();
+int __stdcall jmLaserSetNumUsedColorChannels(int a1, int a2);
+int __cdecl jmLaserSetTerminalCallback(void *a1, int a2, int a3);
+int __stdcall jmLaserUniverseRead(int a1, char a2, int a3, int a4, int a5, int a6);
+int __stdcall jmLaserUniverseUpdate(int a1, char a2, int a3);
+int __stdcall jmLaserUniverseWrite(int a1, char a2, int a3, int a4, int a5, int a6);
+//signed int __userpurge jmLaserWriteFrameEL@<eax>(int a1@<ebx>, int a2@<edi>, int a3@<esi>, int a4, int a5, unsigned int a6, char a7, int a8);
+//signed int __userpurge jmLaserWriteFrameNL@<eax>(int a1@<ebx>, int a2@<edi>, int a3@<esi>, int a4, int a5, unsigned int a6, char a7, int a8);
+
 
 
 

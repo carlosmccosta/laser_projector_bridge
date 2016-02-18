@@ -7,16 +7,6 @@ extern "C"
 #endif
 
 
-
-/************************************************************************/
-/* DLL Macros                                                           */
-/************************************************************************/
-
-#define CALL_CONVENTION __stdcall
-#define DLL_DECLSPEC __declspec(dllexport)
-
-
-
 /************************************************************************/
 /* Macros                                                               */
 /************************************************************************/
@@ -51,25 +41,51 @@ struct JMVectorStruct {
 };
 
 
-DLL_DECLSPEC int CALL_CONVENTION jmLaserEnumerateDevices() { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntry(unsigned int index, char* deviceName, unsigned int length) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceListEntryLength(unsigned int index) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceName(int handle, char* deviceName, unsigned int length) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceNameLength(int handle) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyName(char* deviceName, char* deviceFamilyName, unsigned int length) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetDeviceFamilyNameLength(char* deviceName) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyName(char* deviceName, char* deviceFriendlyName, unsigned int length) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetFriendlyNameLength(char* deviceName) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserSetFriendlyName(int handle, char* deviceFriendlyName) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserOpenDevice(char* deviceName) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDevice(int handle) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserStartOutput(int handle) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserGetMaxFrameSize(int handle) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserWriteFrame(int handle, JMVectorStruct *vectors, unsigned int count, unsigned int speed, unsigned int repetitions) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserWaitForDeviceReady(int handle) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserIsDeviceReady(int handle) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserStopOutput(int handle) { return 0; }
-DLL_DECLSPEC int CALL_CONVENTION jmLaserCloseDll() { return 0; }
+int jmLaserEnumerateDevices() { return 0; }
+int __stdcall jmLaserGetDeviceListEntry(unsigned int index, char* device_name, unsigned int length) { return 0; }
+int __stdcall jmLaserGetDeviceListEntryLength(unsigned int index) { return 0; }
+int __stdcall jmLaserGetDeviceName(int handle, char* device_name, unsigned int length) { return 0; }
+int __stdcall jmLaserGetDeviceNameLength(int handle) { return 0; }
+int __stdcall jmLaserGetDeviceFamilyName(char* device_name, char* device_family_name, unsigned int length) { return 0; }
+int __stdcall jmLaserGetDeviceFamilyNameLength(char* device_name) { return 0; }
+//int __userpurge jmLaserGetDeviceFamilyNameLength@<eax>(int a1@<esi>, void *a2) { return 0; }
+int __stdcall jmLaserGetFriendlyName(char* device_name, char* device_friendly_name, unsigned int length) { return 0; }
+int __stdcall jmLaserGetFriendlyNameLength(char* device_name) { return 0; }
+//int __userpurge jmLaserGetFriendlyNameLength@<eax>(int a1@<esi>, void *a2) { return 0; }
+int __stdcall jmLaserSetFriendlyName(int handle, char* device_friendly_name) { return 0; }
+int __stdcall jmLaserOpenDevice(char* device_name) { return 0; }
+int __stdcall jmLaserCloseDevice(int handle) { return 0; }
+int __stdcall jmLaserStartOutput(int handle) { return 0; }
+int __stdcall jmLaserWriteFrame(int handle, JMVectorStruct *vectors, unsigned int count, unsigned int speed, unsigned int repetitions) { return 0; }
+int __stdcall jmLaserWaitForDeviceReady(int handle) { return 0; }
+int __stdcall jmLaserIsDeviceReady(int handle) { return 0; }
+int __stdcall jmLaserStopOutput(int handle) { return 0; }
+int jmLaserCloseDll() { return 0; }
+int __stdcall jmLaserDeviceIsInUse(char* device_name) { return 0; }
+int __stdcall jmLaserDeviceIsRemote(char* device_name) { return 0; }
+int jmLaserGetDeviceListLength() { return 0; }
+int __stdcall jmLaserGetIsNetworkDevice(char* device_name) { return 0; }
+int __stdcall jmLaserGetMaxFrameSize(int handle) { return 0; }
+int __stdcall jmLaserGetMaxSpeed(int handle) { return 0; }
+int __stdcall jmLaserGetMinSpeed(int handle) { return 0; }
+int __stdcall jmLaserGetNetworkAddress(char* device_name, char* network_address, unsigned int length) { return 0; }
+int __stdcall jmLaserGetNetworkAddressLength(char* device_name) { return 0; }
+int __stdcall jmLaserGetNumColorChannels(int handle) { return 0; }
+int __stdcall jmLaserGetNumUniverses(int handle, bool a2) { return 0; }
+int __stdcall jmLaserGetNumUsedColorChannels(int handle) { return 0; }
+int __stdcall jmLaserGetSpeedStep(int handle) { return 0; }
+int __stdcall jmLaserGetUniverseName(int handle, bool a2, int a3, char* universe_name, unsigned int length) { return 0; }
+int __stdcall jmLaserGetUniverseNameLength(int handle, bool a2, int a3) { return 0; }
+int __stdcall jmLaserGetUniverseNumChannels(int handle, bool a2, int a3) { return 0; }
+int __stdcall jmLaserGetUniverseResolution(int handle, bool a2, int a3) { return 0; }
+int jmLaserOpenDll() { return 0; }
+int __stdcall jmLaserSetNumUsedColorChannels(int a1, int a2) { return 0; }
+int __cdecl jmLaserSetTerminalCallback(void *a1, int a2, int a3) { return 0; }
+int __stdcall jmLaserUniverseRead(int a1, char a2, int a3, int a4, int a5, int a6) { return 0; }
+int __stdcall jmLaserUniverseUpdate(int a1, char a2, int a3) { return 0; }
+int __stdcall jmLaserUniverseWrite(int a1, char a2, int a3, int a4, int a5, int a6) { return 0; }
+//signed int __userpurge jmLaserWriteFrameEL@<eax>(int a1@<ebx>, int a2@<edi>, int a3@<esi>, int a4, int a5, unsigned int a6, char a7, int a8) { return 0; }
+//signed int __userpurge jmLaserWriteFrameNL@<eax>(int a1@<ebx>, int a2@<edi>, int a3@<esi>, int a4, int a5, unsigned int a6, char a7, int a8) { return 0; }
 
 
 
