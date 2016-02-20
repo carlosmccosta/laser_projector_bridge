@@ -20,14 +20,14 @@ void test_jmlaser_projector_setup(int number_of_projectors) {
 		laser_projector.setupProjector();
 		std::cout << laser_projector << "\n\n" << std::endl;
 
-		std::string friendly_name = laser_projector.getProjectorFriendlyName();
-		laser_projector.setProjectorFriendlyName(friendly_name + " TestFriendlyName");
+//		std::string friendly_name = laser_projector.getProjectorFriendlyName();
+//		laser_projector.setProjectorFriendlyName("Test Name");
 
 		std::cout << ">>> |setupProjectorUsingIndex(i)" << std::endl;
 		laser_projector.setupProjectorUsingIndex(i);
 		std::cout << laser_projector << "\n\n" << std::endl;
 
-		laser_projector.setProjectorFriendlyName(friendly_name);
+//		laser_projector.setProjectorFriendlyName(friendly_name);
 
 		std::cout << ">>> |setupProjectorUsingName(std::string(\"Netlase 1552 #0\"))" << std::endl;
 		laser_projector.setupProjectorUsingName(std::string("Netlase 1552 #0"));
@@ -146,14 +146,14 @@ int main(int argc, char **argv) {
 
 	laser_projector_bridge::JMLaserProjector::jmLaserBridgeOpenDll();
 
-//	test_jmlaser_projector_without_enumeration();
+	test_jmlaser_projector_without_enumeration();
 
 	int number_of_projectors = laser_projector_bridge::JMLaserProjector::jmLaserBridgeEnumerateDevices();
 	if (number_of_projectors <= 0) {
 		std::cout << ">>> No projectors were found!" << std::endl;
 		return -1;
 	} else {
-//		test_jmlaser_projector_setup(number_of_projectors);
+		test_jmlaser_projector_setup(number_of_projectors);
 		test_jmlaser_output(number_of_projectors);
 	}
 

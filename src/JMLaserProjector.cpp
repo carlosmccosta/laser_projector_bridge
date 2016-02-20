@@ -80,6 +80,7 @@ int JMLaserProjector::jmLaserBridgeEnumerateDevices() {
 }
 
 std::string JMLaserProjector::jmLaserBridgeGetDeviceListEntry(unsigned int list_index) {
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return std::string(""); }
 	int device_name_length = jmLaserGetDeviceListEntryLength(list_index);
 	if (device_name_length == JMLASER_ERROR_NOT_ENUMERATED) {
 		if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return std::string(""); }
@@ -114,6 +115,7 @@ std::string JMLaserProjector::jmLaserBridgeGetDeviceName(int projector_handle) {
 
 std::string JMLaserProjector::jmLaserBridgeGetDeviceFamilyName(const std::string& projector_name) {
 	if (projector_name.empty()) { return std::string(""); }
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return std::string(""); }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
 	int device_family_name_length = jmLaserGetDeviceFamilyNameLength(projector_name_c.data());
@@ -131,6 +133,7 @@ std::string JMLaserProjector::jmLaserBridgeGetDeviceFamilyName(const std::string
 
 std::string JMLaserProjector::jmLaserBridgeGetFriendlyName(const std::string& projector_name) {
 	if (projector_name.empty()) { return std::string(""); }
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return std::string(""); }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
 	int device_friendly_name_length = jmLaserGetFriendlyNameLength(projector_name_c.data());
@@ -148,6 +151,7 @@ std::string JMLaserProjector::jmLaserBridgeGetFriendlyName(const std::string& pr
 
 bool JMLaserProjector::jmLaserBridgeSetFriendlyName(int projector_handle, const std::string& projector_friendly_name) {
 	if (projector_handle < 0 || projector_friendly_name.empty()) { return false; }
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return false; }
 	std::vector<char> projector_friendly_name_c(projector_friendly_name.begin(), projector_friendly_name.end());
 	projector_friendly_name_c.push_back('\0');
 	return (jmLaserSetFriendlyName(projector_handle, projector_friendly_name_c.data()) == 0);
@@ -155,6 +159,7 @@ bool JMLaserProjector::jmLaserBridgeSetFriendlyName(int projector_handle, const 
 
 int JMLaserProjector::jmLaserBridgeOpenDevice(const std::string& projector_name) {
 	if (projector_name.empty()) { return false; }
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return false; }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
 	return jmLaserOpenDevice(projector_name_c.data());
@@ -173,6 +178,7 @@ int JMLaserProjector::jmLaserBridgeGetDeviceListLength() {
 
 bool JMLaserProjector::jmLaserBridgeGetIsNetworkDevice(const std::string& projector_name) {
 	if (projector_name.empty()) { return false; }
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return false; }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
 	return (jmLaserGetIsNetworkDevice(projector_name_c.data()) == 1);
@@ -180,6 +186,7 @@ bool JMLaserProjector::jmLaserBridgeGetIsNetworkDevice(const std::string& projec
 
 std::string JMLaserProjector::jmLaserBridgeGetNetworkAddress(const std::string& projector_name) {
 	if (projector_name.empty()) { return std::string(""); }
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return std::string(""); }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
 	int network_address_length = jmLaserGetNetworkAddressLength(projector_name_c.data());
@@ -207,10 +214,10 @@ int JMLaserProjector::jmLaserBridgeGetSpeedStep(int projector_handle) {
 	return jmLaserGetSpeedStep(projector_handle);
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 JMVectorStruct JMLaserProjector::createSingleColorLaserPoint(int x, int y, unsigned short intensity) {
 	return JMVectorStruct{x, y, 0, 0, 0, intensity, 0, 0, 0, 0};
 }
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
