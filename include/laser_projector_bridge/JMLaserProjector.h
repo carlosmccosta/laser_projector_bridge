@@ -55,7 +55,8 @@ class JMLaserProjector {
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </constructors-destructor>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+		static int jmLaserBridgeOpenDll();
+		static int jmLaserBridgeCloseDll();
 		/**
 		 * Should be called only once when all the projectors are connected.
 		 * jmLaserEnumerateDevices is not able to update the list when a new projector is connected.
@@ -71,6 +72,13 @@ class JMLaserProjector {
 		static bool jmLaserBridgeSetFriendlyName(int projector_handle, const std::string& projector_friendly_name);
 		static int jmLaserBridgeOpenDevice(const std::string& projector_name);
 		static int jmLaserBridgeGetMaxFrameSize(int projector_handle);
+		static int jmLaserBridgeGetDeviceListLength();
+		static bool jmLaserBridgeGetIsNetworkDevice(const std::string& projector_name);
+		static std::string jmLaserBridgeGetNetworkAddress(const std::string& projector_name);
+		static int jmLaserBridgeGetMinSpeed(int projector_handle);
+		static int jmLaserBridgeGetMaxSpeed(int projector_handle);
+		static int jmLaserBridgeGetSpeedStep(int projector_handle);
+		static JMVectorStruct createSingleColorLaserPoint(int x, int y, unsigned short intensity);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -91,16 +99,22 @@ class JMLaserProjector {
 		inline static int getNumberOfProjectors() { return s_number_of_projectors_; }
 		inline unsigned int getProjectorListEntryIndex() const { return projector_list_entry_index_; }
 		inline int getProjectorHandle() const { return projector_handle_; }
-		inline int getMaximumNumberOfVectorsPerFrame() const { return maximum_number_of_vectors_per_frame_; }
+		inline int getProjectorMaximumNumberOfVectorsPerFrame() const { return projector_maximum_number_of_vectors_per_frame_; }
+		inline int getProjectorMinimumSpeed() const { return projector_minimum_speed_; }
+		inline int getProjectorMaximumSpeed() const { return projector_maximum_speed_; }
+		inline int getProjectorSpeedStep() const { return projector_speed_step_; }
+		inline const std::string& getProjectorNetworkAddress() const { return projector_network_address_; }
+		inline const std::string& getProjectorName() const { return projector_name_; }
+		inline const std::string& getProjectorNameFromHandle() const { return projector_name_from_handle_; }
+		inline const std::string& getProjectorFriendlyName() const { return projector_friendly_name_; }
+		inline const std::string& getProjectorFamilyName() const { return projector_family_name_; }
 		inline bool isProjectorOutputStarted() const { return projector_output_started_; }
-		inline const std::string &getProjectorName() const { return projector_name_; }
-		inline const std::string &getProjectorNameFromHandle() const { return projector_name_from_handle_; }
-		inline const std::string &getProjectorFriendlyName() const { return projector_friendly_name_; }
-		inline const std::string &getProjectorFamilyName() const { return projector_family_name_; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </gets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <sets>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		inline void setProjector_minimum_speed_(int projector_minimum_speed) { if (projector_minimum_speed > projector_minimum_speed_) projector_minimum_speed_ = projector_minimum_speed; }
+		inline void setProjector_maximum_speed_(int projector_maximum_speed) { if (projector_maximum_speed < projector_maximum_speed_) projector_maximum_speed_ = projector_maximum_speed; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </sets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// ============================================================================   </public-section>   =========================================================================
 
@@ -110,12 +124,16 @@ class JMLaserProjector {
 		static int s_number_of_projectors_;
 		unsigned int projector_list_entry_index_;
 		int projector_handle_;
-		int maximum_number_of_vectors_per_frame_;
-		bool projector_output_started_;
+		int projector_maximum_number_of_vectors_per_frame_;
+		int projector_minimum_speed_;
+		int projector_maximum_speed_;
+		int projector_speed_step_;
+		std::string projector_network_address_;
 		std::string projector_name_;
 		std::string projector_name_from_handle_;
 		std::string projector_friendly_name_;
 		std::string projector_family_name_;
+		bool projector_output_started_;
 	// ============================================================================   <protected-section>   =======================================================================
 };
 

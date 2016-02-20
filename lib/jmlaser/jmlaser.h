@@ -532,7 +532,6 @@ int __stdcall jmLaserUniverseWrite(int a1, char a2, int a3, int a4, int a5, int 
 
 
 
-
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
