@@ -316,7 +316,7 @@ bool JMLaserProjector::startOutput() {
 }
 
 bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed, unsigned int repetitions) {
-	if (projector_handle_ >= 0 && !points.empty() && speed >= projector_minimum_speed_ && speed <= projector_maximum_speed_ && repetitions >= 0 && projector_maximum_number_of_vectors_per_frame_ > 0) {
+	if (projector_handle_ >= 0 && !points.empty() /*&& speed >= projector_minimum_speed_*/ && speed <= projector_maximum_speed_ && repetitions >= 0 && projector_maximum_number_of_vectors_per_frame_ > 0) {
 		if (points.size() > (size_t)projector_maximum_number_of_vectors_per_frame_) {
 			points.resize((size_t)projector_maximum_number_of_vectors_per_frame_);
 		}
