@@ -1,8 +1,8 @@
+#include <laser_projector_bridge/jmlaser_projector.h>
 #include <string>
 #include <iostream>
 #include <vector>
 #include <climits>
-#include <laser_projector_bridge/JMLaserProjector.h>
 
 
 void test_jmlaser_projector_without_enumeration() {

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<package>
+	<name>laser_projector_bridge</name>
+	<version>1.0.0</version>
+	<description>Package that allows to output vector / raster images to laser projectors</description>
+	<author email="carloscosta.cmcc@gmail.com">Carlos Miguel Correia da Costa</author>
+	<maintainer email="carloscosta.cmcc@gmail.com">Carlos Miguel Correia da Costa</maintainer>
+	<license>BSD</license>
+
+
+
+	<!-- ################################################################## -->
+	<!-- Build system -->
+	<!-- ################################################################## -->
+
+	<buildtool_depend>cmake</buildtool_depend>
+	<buildtool_depend>pkg-config</buildtool_depend>
+	<run_depend>catkin</run_depend>
+
+
+
+	<!-- ################################################################## -->
+	<!-- Build dependencies -->
+	<!-- ################################################################## -->
+
+	<build_depend>libopencv-dev</build_depend>
+
+
+
+	<!-- ################################################################## -->
+	<!-- Run dependencies -->
+	<!-- ################################################################## -->
+
+	<run_depend>libopencv-dev</run_depend>
+
+
+
+	<export>
+		<build_type>cmake</build_type>
+	</export>
+</package>
