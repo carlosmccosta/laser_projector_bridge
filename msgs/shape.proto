@@ -1,0 +1,7 @@
+package laser_projector_bridge;
+
+import "point.proto";
+
+message Shape {
+	repeated Point points = 1;
+}

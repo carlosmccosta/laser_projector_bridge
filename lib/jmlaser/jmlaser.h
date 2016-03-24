@@ -29,7 +29,7 @@ extern "C"
 /************************************************************************/
 struct JMVectorStruct {
 	int x;						// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
-	int y;						// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
+	int y;						// 32 bit signed, 0 is center of Y axis projection	[-INT_MAX, INT_MAX]
 	unsigned short r;			// 8 bit unsigned	[0, UCHAR_MAX]
 	unsigned short g;			// 8 bit unsigned	[0, UCHAR_MAX]
 	unsigned short b;			// 8 bit unsigned	[0, UCHAR_MAX]
@@ -138,7 +138,7 @@ int __stdcall jmLaserGetDeviceName(int handle, char* device_name, unsigned int l
 /**
  * @brief Get device name length.
  *
- * This function may be called before jmLaserGetDeviceName() to get the length of the device’s
+ * This function may be called before jmLaserGetDeviceName() to get the length of the device���s
  * name.
  * The output device must have been opened with jmLaserOpenDevice() prior to calling this
  * function. Additionally jmLaserEnumerateDevices() must have been called at least once.
@@ -187,7 +187,7 @@ int __stdcall jmLaserGetDeviceFamilyName(char* device_name, char* device_family_
 /**
  * @brief Get device family name length.
  *
- * This function may be called before jmLaserGetDeviceFamilyName() to get the length of the device’s
+ * This function may be called before jmLaserGetDeviceFamilyName() to get the length of the device���s
  * family name.
  * The jmLaserEnumerateDevices() must have been called at least once prior to calling this
  * function.

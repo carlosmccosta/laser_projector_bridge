@@ -28,6 +28,9 @@ if(BUILD_IMAGE_TRACER)
     find_package(OpenCV REQUIRED)
 endif()
 
+if(BUILD_PROTO_MSGS)
+    find_package(Protobuf REQUIRED)
+endif()
 
 
 #==================================================================================================
@@ -58,8 +61,26 @@ if(BUILD_IMAGE_TRACER)
     link_directories(${OpenCV_LIBRARY_DIRS})
 endif()
 
+if(BUILD_PROTO_MSGS)
+    include_directories(${CMAKE_BINARY_DIR})
+    include_directories(${PROTOBUF_INCLUDE_DIRS})
+endif()
+
 include(GNUInstallDirs)
 
+
+
+#==================================================================================================
+# Google Protocol Buffers Messages
+#==================================================================================================
+
+if(BUILD_PROTO_MSGS)
+    PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
+        msgs/point.proto
+        msgs/shape.proto
+        msgs/vector_image.proto
+    )
+endif()
 
 
 #==================================================================================================
@@ -82,6 +103,12 @@ endif()
 if(BUILD_IMAGE_TRACER)
     add_library(image_tracer SHARED src/image_tracer.cpp)
     LIST(APPEND ${PROJECT_NAME}-libraries image_tracer)
+endif()
+
+
+if(BUILD_PROTO_MSGS)
+    add_library(laser_projector_bridge_msgs SHARED ${PROTO_SRCS} ${PROTO_HDRS})
+    LIST(APPEND ${PROJECT_NAME}-libraries laser_projector_bridge_msgs)
 endif()
 
 
@@ -137,8 +164,12 @@ endif()
 
 if(DEFINED ${PROJECT_NAME}-libraries)
     install(TARGETS ${${PROJECT_NAME}-libraries} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib EXPORT ${PROJECT_NAME}-config)
-    install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME} FILES_MATCHING PATTERN "*.h")
+    install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
     install(EXPORT ${PROJECT_NAME}-config DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+endif()
+
+if(BUILD_PROTO_MSGS)
+    install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
 endif()
 
 

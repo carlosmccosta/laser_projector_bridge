@@ -1,0 +1,7 @@
+package laser_projector_bridge;
+
+import "shape.proto";
+
+message VectorImage {
+	repeated Shape shapes = 1;
+}

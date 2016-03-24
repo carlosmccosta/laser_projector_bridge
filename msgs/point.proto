@@ -1,0 +1,10 @@
+package laser_projector_bridge;
+
+message Point {
+	optional  int32 x = 1 [default = 0];	// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
+	optional  int32 y = 2 [default = 0];	// 32 bit signed, 0 is center of Y axis projection	[-INT_MAX, INT_MAX]
+	optional uint32 r = 3 [default = 0];	// 8 bit unsigned	[0, UCHAR_MAX]
+	optional uint32 g = 4 [default = 255];	// 8 bit unsigned	[0, UCHAR_MAX]
+	optional uint32 b = 5 [default = 0];	// 8 bit unsigned	[0, UCHAR_MAX]
+	optional uint32 i = 6 [default = 255];	// 8 bit unsigned	[0, UCHAR_MAX]
+}
