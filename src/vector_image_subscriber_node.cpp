@@ -13,8 +13,8 @@
 // ###################################################################################   <main>   ##############################################################################
 int main(int argc, char** argv) {
 	laser_projector_bridge::VectorImageSubscriber subscriber;
-	if (subscriber.setupServerFromCommandLineConfiguration(argc, argv)) {
-		subscriber.startServer();
+	if (subscriber.setupSubscriberFromCommandLine(argc, argv)) {
+		subscriber.startSubscriber();
 	} else {
 		std::cerr << "Failed to load configuration!\nUsage: " << subscriber.getCommandLineConfigurationLayout() << std::endl;
 	}

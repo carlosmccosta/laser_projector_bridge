@@ -24,10 +24,10 @@ VectorImageSubscriber::VectorImageSubscriber() :
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <VectorImageServer-functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 std::string VectorImageSubscriber::getCommandLineConfigurationLayout() {
-	return std::string("<laser_projector_friendly_name> [zmq_server_port] [zmq_host] [zmq_protocol]");
+	return std::string("<laser_projector_friendly_name> [zmq_port] [zmq_host] [zmq_protocol]");
 }
 
-bool VectorImageSubscriber::setupServerFromCommandLineConfiguration(int _argc, char** _argv) {
+bool VectorImageSubscriber::setupSubscriberFromCommandLine(int _argc, char** _argv) {
 	if (_argc < 2) { return false; }
 
 	if (setupLaserProjector(std::string(_argv[1]))) {
@@ -66,13 +66,14 @@ bool VectorImageSubscriber::setupLaserProjector(std::string _projector_friendly_
 		laser_projector_initialized_ = true;
 	}
 
-	return false;
+	return true;
 }
 
-void VectorImageSubscriber::startServer() {
+void VectorImageSubscriber::startSubscriber() {
 	if (zmq_initialized_ && laser_projector_initialized_) {
 		while (keep_processing_new_msgs_) {
 			zmq::message_t msg;
+			std::cout << "Waiting for new msg" << std::endl;
 			if (zmq_subscriber_.recv(&msg)) {
 				processMessage(msg);
 			}
@@ -81,8 +82,9 @@ void VectorImageSubscriber::startServer() {
 }
 
 bool VectorImageSubscriber::processMessage(zmq::message_t& msg) {
-	std::cout << "Received msg with size " << msg.size() << std::endl;
-	return false;
+	std::string msg_str = std::string(static_cast<char*>(msg.data()), msg.size());
+	std::cout << "Received msg [" << msg_str << "] with size " << msg.size() << std::endl;
+	return true;
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </VectorImageServer-functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // =============================================================================  </public-section>  ===========================================================================

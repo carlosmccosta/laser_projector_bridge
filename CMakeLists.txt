@@ -120,6 +120,9 @@ if(BUILD_NETWORK_BRIDGE)
 
     add_library(vector_image_subscriber SHARED src/vector_image_subscriber.cpp)
     LIST(APPEND ${PROJECT_NAME}-libraries vector_image_subscriber)
+    
+    add_library(vector_image_publisher SHARED src/vector_image_publisher.cpp)
+    LIST(APPEND ${PROJECT_NAME}-libraries vector_image_publisher)
 endif()
 
 
@@ -166,6 +169,7 @@ endif()
 if(BUILD_NETWORK_BRIDGE)
     target_link_libraries(vector_image_subscriber ${ZMQ_LIBRARIES})
     target_link_libraries(vector_image_subscriber_node vector_image_subscriber)
+    target_link_libraries(vector_image_publisher ${ZMQ_LIBRARIES})
 endif()
 
 

@@ -1,6 +1,6 @@
 #pragma once
 
-/**\file vector_image_subscriber.h
+/**\file vector_image_publisher.h
  * \brief Description...
  *
  * @version 1.0
@@ -17,30 +17,27 @@
 #include <zmq.hpp>
 
 // project includes
-
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </includes>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+
 namespace laser_projector_bridge {
-// ########################################################################   vector_image_subscriber   ########################################################################
+// #########################################################################   vector_image_publisher   ########################################################################
 /**
  * \brief Description...
  */
-class VectorImageSubscriber {
+class VectorImagePublisher {
 	// ========================================================================   <public-section>   ===========================================================================
 	public:
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <constructors-destructor>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-		VectorImageSubscriber();
-		virtual ~VectorImageSubscriber() {}
+		VectorImagePublisher();
+		virtual ~VectorImagePublisher() {}
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </constructors-destructor>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <VectorImageSubscriber-functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-		std::string getCommandLineConfigurationLayout();
-		bool setupSubscriberFromCommandLine(int _argc, char** _argv);
-		bool setupZMQ(int _port = 1337, std::string _host = std::string("localhost"), std::string _protocol = std::string("tcp"));
-		bool setupLaserProjector(std::string _projector_friendly_name);
-		void startSubscriber();
-		bool processMessage(zmq::message_t& msg);
-		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </VectorImageSubscriber-functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <VectorImagePublisher-functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		bool setupZMQ(int _port = 1337, std::string _host = std::string("*"), std::string _protocol = std::string("tcp"));
+		bool sendMessage(const std::string& msg);
+		bool sendMessage(zmq::message_t& msg);
+		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </VectorImagePublisher-functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <gets>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </gets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -52,10 +49,8 @@ class VectorImageSubscriber {
 	// ========================================================================   <protected-section>   ========================================================================
 	protected:
 		zmq::context_t zmq_context_;
-		zmq::socket_t zmq_subscriber_;
+		zmq::socket_t zmq_publisher_;
 		bool zmq_initialized_;
-		bool laser_projector_initialized_;
-		bool keep_processing_new_msgs_;
 	// ========================================================================   </protected-section>  ========================================================================
 };
 
