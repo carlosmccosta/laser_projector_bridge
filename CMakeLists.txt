@@ -16,7 +16,7 @@ else()
     option(BUILD_IMAGE_TRACER "Build the image tracer library" ON)
 endif()
 
-option(BUILD_PROTO_MSGS "Build the Google Protocol Buffers messages" ON)
+option(BUILD_NETWORK_BRIDGE "Build the Google Protocol Buffers messages" ON)
 
 
 
@@ -28,8 +28,14 @@ if(BUILD_IMAGE_TRACER)
     find_package(OpenCV REQUIRED)
 endif()
 
-if(BUILD_PROTO_MSGS)
+if(BUILD_NETWORK_BRIDGE)
     find_package(Protobuf REQUIRED)
+    find_path(ZMQ_INCLUDE_DIR zmq.h)
+    find_library(ZMQ_LIBRARY NAMES zmq)
+    set(ZMQ_LIBRARIES ${ZMQ_LIBRARY})
+    set( ZMQ_INCLUDE_DIRS ${ZMQ_INCLUDE_DIR})
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(ZMQ DEFAULT_MSG ZMQ_LIBRARY ZMQ_INCLUDE_DIR)
 endif()
 
 
@@ -61,9 +67,10 @@ if(BUILD_IMAGE_TRACER)
     link_directories(${OpenCV_LIBRARY_DIRS})
 endif()
 
-if(BUILD_PROTO_MSGS)
+if(BUILD_NETWORK_BRIDGE)
     include_directories(${CMAKE_BINARY_DIR})
     include_directories(${PROTOBUF_INCLUDE_DIRS})
+    include_directories(${ZMQ_INCLUDE_DIRS})
 endif()
 
 include(GNUInstallDirs)
@@ -74,7 +81,7 @@ include(GNUInstallDirs)
 # Google Protocol Buffers Messages
 #==================================================================================================
 
-if(BUILD_PROTO_MSGS)
+if(BUILD_NETWORK_BRIDGE)
     PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
         msgs/point.proto
         msgs/shape.proto
@@ -90,13 +97,14 @@ endif()
 if(BUILD_JMLASER_PROJECTOR_LIB)
     add_library(jmlaser SHARED IMPORTED)
     set_property(TARGET jmlaser PROPERTY IMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/lib/jmlaser/jmlaser.dll)
+
+    add_library(jmlaser_projector SHARED src/jmlaser_projector.cpp)
+    LIST(APPEND ${PROJECT_NAME}-libraries jmlaser_projector)
+
     add_custom_command(TARGET jmlaser_projector POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${PROJECT_SOURCE_DIR}/lib/jmlaser/jmlaser.dll"
         ${CMAKE_BINARY_DIR})
-
-    add_library(jmlaser_projector SHARED src/jmlaser_projector.cpp)
-    LIST(APPEND ${PROJECT_NAME}-libraries jmlaser_projector)
 endif()
 
 
@@ -106,15 +114,23 @@ if(BUILD_IMAGE_TRACER)
 endif()
 
 
-if(BUILD_PROTO_MSGS)
+if(BUILD_NETWORK_BRIDGE)
     add_library(laser_projector_bridge_msgs SHARED ${PROTO_SRCS} ${PROTO_HDRS})
     LIST(APPEND ${PROJECT_NAME}-libraries laser_projector_bridge_msgs)
+
+    add_library(vector_image_subscriber SHARED src/vector_image_subscriber.cpp)
+    LIST(APPEND ${PROJECT_NAME}-libraries vector_image_subscriber)
 endif()
 
 
 #==================================================================================================
 # executables
 #==================================================================================================
+
+if(BUILD_NETWORK_BRIDGE)
+    add_executable(vector_image_subscriber_node src/vector_image_subscriber_node.cpp)
+    LIST(APPEND ${PROJECT_NAME}-executables vector_image_subscriber_node)
+endif()
 
 
 
@@ -147,6 +163,11 @@ endif()
 # executables link
 #==================================================================================================
 
+if(BUILD_NETWORK_BRIDGE)
+    target_link_libraries(vector_image_subscriber ${ZMQ_LIBRARIES})
+    target_link_libraries(vector_image_subscriber_node vector_image_subscriber)
+endif()
+
 
 
 #==================================================================================================
@@ -168,7 +189,7 @@ if(DEFINED ${PROJECT_NAME}-libraries)
     install(EXPORT ${PROJECT_NAME}-config DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 endif()
 
-if(BUILD_PROTO_MSGS)
+if(BUILD_NETWORK_BRIDGE)
     install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
 endif()
 
