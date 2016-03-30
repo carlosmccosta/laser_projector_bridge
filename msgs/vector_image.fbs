@@ -1,0 +1,20 @@
+namespace laser_projector_bridge.msgs;
+
+table Point {
+	x:int;	// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
+	y:int;	// 32 bit signed, 0 is center of Y axis projection	[-INT_MAX, INT_MAX]
+	r:ubyte = 0;	// red,			8 bit unsigned	[0, UCHAR_MAX]
+	g:ubyte = 255;	// green,		8 bit unsigned	[0, UCHAR_MAX]
+	b:ubyte = 0;	// blue,		8 bit unsigned	[0, UCHAR_MAX]
+	i:ubyte = 255;	// intensity,	8 bit unsigned	[0, UCHAR_MAX]
+}
+
+table Shape {
+	points:[Point];
+}
+
+table VectorImage {
+	shapes:[Shape];
+}
+
+root_type VectorImage;

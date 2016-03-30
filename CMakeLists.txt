@@ -28,15 +28,19 @@ if(BUILD_IMAGE_TRACER)
     find_package(OpenCV REQUIRED)
 endif()
 
+
 if(BUILD_NETWORK_BRIDGE)
-    find_package(Protobuf REQUIRED)
+    get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} PATH)
+    set(CMAKE_MODULE_PATH ${PARENT_DIR}/flatbuffers/CMake ${CMAKE_MODULE_PATH})
+    find_package(FlatBuffers REQUIRED)
     find_path(ZMQ_INCLUDE_DIR zmq.h)
     find_library(ZMQ_LIBRARY NAMES zmq)
     set(ZMQ_LIBRARIES ${ZMQ_LIBRARY})
-    set( ZMQ_INCLUDE_DIRS ${ZMQ_INCLUDE_DIR})
+    set(ZMQ_INCLUDE_DIRS ${ZMQ_INCLUDE_DIR})
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(ZMQ DEFAULT_MSG ZMQ_LIBRARY ZMQ_INCLUDE_DIR)
 endif()
+
 
 
 #==================================================================================================
@@ -59,35 +63,32 @@ endif()
 
 include_directories(
     include
-    lib
 )
 
 if(BUILD_IMAGE_TRACER)
     include_directories(${OpenCV_INCLUDE_DIRS})
-    link_directories(${OpenCV_LIBRARY_DIRS})
+       link_directories(${OpenCV_LIBRARY_DIRS})
 endif()
 
 if(BUILD_NETWORK_BRIDGE)
     include_directories(${CMAKE_BINARY_DIR})
-    include_directories(${PROTOBUF_INCLUDE_DIRS})
+    include_directories(${FLATBUFFERS_INCLUDE_DIRS})
+       link_directories(${FLATBUFFERS_LIBRARY_DIRS})
     include_directories(${ZMQ_INCLUDE_DIRS})
+       link_directories(${ZMQ_LIBRARY_DIRS})
 endif()
-
-include(GNUInstallDirs)
 
 
 
 #==================================================================================================
-# Google Protocol Buffers Messages
+# Google FlatBuffers Messages
 #==================================================================================================
 
 if(BUILD_NETWORK_BRIDGE)
-    PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
-        msgs/point.proto
-        msgs/shape.proto
-        msgs/vector_image.proto
-    )
+    set(${PROJECT_NAME}_GENERATED_INCLUDES_DIR msgs)
+    build_flatbuffers(${PROJECT_SOURCE_DIR}/msgs/vector_image.fbs "" ${PROJECT_NAME}_generated_includes "" ${${PROJECT_NAME}_GENERATED_INCLUDES_DIR} "" "")
 endif()
+
 
 
 #==================================================================================================
@@ -115,15 +116,13 @@ endif()
 
 
 if(BUILD_NETWORK_BRIDGE)
-    add_library(laser_projector_bridge_msgs SHARED ${PROTO_SRCS} ${PROTO_HDRS})
-    LIST(APPEND ${PROJECT_NAME}-libraries laser_projector_bridge_msgs)
-
     add_library(vector_image_subscriber SHARED src/vector_image_subscriber.cpp)
     LIST(APPEND ${PROJECT_NAME}-libraries vector_image_subscriber)
     
     add_library(vector_image_publisher SHARED src/vector_image_publisher.cpp)
     LIST(APPEND ${PROJECT_NAME}-libraries vector_image_publisher)
 endif()
+
 
 
 #==================================================================================================
@@ -160,6 +159,13 @@ if(BUILD_IMAGE_TRACER)
     target_link_libraries(image_tracer ${OpenCV_LIBRARIES})
 endif()
 
+if(BUILD_NETWORK_BRIDGE)
+    add_dependencies(vector_image_subscriber ${PROJECT_NAME}_generated_includes)
+    add_dependencies(vector_image_publisher ${PROJECT_NAME}_generated_includes)
+    target_link_libraries(vector_image_subscriber ${ZMQ_LIBRARIES})
+    target_link_libraries(vector_image_publisher ${ZMQ_LIBRARIES})
+endif()
+
 
 
 #==================================================================================================
@@ -167,9 +173,7 @@ endif()
 #==================================================================================================
 
 if(BUILD_NETWORK_BRIDGE)
-    target_link_libraries(vector_image_subscriber ${ZMQ_LIBRARIES})
     target_link_libraries(vector_image_subscriber_node vector_image_subscriber)
-    target_link_libraries(vector_image_publisher ${ZMQ_LIBRARIES})
 endif()
 
 
@@ -188,16 +192,13 @@ endif()
 #==================================================================================================
 
 if(DEFINED ${PROJECT_NAME}-libraries)
-    install(TARGETS ${${PROJECT_NAME}-libraries} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib EXPORT ${PROJECT_NAME}-config)
-    install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
-    install(EXPORT ${PROJECT_NAME}-config DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
-endif()
-
-if(BUILD_NETWORK_BRIDGE)
-    install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
+    install(TARGETS ${${PROJECT_NAME}-libraries} DESTINATION lib EXPORT ${PROJECT_NAME}Config)
+    install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION include/${PROJECT_NAME})
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/msgs DESTINATION include/${PROJECT_NAME})
+    install(EXPORT ${PROJECT_NAME}Config DESTINATION share/${PROJECT_NAME}/cmake)
 endif()
 
 
 if(DEFINED ${PROJECT_NAME}-executables)
-    install(TARGETS ${${PROJECT_NAME}-executables} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
+    install(TARGETS ${${PROJECT_NAME}-executables} DESTINATION lib/${PROJECT_NAME})
 endif()
