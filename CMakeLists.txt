@@ -10,13 +10,13 @@ if(WIN32)
     option(BUILD_JMLASER_PROJECTOR_LIB "Build the jmlaser_projector library" ON)
     option(BUILD_JMLASER_PROJECTOR_TESTS "Build the jmlaser_projector test executables" ON)
     option(BUILD_IMAGE_TRACER "Build the image tracer library" OFF)
+    option(BUILD_NETWORK_BRIDGE "Build the Google Protocol Buffers messages" OFF)
 else()
     option(BUILD_JMLASER_PROJECTOR_LIB "Build the jmlaser_projector library" OFF)
     option(BUILD_JMLASER_PROJECTOR_TESTS "Build the jmlaser_projector test executables" OFF)
     option(BUILD_IMAGE_TRACER "Build the image tracer library" ON)
+    option(BUILD_NETWORK_BRIDGE "Build the Google Protocol Buffers messages" ON)
 endif()
-
-option(BUILD_NETWORK_BRIDGE "Build the Google Protocol Buffers messages" ON)
 
 
 
@@ -63,6 +63,7 @@ endif()
 
 include_directories(
     include
+    lib
 )
 
 if(BUILD_IMAGE_TRACER)
