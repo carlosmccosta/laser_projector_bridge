@@ -1,2 +1,2 @@
 # laser_projector_bridge
-Communication bridge between gazebo and a laser projector
+C++ library for communicating with Ethernet laser projectors (such as MediaLas ILP 622 LAN using the jmlaser.dll).

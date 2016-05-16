@@ -23,7 +23,7 @@ void test_jmlaser_projector_setup(int number_of_projectors) {
 //		std::string friendly_name = laser_projector.getProjectorFriendlyName();
 //		laser_projector.setProjectorFriendlyName("Test Name");
 
-		std::cout << ">>> |setupProjectorUsingIndex(i)" << std::endl;
+		std::cout << ">>> |setupProjectorUsingIndex(" << i << ")" << std::endl;
 		laser_projector.setupProjectorUsingIndex(i);
 		std::cout << laser_projector << "\n\n" << std::endl;
 
@@ -51,16 +51,15 @@ void create_laser_output_pattern_square_full_range(std::vector<JMVectorStruct> &
 }
 
 
-void create_laser_output_pattern_square_scaled(std::vector<JMVectorStruct> &points) {
+void create_laser_output_pattern_square_scaled(std::vector<JMVectorStruct> &points, double position_scale = 0.9) {
 	unsigned short intensity = (unsigned short)(USHRT_MAX * 0.5);
-	double position_scale = 0.9;
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), 0));
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), intensity));
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MIN * position_scale), intensity));
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MAX * position_scale), intensity));
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MAX * position_scale), intensity));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0, 0, intensity));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0, 0, 0));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), intensity));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), 0));
 }
 
 
@@ -109,7 +108,11 @@ void create_laser_output_pattern_cross_scaled(std::vector<JMVectorStruct> &point
 
 void create_laser_output_pattern(std::vector<JMVectorStruct>& points) {
 	create_laser_output_pattern_square_full_range(points);
-	create_laser_output_pattern_square_scaled(points);
+	create_laser_output_pattern_square_scaled(points, 0.75);
+	create_laser_output_pattern_square_scaled(points, 0.6);
+	create_laser_output_pattern_square_scaled(points, 0.5);
+	create_laser_output_pattern_square_scaled(points, 0.4);
+	create_laser_output_pattern_square_scaled(points, 0.25);
 	create_laser_output_pattern_plus_full_range(points);
 	create_laser_output_pattern_cross_full_range(points);
 	create_laser_output_pattern_cross_scaled(points);
@@ -124,8 +127,8 @@ void test_jmlaser_output(int number_of_projectors) {
 		laser_projector_bridge::JMLaserProjector laser_projector;
 		std::cout << ">>> |setupProjectorUsingIndex(i)" << std::endl;
 		laser_projector.setupProjectorUsingIndex(i);
-		laser_projector.startOutput();
 		std::cout << laser_projector << "\n\n" << std::endl;
+		laser_projector.startOutput();
 		std::cout << ">>> Sending pattern to projector " << i << std::endl;
 		if (laser_projector.sendVectorImageToProjector(points, 500, 0)) {
 			std::cout << ">>> - Pattern was sent successfully" << std::endl;

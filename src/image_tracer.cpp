@@ -24,13 +24,13 @@ ImageTracer::ImageTracer() :
 		show_debug_images_(true)
 		{}
 
-void ImageTracer::processImage(const unsigned char *_image, unsigned int _width, unsigned int _height, unsigned int _depth, const std::string &_format, msgs::VectorImage& _vector_image_out) {
+void ImageTracer::processImage(const unsigned char *_image, unsigned int _width, unsigned int _height, unsigned int _depth, const std::string &_format/*, msgs::VectorImage& _vector_image_out*/) {
 	if (_format == "R8G8B8" && _depth == 3) {
 		cv::Mat source_image(_height, _width, CV_8UC3, (void*)_image);
 		cv::Mat image;
 		cv::cvtColor(source_image, image, CV_RGB2HSV);
 		segmentImageHSV(image);
-		detectContours(image, _vector_image_out);
+		detectContours(image/*, _vector_image_out*/);
 	}
 }
 
@@ -59,7 +59,7 @@ void ImageTracer::segmentImageHSV(cv::Mat& _image_hsv) {
 	}
 }
 
-void ImageTracer::detectContours(cv::Mat& _binary_image, msgs::VectorImage& _vector_image_out) {
+void ImageTracer::detectContours(cv::Mat& _binary_image/*, msgs::VectorImage& _vector_image_out*/) {
 	flatbuffers::FlatBufferBuilder builder;
 	msgs::VectorImageBuilder vector_image_builder(builder);
 	std::vector<std::vector<cv::Point> > contours;
@@ -78,11 +78,11 @@ void ImageTracer::detectContours(cv::Mat& _binary_image, msgs::VectorImage& _vec
 			cv::Scalar color = cv::Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 			cv::drawContours(image_contours_lines, contours, (int) i, color, 2, 8, hierarchy, 0, cv::Point());
 			//			cv::approxPolyDP(contours[i], contours_approximated[i], 1, true);
-		}
 
-		for (size_t j = 0; j < contours[i].size(); ++j) {
-			if (show_debug_images_) {
-				image_contours_points.at<cv::Vec3b>(contours[i][j]) = cv::Vec3b(color[0], color[1], color[2]);
+			for (size_t j = 0; j < contours[i].size(); ++j) {
+				if (show_debug_images_) {
+					image_contours_points.at<cv::Vec3b>(contours[i][j]) = cv::Vec3b(color[0], color[1], color[2]);
+				}
 			}
 		}
 	}

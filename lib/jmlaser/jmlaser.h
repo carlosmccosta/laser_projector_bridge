@@ -30,14 +30,14 @@ extern "C"
 struct JMVectorStruct {
 	int x;						// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
 	int y;						// 32 bit signed, 0 is center of Y axis projection	[-INT_MAX, INT_MAX]
-	unsigned short r;			// 8 bit unsigned	[0, UCHAR_MAX]
-	unsigned short g;			// 8 bit unsigned	[0, UCHAR_MAX]
-	unsigned short b;			// 8 bit unsigned	[0, UCHAR_MAX]
-	unsigned short i;			// 8 bit unsigned	[0, UCHAR_MAX]
-	unsigned short deepblue;	// 8 bit unsigned	[0, UCHAR_MAX]
-	unsigned short yellow;		// 8 bit unsigned	[0, UCHAR_MAX]
-	unsigned short cyan;		// 8 bit unsigned	[0, UCHAR_MAX]
-	unsigned short user4;		// 8 bit unsigned	[0, UCHAR_MAX]
+	unsigned short r;			// 16 bit unsigned	[0, USHRT_MAX]
+	unsigned short g;			// 16 bit unsigned	[0, USHRT_MAX]
+	unsigned short b;			// 16 bit unsigned	[0, USHRT_MAX]
+	unsigned short i;			// 16 bit unsigned	[0, USHRT_MAX]
+	unsigned short deepblue;	// 16 bit unsigned	[0, USHRT_MAX]
+	unsigned short yellow;		// 16 bit unsigned	[0, USHRT_MAX]
+	unsigned short cyan;		// 16 bit unsigned	[0, USHRT_MAX]
+	unsigned short user4;		// 16 bit unsigned	[0, USHRT_MAX]
 };
 
 

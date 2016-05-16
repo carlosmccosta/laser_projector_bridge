@@ -27,10 +27,7 @@ JMLaserProjector::JMLaserProjector() :
 }
 
 JMLaserProjector::~JMLaserProjector() {
-	if (projector_handle_ >= 0) {
-		if (projector_output_started_) { jmLaserStopOutput(projector_handle_); }
-		jmLaserCloseDevice(projector_handle_);
-	}
+	resetProjector();
 }
 
 void JMLaserProjector::resetProjector() {
@@ -158,8 +155,8 @@ bool JMLaserProjector::jmLaserBridgeSetFriendlyName(int projector_handle, const 
 }
 
 int JMLaserProjector::jmLaserBridgeOpenDevice(const std::string& projector_name) {
-	if (projector_name.empty()) { return false; }
-	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return false; }
+	if (projector_name.empty()) { return 0; }
+	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return 0; }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
 	return jmLaserOpenDevice(projector_name_c.data());
