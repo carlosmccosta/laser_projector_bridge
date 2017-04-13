@@ -231,7 +231,7 @@ bool JMLaserProjector::setupProjectorUsingName(const std::string& projector_name
 	if (projector_name.empty()) { return false; }
 	JMLaserProjector::s_number_of_projectors_ = JMLaserProjector::jmLaserBridgeGetDeviceListLength();
 	if (JMLaserProjector::s_number_of_projectors_ > 0) {
-		for (int i = 0; i < JMLaserProjector::s_number_of_projectors_; ++i) {
+		for (unsigned int i = 0; i < JMLaserProjector::s_number_of_projectors_; ++i) {
 			if (JMLaserProjector::jmLaserBridgeGetDeviceListEntry(i) == projector_name) {
 				return setupProjectorUsingIndex(i);
 			}
@@ -244,7 +244,7 @@ bool JMLaserProjector::setupProjectorUsingFriendlyName(const std::string& projec
 	if (projector_friendly_name.empty()) { return false; }
 	JMLaserProjector::s_number_of_projectors_ = JMLaserProjector::jmLaserBridgeGetDeviceListLength();
 	if (JMLaserProjector::s_number_of_projectors_ > 0) {
-		for (int i = 0; i < JMLaserProjector::s_number_of_projectors_; ++i) {
+		for (unsigned int i = 0; i < JMLaserProjector::s_number_of_projectors_; ++i) {
 			std::string projector_name = JMLaserProjector::jmLaserBridgeGetDeviceListEntry(i);
 			if (JMLaserProjector::jmLaserBridgeGetFriendlyName(projector_name) == projector_friendly_name) {
 				return setupProjectorUsingIndex(i);

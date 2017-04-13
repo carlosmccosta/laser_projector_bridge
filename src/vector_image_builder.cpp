@@ -303,10 +303,7 @@ bool VectorImageBuilder::trimLineInDrawingAreaAndProjectorOrigin(double &start_x
 bool VectorImageBuilder::isPointInProjectorOriginWithinDrawingArea(double x, double y) {
 	double half_width = drawing_area_width_ * 0.5;
 	double half_height = drawing_area_height_ * 0.5;
-	if (x >= -half_width && x <= half_width && y >= -half_height && y <= half_height)
-		return true;
-	else
-		return false;
+	return (x >= -half_width && x <= half_width && y >= -half_height && y <= half_height);
 }
 
 bool VectorImageBuilder::addNewLine(double start_x, double start_y, double end_x, double end_y,
@@ -508,33 +505,23 @@ double VectorImageBuilder::jmVectorStructDistanceSquared(JMVectorStruct first, J
 bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
                                           double p2_x, double p2_y, double p3_x, double p3_y,
                                           double &i_x, double &i_y) {
-	double s02_x, s02_y, s10_x, s10_y, s32_x, s32_y, s_numer, t_numer, denom, t;
+	double s02_x, s02_y, s10_x, s10_y, s32_x, s32_y, t_numerator, denominator, t;
 	s10_x = p1_x - p0_x;
 	s10_y = p1_y - p0_y;
 	s32_x = p3_x - p2_x;
 	s32_y = p3_y - p2_y;
 
-	denom = s10_x * s32_y - s32_x * s10_y;
-	if (denom == 0)
+	denominator = s10_x * s32_y - s32_x * s10_y;
+	if (denominator == 0)
 		return false; // Collinear
-
-	bool denomPositive = denom > 0;
 
 	s02_x = p0_x - p2_x;
 	s02_y = p0_y - p2_y;
-	s_numer = s10_x * s02_y - s10_y * s02_x;
-	//if ((s_numer < 0) == denomPositive)
-	//    return false; // No collision
 
-	t_numer = s32_x * s02_y - s32_y * s02_x;
-	//if ((t_numer < 0) == denomPositive)
-	//    return false; // No collision
-
-	//if (((s_numer > denom) == denomPositive) || ((t_numer > denom) == denomPositive))
-	//    return false; // No collision
+	t_numerator = s32_x * s02_y - s32_y * s02_x;
 
 	// Collision detected
-	t = t_numer / denom;
+	t = t_numerator / denominator;
 	i_x = p0_x + (t * s10_x);
 	i_y = p0_y + (t * s10_y);
 

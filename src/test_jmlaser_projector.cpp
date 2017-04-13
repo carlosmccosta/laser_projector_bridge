@@ -10,7 +10,7 @@ void testJmlaserProjectorWithoutEnumeration() {
 
 
 void testJmlaserProjectorSetup(int number_of_projectors) {
-	for (int i = 0; i < number_of_projectors; ++i) {
+	for (unsigned int i = 0; i < number_of_projectors; ++i) {
 		laser_projector_bridge::JMLaserProjector laser_projector;
 
 		std::cout << ">>> |setupProjector()" << std::endl;
@@ -219,14 +219,14 @@ void testJmlaserOutput(int number_of_projectors) {
 	//createLaserOutputPattern(points);
 	createLaserOutputPatternUsingVectorImageBuilder(points);
 
-	for (int i = 0; i < number_of_projectors; ++i) {
+	for (unsigned int i = 0; i < number_of_projectors; ++i) {
 		laser_projector_bridge::JMLaserProjector laser_projector;
 		std::cout << ">>> |setupProjectorUsingIndex(i)" << std::endl;
 		laser_projector.setupProjectorUsingIndex(i);
 		std::cout << laser_projector << "\n\n" << std::endl;
 		laser_projector.startOutput();
 		std::cout << ">>> Sending pattern to projector " << i << std::endl;
-		if (laser_projector.sendVectorImageToProjector(points, 500, 0)) {
+		if (laser_projector.sendVectorImageToProjector(points, 1000, 0)) {
 			std::cout << ">>> - Pattern was sent successfully" << std::endl;
 		} else {
 			std::cout << ">>> - Failed to send pattern" << std::endl;
