@@ -34,6 +34,9 @@ set_property(TARGET jmlaser PROPERTY IMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/lib/j
 add_library(jmlaser_projector SHARED src/jmlaser_projector.cpp)
 LIST(APPEND ${PROJECT_NAME}-libraries jmlaser_projector)
 
+add_library(vector_image_builder SHARED src/vector_image_builder.cpp)
+LIST(APPEND ${PROJECT_NAME}-libraries vector_image_builder)
+
 add_custom_command(TARGET jmlaser_projector POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${PROJECT_SOURCE_DIR}/lib/jmlaser/jmlaser.dll"
@@ -62,7 +65,7 @@ target_link_libraries(jmlaser_projector jmlaser)
 # test executables link
 #==================================================================================================
 
-target_link_libraries(test_jmlaser_projector jmlaser_projector)
+target_link_libraries(test_jmlaser_projector jmlaser_projector vector_image_builder)
 
 
 

@@ -1,5 +1,5 @@
-/**\file JMLaserProjector.cpp
- * \brief Description...
+/**\file jmlaser_projector.cpp
+ * \brief Class for communicating with laser projectors.
  *
  * @version 1.0
  * @author Carlos Miguel Correia da Costa
@@ -255,7 +255,6 @@ bool JMLaserProjector::setupProjectorUsingFriendlyName(const std::string& projec
 }
 
 bool JMLaserProjector::setupProjectorUsingIndex(unsigned int projector_index) {
-	if (projector_index < 0) { return false; }
 	resetProjector();
 	projector_list_entry_index_ = projector_index;
 	projector_name_ = JMLaserProjector::jmLaserBridgeGetDeviceListEntry(projector_index);
@@ -281,42 +280,47 @@ bool JMLaserProjector::setupProjectorUsingIndex(unsigned int projector_index) {
 }
 
 bool JMLaserProjector::closeProjector() {
-	if (projector_handle_ >= 0) {
-		if (jmLaserCloseDevice(projector_handle_) == 0) {
-			projector_handle_ = -1;
-			return true;
-		}
+	if (projector_handle_ >= 0 && jmLaserCloseDevice(projector_handle_) == 0) {
+		projector_handle_ = -1;
+		return true;
 	}
 	return false;
 }
 
 
 bool JMLaserProjector::setProjectorFriendlyName(const std::string& projector_friendly_name) {
-	if (!projector_friendly_name.empty() && projector_handle_ >= 0) {
-		if (jmLaserBridgeSetFriendlyName(projector_handle_, projector_friendly_name)) {
-			projector_friendly_name_ = JMLaserProjector::jmLaserBridgeGetFriendlyName(projector_name_);
-			return !projector_friendly_name_.empty();
-		}
+	if (!projector_friendly_name.empty() && projector_handle_ >= 0 && jmLaserBridgeSetFriendlyName(projector_handle_, projector_friendly_name)) {
+		projector_friendly_name_ = JMLaserProjector::jmLaserBridgeGetFriendlyName(projector_name_);
+		return !projector_friendly_name_.empty();
 	}
 	return false;
 }
 
 
 bool JMLaserProjector::startOutput() {
-	if (projector_handle_ >= 0) {
-		if (jmLaserStartOutput(projector_handle_) == 0) {
-			projector_output_started_ = true;
-			return true;
-		}
+	if (projector_handle_ >= 0 && jmLaserStartOutput(projector_handle_) == 0) {
+		projector_output_started_ = true;
+		return true;
 	}
 	return false;
 }
 
-bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed, unsigned int repetitions) {
-	if (projector_handle_ >= 0 && !points.empty() /*&& speed >= projector_minimum_speed_*/ && speed <= projector_maximum_speed_ && repetitions >= 0 && projector_maximum_number_of_vectors_per_frame_ > 0) {
+bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed, unsigned int repetitions, bool add_reverse_image) {
+	if (speed < projector_minimum_speed_) speed = (unsigned int)projector_minimum_speed_;
+	if (speed > projector_maximum_speed_) speed = (unsigned int)projector_maximum_speed_;
+
+	if (projector_handle_ >= 0 && !points.empty() && repetitions >= 0 && projector_maximum_number_of_vectors_per_frame_ > 0) {
 		if (points.size() > (size_t)projector_maximum_number_of_vectors_per_frame_) {
 			points.resize((size_t)projector_maximum_number_of_vectors_per_frame_);
+			points.back().i = 0;
 		}
+
+		if (add_reverse_image && points.size() * 2 <= projector_maximum_number_of_vectors_per_frame_) {
+			for (int i = (int)points.size() - 1; i >= 0 ; --i) {
+				points.push_back(points[i]);
+			}
+		}
+
 		int wait_status = jmLaserWaitForDeviceReady(projector_handle_);
 		if (wait_status == JMLASER_ERROR_OUTPUT_NOT_STARTED) {
 			if (startOutput()) {
@@ -335,11 +339,9 @@ bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& p
 }
 
 bool JMLaserProjector::stopOutput() {
-	if (projector_handle_ >= 0 && projector_output_started_) {
-		if (jmLaserStopOutput(projector_handle_) == 0) {
-			projector_output_started_ = false;
-			return true;
-		}
+	if (projector_handle_ >= 0 && projector_output_started_ && jmLaserStopOutput(projector_handle_) == 0) {
+		projector_output_started_ = false;
+		return true;
 	}
 	return false;
 }
@@ -362,6 +364,6 @@ std::ostream& operator<<(std::ostream& os, const JMLaserProjector& jmlp) {
 	os << "###############################################################################" << std::endl;
 	return os;
 }
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <-functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // ===============================================================================  </public-section>   ===========================================================================
 }
