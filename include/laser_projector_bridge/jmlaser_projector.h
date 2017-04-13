@@ -19,7 +19,7 @@
 #include <iostream>
 
 // external libs includes
-#include <jmlaser/jmlaser.h>
+#include <laser_projector_bridge/jmlaser.h>
 
 // project includes
 
