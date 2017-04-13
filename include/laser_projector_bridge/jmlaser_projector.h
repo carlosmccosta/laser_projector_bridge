@@ -94,8 +94,8 @@ class JMLaserProjector {
 
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <sets>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-		inline void setProjector_minimum_speed_(int projector_minimum_speed) { if (projector_minimum_speed > projector_minimum_speed_) projector_minimum_speed_ = projector_minimum_speed; }
-		inline void setProjector_maximum_speed_(int projector_maximum_speed) { if (projector_maximum_speed < projector_maximum_speed_) projector_maximum_speed_ = projector_maximum_speed; }
+		inline void setProjectorMinimumSpeed(int projector_minimum_speed) { if (projector_minimum_speed > projector_minimum_speed_) projector_minimum_speed_ = projector_minimum_speed; }
+		inline void setProjectorMaximumSpeed(int projector_maximum_speed) { if (projector_maximum_speed < projector_maximum_speed_) projector_maximum_speed_ = projector_maximum_speed; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </sets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// ============================================================================   </public-section>   =========================================================================
 

@@ -16,19 +16,19 @@ namespace laser_projector_bridge {
 // ===============================================================================  <public-section>   ============================================================================
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <constructors-destructor>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 VectorImageBuilder::VectorImageBuilder() :
-		DrawingAreaWidth(2000.0),
-		DrawingAreaHeight(2000.0),
-		DrawingAreaXOffset(0.0),
-		DrawingAreaYOffset(0.0),
-		_drawingAreaToProjectorRangeXScale((double)std::numeric_limits<uint32_t>::max() / 2000.0),
-		_drawingAreaToProjectorRangeYScale((double)std::numeric_limits<uint32_t>::max() / 2000.0),
-		RadialDistortionCoefficientSecondDegreeInvertedUV(0.08),
-		RadialDistortionCoefficientSecondDegree(-0.044),
-		RadialDistortionCoefficientFourthDegree(-0.007),
-		RadialDistortionCoefficientSixthDegree(-0.005),
-		LineFirstPointMergeDistanceSquaredInProjectorRange(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
-		LineFirstPointIgnoreDistanceSquaredInProjectorRange(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0001, 2.0)),
-		InterpolationDistanceInProjectorRange((int32_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002))
+		drawing_area_width_(2000.0),
+		drawing_area_height_(2000.0),
+		drawing_area_x_offset_(0.0),
+		drawing_area_y_offset_(0.0),
+		drawing_area_to_projector_range_x_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
+		drawing_area_to_projector_range_y_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
+		radial_distortion_coefficient_second_degree_inverted_uv_(0.08),
+		radial_distortion_coefficient_second_degree_(-0.044),
+		radial_distortion_coefficient_fourth_degree_(-0.007),
+		radial_distortion_coefficient_sixth_degree_(-0.005),
+		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
+		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0001, 2.0)),
+		interpolation_distance_in_projector_range_((int32_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002))
 		{}
 
 VectorImageBuilder::~VectorImageBuilder() {}
@@ -37,47 +37,47 @@ VectorImageBuilder::~VectorImageBuilder() {}
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-void VectorImageBuilder::StartNewVectorImage() {
-	VectorImagePoints.clear();
-	_drawingAreaToProjectorRangeXScale = ((double)std::numeric_limits<uint32_t>::max()) / DrawingAreaWidth;
-	_drawingAreaToProjectorRangeYScale = ((double)std::numeric_limits<uint32_t>::max()) / DrawingAreaHeight;
+void VectorImageBuilder::startNewVectorImage() {
+	vector_image_points_.clear();
+	drawing_area_to_projector_range_x_scale_ = ((double)std::numeric_limits<uint32_t>::max()) / drawing_area_width_;
+	drawing_area_to_projector_range_y_scale_ = ((double)std::numeric_limits<uint32_t>::max()) / drawing_area_height_;
 }
 
-void VectorImageBuilder::FinishVectorImage() {
-	if (!VectorImagePoints.empty()) {
-		JMVectorStruct& lastPoint = VectorImagePoints.back();
-		if (lastPoint.i != 0) {
-			lastPoint.i = 0;
-			VectorImagePoints.push_back(lastPoint);
+void VectorImageBuilder::finishVectorImage() {
+	if (!vector_image_points_.empty()) {
+		JMVectorStruct& last_point = vector_image_points_.back();
+		if (last_point.i != 0) {
+			last_point.i = 0;
+			vector_image_points_.push_back(last_point);
 		}
-		CorrectRadialDistortionOnVectorImage();
+		correctRadialDistortionOnVectorImage();
 		// todo: laser path optimization and blanking
 	}
 }
 
-bool VectorImageBuilder::ConvertProjectorOriginToDrawingAreaOrigin(double x, double y, double& newX, double& newY, AxisPosition drawingAreaOriginAxisPosition) {
-	switch (drawingAreaOriginAxisPosition) {
+bool VectorImageBuilder::convertProjectorOriginToDrawingAreaOrigin(double x, double y, double &new_x, double &new_y, AxisPosition drawing_area_origin_axis_position) {
+	switch (drawing_area_origin_axis_position) {
 		case AxisPosition::TopLeft: {
-			newX = x + DrawingAreaWidth * 0.5;
-			newY = (DrawingAreaHeight - y) + DrawingAreaHeight * 0.5;
+			new_x = x + drawing_area_width_ * 0.5;
+			new_y = (drawing_area_height_ - y) + drawing_area_height_ * 0.5;
 			break;
 		}
 
 		case AxisPosition::BottomLeft: {
-			newX = x + DrawingAreaWidth * 0.5;
-			newY = y + DrawingAreaHeight * 0.5;
+			new_x = x + drawing_area_width_ * 0.5;
+			new_y = y + drawing_area_height_ * 0.5;
 			break;
 		}
 
 		case AxisPosition::Middle: {
-			newX = x;
-			newY = y;
+			new_x = x;
+			new_y = y;
 			break;
 		}
 
 		default: {
-			newX = 0.0;
-			newY = 0.0;
+			new_x = 0.0;
+			new_y = 0.0;
 			return false;
 		}
 	}
@@ -85,29 +85,29 @@ bool VectorImageBuilder::ConvertProjectorOriginToDrawingAreaOrigin(double x, dou
 	return true;
 }
 
-bool VectorImageBuilder::ConvertPointFromDrawingAreaToProjectorOrigin(double x, double y, double& xPointInDrawingAreaAndProjectorOrigin, double& yPointInDrawingAreaAndProjectorOrigin, AxisPosition originAxisPosition) {
-	switch (originAxisPosition) {
+bool VectorImageBuilder::convertPointFromDrawingAreaToProjectorOrigin(double x, double y, double &x_point_in_drawing_area_and_projector_origin, double &y_point_in_drawing_area_and_projector_origin, AxisPosition origin_axis_position) {
+	switch (origin_axis_position) {
 		case AxisPosition::TopLeft: {
-			xPointInDrawingAreaAndProjectorOrigin = x - DrawingAreaWidth * 0.5;
-			yPointInDrawingAreaAndProjectorOrigin = (DrawingAreaHeight - y) - DrawingAreaHeight * 0.5;
+			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
+			y_point_in_drawing_area_and_projector_origin = (drawing_area_height_ - y) - drawing_area_height_ * 0.5;
 			break;
 		}
 
 		case AxisPosition::BottomLeft: {
-			xPointInDrawingAreaAndProjectorOrigin = x - DrawingAreaWidth * 0.5;
-			yPointInDrawingAreaAndProjectorOrigin = y - DrawingAreaHeight * 0.5;
+			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
+			y_point_in_drawing_area_and_projector_origin = y - drawing_area_height_ * 0.5;
 			break;
 		}
 
 		case AxisPosition::Middle: {
-			xPointInDrawingAreaAndProjectorOrigin = x;
-			yPointInDrawingAreaAndProjectorOrigin = y;
+			x_point_in_drawing_area_and_projector_origin = x;
+			y_point_in_drawing_area_and_projector_origin = y;
 			break;
 		}
 
 		default: {
-			xPointInDrawingAreaAndProjectorOrigin = 0.0;
-			yPointInDrawingAreaAndProjectorOrigin = 0.0;
+			x_point_in_drawing_area_and_projector_origin = 0.0;
+			y_point_in_drawing_area_and_projector_origin = 0.0;
 			return false;
 		}
 	}
@@ -115,110 +115,111 @@ bool VectorImageBuilder::ConvertPointFromDrawingAreaToProjectorOrigin(double x, 
 	return true;
 }
 
-bool VectorImageBuilder::ConvertPointFromDrawingAreaInProjectorOriginToProjectorRange(double xPointInDrawingAreaAndProjectorOrigin, double yPointInDrawingAreaAndProjectorOrigin, int32_t& xPointInProjectorRange, int32_t& yPointInProjectorRange) {
-	bool pointOverflow = false;
+bool VectorImageBuilder::convertPointFromDrawingAreaInProjectorOriginToProjectorRange(double x_point_in_drawing_area_and_projector_origin, double y_point_in_drawing_area_and_projector_origin, int32_t &x_point_in_projector_range,
+                                                                                      int32_t &y_point_in_projector_range) {
+	bool point_overflow = false;
 
-	double xWithOffset = xPointInDrawingAreaAndProjectorOrigin - DrawingAreaXOffset;
-	if (xWithOffset < DrawingAreaWidth * -0.5) {
-		xPointInProjectorRange = std::numeric_limits<int32_t >::min();
-		pointOverflow = true;
-	} else if (xWithOffset > DrawingAreaWidth * 0.5) {
-		xPointInProjectorRange = std::numeric_limits<int32_t >::max();
-		pointOverflow = true;
+	double x_with_offset = x_point_in_drawing_area_and_projector_origin - drawing_area_x_offset_;
+	if (x_with_offset < drawing_area_width_ * -0.5) {
+		x_point_in_projector_range = std::numeric_limits<int32_t >::min();
+		point_overflow = true;
+	} else if (x_with_offset > drawing_area_width_ * 0.5) {
+		x_point_in_projector_range = std::numeric_limits<int32_t >::max();
+		point_overflow = true;
 	} else {
-		xPointInProjectorRange = (int32_t)((xPointInDrawingAreaAndProjectorOrigin - DrawingAreaXOffset) * _drawingAreaToProjectorRangeXScale);
+		x_point_in_projector_range = (int32_t)((x_point_in_drawing_area_and_projector_origin - drawing_area_x_offset_) * drawing_area_to_projector_range_x_scale_);
 	}
 
-	double yWithOffset = yPointInDrawingAreaAndProjectorOrigin - DrawingAreaYOffset;
-	if (yWithOffset < DrawingAreaHeight * -0.5) {
-		yPointInProjectorRange = std::numeric_limits<int32_t >::min();
-		pointOverflow = true;
-	} else if (xWithOffset > DrawingAreaHeight * 0.5) {
-		yPointInProjectorRange = std::numeric_limits<int32_t >::max();
-		pointOverflow = true;
+	double y_with_offset = y_point_in_drawing_area_and_projector_origin - drawing_area_y_offset_;
+	if (y_with_offset < drawing_area_height_ * -0.5) {
+		y_point_in_projector_range = std::numeric_limits<int32_t >::min();
+		point_overflow = true;
+	} else if (x_with_offset > drawing_area_height_ * 0.5) {
+		y_point_in_projector_range = std::numeric_limits<int32_t >::max();
+		point_overflow = true;
 	} else {
-		yPointInProjectorRange = (int32_t)((yPointInDrawingAreaAndProjectorOrigin - DrawingAreaYOffset) * _drawingAreaToProjectorRangeYScale);
+		y_point_in_projector_range = (int32_t)((y_point_in_drawing_area_and_projector_origin - drawing_area_y_offset_) * drawing_area_to_projector_range_y_scale_);
 	}
 
-	return !pointOverflow;
+	return !point_overflow;
 }
 
-bool VectorImageBuilder::ConvertPointFromProjectorRangeToDrawingArea(int32_t xPointInProjectorRange, int32_t yPointInProjectorRange, double& xPointInDrawingAreaRange, double& yPointInDrawingAreaRange, AxisPosition originAxisPosition) {
-	double xPointInDrawingAreaAndProjectorOrigin = ((double)xPointInProjectorRange / _drawingAreaToProjectorRangeXScale) + DrawingAreaXOffset;
-	double yPointInDrawingAreaAndProjectorOrigin = ((double)yPointInProjectorRange / _drawingAreaToProjectorRangeYScale) + DrawingAreaYOffset;
-	return ConvertProjectorOriginToDrawingAreaOrigin(xPointInDrawingAreaAndProjectorOrigin, yPointInDrawingAreaAndProjectorOrigin, xPointInDrawingAreaRange, yPointInDrawingAreaRange, originAxisPosition);
+bool VectorImageBuilder::convertPointFromProjectorRangeToDrawingArea(int32_t x_point_in_projector_range, int32_t y_point_in_projector_range, double &x_point_in_drawing_area_range, double &y_point_in_drawing_area_range, AxisPosition origin_axis_position) {
+	double x_point_in_drawing_area_and_projector_origin = ((double)x_point_in_projector_range / drawing_area_to_projector_range_x_scale_) + drawing_area_x_offset_;
+	double y_point_in_drawing_area_and_projector_origin = ((double)y_point_in_projector_range / drawing_area_to_projector_range_y_scale_) + drawing_area_y_offset_;
+	return convertProjectorOriginToDrawingAreaOrigin(x_point_in_drawing_area_and_projector_origin, y_point_in_drawing_area_and_projector_origin, x_point_in_drawing_area_range, y_point_in_drawing_area_range, origin_axis_position);
 }
 
-bool VectorImageBuilder::TrimLineInDrawingAreaAndProjectorOrigin(double& startXInProjectorOrigin, double& startYInProjectorOrigin, double& endXInProjectorOrigin, double& endYInProjectorOrigin) {
-	bool startPointValid = IsPointInProjectorOriginWithinDrawingArea(startXInProjectorOrigin, startYInProjectorOrigin);
-	bool endPointValid = IsPointInProjectorOriginWithinDrawingArea(endXInProjectorOrigin, endYInProjectorOrigin);
-	if (startPointValid && endPointValid) return true;
-	if (!startPointValid && !endPointValid) return false;
+bool VectorImageBuilder::trimLineInDrawingAreaAndProjectorOrigin(double &start_x_in_projector_origin, double &start_y_in_projector_origin, double &end_x_in_projector_origin, double &end_y_in_projector_origin) {
+	bool start_point_valid = isPointInProjectorOriginWithinDrawingArea(start_x_in_projector_origin, start_y_in_projector_origin);
+	bool end_point_valid = isPointInProjectorOriginWithinDrawingArea(end_x_in_projector_origin, end_y_in_projector_origin);
+	if (start_point_valid && end_point_valid) return true;
+	if (!start_point_valid && !end_point_valid) return false;
 
-	double validPointX, validPointY, invalidPointX, invalidPointY;
-	if (!startPointValid) {
-		invalidPointX = startXInProjectorOrigin;
-		invalidPointY = startYInProjectorOrigin;
-		validPointX = endXInProjectorOrigin;
-		validPointY = endYInProjectorOrigin;
+	double valid_point_x, valid_point_y, invalid_point_x, invalid_point_y;
+	if (!start_point_valid) {
+		invalid_point_x = start_x_in_projector_origin;
+		invalid_point_y = start_y_in_projector_origin;
+		valid_point_x = end_x_in_projector_origin;
+		valid_point_y = end_y_in_projector_origin;
 	} else {
-		invalidPointX = endXInProjectorOrigin;
-		invalidPointY = endYInProjectorOrigin;
-		validPointX = startXInProjectorOrigin;
-		validPointY = startYInProjectorOrigin;
+		invalid_point_x = end_x_in_projector_origin;
+		invalid_point_y = end_y_in_projector_origin;
+		valid_point_x = start_x_in_projector_origin;
+		valid_point_y = start_y_in_projector_origin;
 	}
 
-	double halfWidth = DrawingAreaWidth * 0.5;
-	double halfHeight = DrawingAreaHeight * 0.5;
-	double xIntersection = 0.0, yIntersection = 0.0;
+	double half_width = drawing_area_width_ * 0.5;
+	double half_height = drawing_area_height_ * 0.5;
+	double x_intersection = 0.0, y_intersection = 0.0;
 
 	// left
-	if (invalidPointX < -halfWidth && invalidPointY >= -halfHeight && invalidPointY <= halfHeight) {
-		if (LineIntersection(-halfWidth, -halfHeight, -halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersection, yIntersection))
-			xIntersection = -halfWidth;
+	if (invalid_point_x < -half_width && invalid_point_y >= -half_height && invalid_point_y <= half_height) {
+		if (lineIntersection(-half_width, -half_height, -half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection, y_intersection))
+			x_intersection = -half_width;
 		else
 			return false;
 	}
 
 	// right
-	if (invalidPointX > halfWidth && invalidPointY >= -halfHeight && invalidPointY <= halfHeight) {
-		if (LineIntersection(halfWidth, -halfHeight, halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersection, yIntersection))
-			xIntersection = halfWidth;
+	if (invalid_point_x > half_width && invalid_point_y >= -half_height && invalid_point_y <= half_height) {
+		if (lineIntersection(half_width, -half_height, half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection, y_intersection))
+			x_intersection = half_width;
 		else
 			return false;
 	}
 
 	// top
-	if (invalidPointY > halfHeight && invalidPointX >= -halfWidth && invalidPointX <= halfWidth) {
-		if (LineIntersection(-halfWidth, halfHeight, halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersection, yIntersection))
-			yIntersection = halfHeight;
+	if (invalid_point_y > half_height && invalid_point_x >= -half_width && invalid_point_x <= half_width) {
+		if (lineIntersection(-half_width, half_height, half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection, y_intersection))
+			y_intersection = half_height;
 		else
 			return false;
 	}
 
 	// bottom
-	if (invalidPointY < -halfHeight && invalidPointX >= -halfWidth && invalidPointX <= halfWidth) {
-		if (LineIntersection(-halfWidth, -halfHeight, halfWidth, -halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersection, yIntersection))
-			yIntersection = -halfHeight;
+	if (invalid_point_y < -half_height && invalid_point_x >= -half_width && invalid_point_x <= half_width) {
+		if (lineIntersection(-half_width, -half_height, half_width, -half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection, y_intersection))
+			y_intersection = -half_height;
 		else
 			return false;
 	}
 
 	// bottom left
-	if (invalidPointX < -halfWidth && invalidPointY < -halfHeight) {
-		double xIntersectionBottom = 0.0, yIntersectionBottom = 0.0;
-		double xIntersectionLeft = 0.0, yIntersectionLeft = 0.0;
-		if (LineIntersection(-halfWidth, -halfHeight, halfWidth, -halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionBottom, yIntersectionBottom) &&
-			LineIntersection(-halfWidth, -halfHeight, -halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionLeft, yIntersectionLeft)) {
-			double distanceToBottomIntersection = std::pow(xIntersectionBottom - validPointX, 2.0) + std::pow(yIntersectionBottom - validPointY, 2.0);
-			double distanceToLeftIntersection = std::pow(xIntersectionLeft - validPointX, 2.0) + std::pow(yIntersectionLeft - validPointY, 2.0);
+	if (invalid_point_x < -half_width && invalid_point_y < -half_height) {
+		double x_intersection_bottom = 0.0, y_intersection_bottom = 0.0;
+		double x_intersection_left = 0.0, y_intersection_left = 0.0;
+		if (lineIntersection(-half_width, -half_height, half_width, -half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_bottom, y_intersection_bottom) &&
+				lineIntersection(-half_width, -half_height, -half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_left, y_intersection_left)) {
+			double distance_to_bottom_intersection = std::pow(x_intersection_bottom - valid_point_x, 2.0) + std::pow(y_intersection_bottom - valid_point_y, 2.0);
+			double distance_to_left_intersection = std::pow(x_intersection_left - valid_point_x, 2.0) + std::pow(y_intersection_left - valid_point_y, 2.0);
 
-			if (distanceToBottomIntersection < distanceToLeftIntersection) {
-				xIntersection = xIntersectionBottom;
-				yIntersection = -halfHeight;
+			if (distance_to_bottom_intersection < distance_to_left_intersection) {
+				x_intersection = x_intersection_bottom;
+				y_intersection = -half_height;
 			} else {
-				xIntersection = -halfWidth;
-				yIntersection = yIntersectionLeft;
+				x_intersection = -half_width;
+				y_intersection = y_intersection_left;
 			}
 		} else {
 			return false;
@@ -226,20 +227,20 @@ bool VectorImageBuilder::TrimLineInDrawingAreaAndProjectorOrigin(double& startXI
 	}
 
 	// top left
-	if (invalidPointX < -halfWidth && invalidPointY > halfHeight) {
-		double xIntersectionTop = 0.0, yIntersectionTop = 0.0;
-		double xIntersectionLeft = 0.0, yIntersectionLeft = 0.0;
-		if (LineIntersection(-halfWidth, halfHeight, halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionTop, yIntersectionTop) &&
-			LineIntersection(-halfWidth, -halfHeight, -halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionLeft, yIntersectionLeft)) {
-			double distanceToTopIntersection = std::pow(xIntersectionTop - validPointX, 2.0) + std::pow(yIntersectionTop - validPointY, 2.0);
-			double distanceToLeftIntersection = std::pow(xIntersectionLeft - validPointX, 2.0) + std::pow(yIntersectionLeft - validPointY, 2.0);
+	if (invalid_point_x < -half_width && invalid_point_y > half_height) {
+		double x_intersection_top = 0.0, y_intersection_top = 0.0;
+		double x_intersection_left = 0.0, y_intersection_left = 0.0;
+		if (lineIntersection(-half_width, half_height, half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_top, y_intersection_top) &&
+				lineIntersection(-half_width, -half_height, -half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_left, y_intersection_left)) {
+			double distance_to_top_intersection = std::pow(x_intersection_top - valid_point_x, 2.0) + std::pow(y_intersection_top - valid_point_y, 2.0);
+			double distance_to_left_intersection = std::pow(x_intersection_left - valid_point_x, 2.0) + std::pow(y_intersection_left - valid_point_y, 2.0);
 
-			if (distanceToTopIntersection < distanceToLeftIntersection) {
-				xIntersection = xIntersectionTop;
-				yIntersection = halfHeight;
+			if (distance_to_top_intersection < distance_to_left_intersection) {
+				x_intersection = x_intersection_top;
+				y_intersection = half_height;
 			} else {
-				xIntersection = -halfWidth;
-				yIntersection = yIntersectionLeft;
+				x_intersection = -half_width;
+				y_intersection = y_intersection_left;
 			}
 		} else {
 			return false;
@@ -247,20 +248,20 @@ bool VectorImageBuilder::TrimLineInDrawingAreaAndProjectorOrigin(double& startXI
 	}
 
 	// bottom right
-	if (invalidPointX > halfWidth && invalidPointY < -halfHeight) {
-		double xIntersectionBottom = 0.0, yIntersectionBottom = 0.0;
-		double xIntersectionRight = 0.0, yIntersectionRight = 0.0;
-		if (LineIntersection(-halfWidth, -halfHeight, halfWidth, -halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionBottom, yIntersectionBottom) &&
-			LineIntersection(halfWidth, -halfHeight, halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionRight, yIntersectionRight)) {
-			double distanceToBottomIntersection = std::pow(xIntersectionBottom - validPointX, 2.0) + std::pow(yIntersectionBottom - validPointY, 2.0);
-			double distanceToRightIntersection = std::pow(xIntersectionRight - validPointX, 2.0) + std::pow(yIntersectionRight - validPointY, 2.0);
+	if (invalid_point_x > half_width && invalid_point_y < -half_height) {
+		double x_intersection_bottom = 0.0, y_intersection_bottom = 0.0;
+		double x_intersection_right = 0.0, y_intersection_right = 0.0;
+		if (lineIntersection(-half_width, -half_height, half_width, -half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_bottom, y_intersection_bottom) &&
+				lineIntersection(half_width, -half_height, half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_right, y_intersection_right)) {
+			double distance_to_bottom_intersection = std::pow(x_intersection_bottom - valid_point_x, 2.0) + std::pow(y_intersection_bottom - valid_point_y, 2.0);
+			double distance_to_right_intersection = std::pow(x_intersection_right - valid_point_x, 2.0) + std::pow(y_intersection_right - valid_point_y, 2.0);
 
-			if (distanceToBottomIntersection < distanceToRightIntersection) {
-				xIntersection = xIntersectionBottom;
-				yIntersection = -halfHeight;
+			if (distance_to_bottom_intersection < distance_to_right_intersection) {
+				x_intersection = x_intersection_bottom;
+				y_intersection = -half_height;
 			} else {
-				xIntersection = halfWidth;
-				yIntersection = yIntersectionRight;
+				x_intersection = half_width;
+				y_intersection = y_intersection_right;
 			}
 		} else {
 			return false;
@@ -268,245 +269,245 @@ bool VectorImageBuilder::TrimLineInDrawingAreaAndProjectorOrigin(double& startXI
 	}
 
 	// top right
-	if (invalidPointX > halfWidth && invalidPointY > halfHeight) {
-		double xIntersectionTop = 0.0, yIntersectionTop = 0.0;
-		double xIntersectionRight = 0.0, yIntersectionRight = 0.0;
-		if (LineIntersection(-halfWidth, halfHeight, halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionTop, yIntersectionTop) &&
-			LineIntersection(halfWidth, -halfHeight, halfWidth, halfHeight, startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin, xIntersectionRight, yIntersectionRight)) {
-			double distanceToTopIntersection = std::pow(xIntersectionTop - validPointX, 2.0) + std::pow(yIntersectionTop - validPointY, 2.0);
-			double distanceToRightIntersection = std::pow(xIntersectionRight - validPointX, 2.0) + std::pow(yIntersectionRight - validPointY, 2.0);
+	if (invalid_point_x > half_width && invalid_point_y > half_height) {
+		double x_intersection_top = 0.0, y_intersection_top = 0.0;
+		double x_intersection_right = 0.0, y_intersection_right = 0.0;
+		if (lineIntersection(-half_width, half_height, half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_top, y_intersection_top) &&
+				lineIntersection(half_width, -half_height, half_width, half_height, start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin, x_intersection_right, y_intersection_right)) {
+			double distance_to_top_intersection = std::pow(x_intersection_top - valid_point_x, 2.0) + std::pow(y_intersection_top - valid_point_y, 2.0);
+			double distance_to_right_intersection = std::pow(x_intersection_right - valid_point_x, 2.0) + std::pow(y_intersection_right - valid_point_y, 2.0);
 
-			if (distanceToTopIntersection < distanceToRightIntersection) {
-				xIntersection = xIntersectionTop;
-				yIntersection = halfHeight;
+			if (distance_to_top_intersection < distance_to_right_intersection) {
+				x_intersection = x_intersection_top;
+				y_intersection = half_height;
 			} else {
-				xIntersection = halfWidth;
-				yIntersection = yIntersectionRight;
+				x_intersection = half_width;
+				y_intersection = y_intersection_right;
 			}
 		} else {
 			return false;
 		}
 	}
 
-	if (!startPointValid) {
-		startXInProjectorOrigin = xIntersection;
-		startYInProjectorOrigin = yIntersection;
+	if (!start_point_valid) {
+		start_x_in_projector_origin = x_intersection;
+		start_y_in_projector_origin = y_intersection;
 	} else {
-		endXInProjectorOrigin = xIntersection;
-		endYInProjectorOrigin = yIntersection;
+		end_x_in_projector_origin = x_intersection;
+		end_y_in_projector_origin = y_intersection;
 	}
 
 	return true;
 }
 
-bool VectorImageBuilder::IsPointInProjectorOriginWithinDrawingArea(double x, double y) {
-	double halfWidth = DrawingAreaWidth * 0.5;
-	double halfHeight = DrawingAreaHeight * 0.5;
-	if (x >= -halfWidth && x <= halfWidth && y >= -halfHeight && y <= halfHeight)
+bool VectorImageBuilder::isPointInProjectorOriginWithinDrawingArea(double x, double y) {
+	double half_width = drawing_area_width_ * 0.5;
+	double half_height = drawing_area_height_ * 0.5;
+	if (x >= -half_width && x <= half_width && y >= -half_height && y <= half_height)
 		return true;
 	else
 		return false;
 }
 
-bool VectorImageBuilder::AddNewLine(double startX, double startY, double endX, double endY,
-                uint16_t red, uint16_t green, uint16_t blue,
-                uint16_t intensity, AxisPosition originAxisPosition) {
-	double startXInProjectorOrigin;
-	double startYInProjectorOrigin;
-	double endXInProjectorOrigin;
-	double endYInProjectorOrigin;
+bool VectorImageBuilder::addNewLine(double start_x, double start_y, double end_x, double end_y,
+                                    uint16_t red, uint16_t green, uint16_t blue,
+                                    uint16_t intensity, AxisPosition origin_axis_position) {
+	double start_x_in_projector_origin;
+	double start_y_in_projector_origin;
+	double end_x_in_projector_origin;
+	double end_y_in_projector_origin;
 
-	if (!ConvertPointFromDrawingAreaToProjectorOrigin(startX, startY, startXInProjectorOrigin, startYInProjectorOrigin, originAxisPosition)) { return false; }
-	if (!ConvertPointFromDrawingAreaToProjectorOrigin(endX, endY, endXInProjectorOrigin, endYInProjectorOrigin, originAxisPosition)) { return false; }
+	if (!convertPointFromDrawingAreaToProjectorOrigin(start_x, start_y, start_x_in_projector_origin, start_y_in_projector_origin, origin_axis_position)) { return false; }
+	if (!convertPointFromDrawingAreaToProjectorOrigin(end_x, end_y, end_x_in_projector_origin, end_y_in_projector_origin, origin_axis_position)) { return false; }
 
-	if (!TrimLineInDrawingAreaAndProjectorOrigin(startXInProjectorOrigin, startYInProjectorOrigin, endXInProjectorOrigin, endYInProjectorOrigin)) { return false; }
+	if (!trimLineInDrawingAreaAndProjectorOrigin(start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin)) { return false; }
 
-	int32_t startXInProjectorRange;
-	int32_t startYInProjectorRange;
-	int32_t endXInProjectorRange;
-	int32_t endYInProjectorRange;
+	int32_t start_x_in_projector_range;
+	int32_t start_y_in_projector_range;
+	int32_t end_x_in_projector_range;
+	int32_t end_y_in_projector_range;
 
-	ConvertPointFromDrawingAreaInProjectorOriginToProjectorRange(startXInProjectorOrigin, startYInProjectorOrigin, startXInProjectorRange, startYInProjectorRange);
-	ConvertPointFromDrawingAreaInProjectorOriginToProjectorRange(endXInProjectorOrigin, endYInProjectorOrigin, endXInProjectorRange, endYInProjectorRange);
+	convertPointFromDrawingAreaInProjectorOriginToProjectorRange(start_x_in_projector_origin, start_y_in_projector_origin, start_x_in_projector_range, start_y_in_projector_range);
+	convertPointFromDrawingAreaInProjectorOriginToProjectorRange(end_x_in_projector_origin, end_y_in_projector_origin, end_x_in_projector_range, end_y_in_projector_range);
 
-	AddNewLine(startXInProjectorRange, startYInProjectorRange, endXInProjectorRange, endYInProjectorRange, red, green, blue, intensity);
+	addNewLine(start_x_in_projector_range, start_y_in_projector_range, end_x_in_projector_range, end_y_in_projector_range, red, green, blue, intensity);
 	return true;
 }
 
-void VectorImageBuilder::AddNewLine(int32_t startX, int32_t startY, int32_t endX, int32_t endY,
-                uint16_t red, uint16_t green, uint16_t blue, uint16_t intensity) {
-	JMVectorStruct startPoint;
-	startPoint.x = startX;
-	startPoint.y = startY;
-	startPoint.r = red;
-	startPoint.g = green;
-	startPoint.b = blue;
-	startPoint.i = intensity;
-	startPoint.deepblue = std::numeric_limits<uint16_t>::max();
-	startPoint.yellow = std::numeric_limits<uint16_t>::max();
-	startPoint.cyan = std::numeric_limits<uint16_t>::max();
-	startPoint.user4 = std::numeric_limits<uint16_t>::max();
+void VectorImageBuilder::addNewLine(int32_t start_x, int32_t start_y, int32_t end_x, int32_t end_y,
+                                    uint16_t red, uint16_t green, uint16_t blue, uint16_t intensity) {
+	JMVectorStruct start_point;
+	start_point.x = start_x;
+	start_point.y = start_y;
+	start_point.r = red;
+	start_point.g = green;
+	start_point.b = blue;
+	start_point.i = intensity;
+	start_point.deepblue = std::numeric_limits<uint16_t>::max();
+	start_point.yellow = std::numeric_limits<uint16_t>::max();
+	start_point.cyan = std::numeric_limits<uint16_t>::max();
+	start_point.user4 = std::numeric_limits<uint16_t>::max();
 
-	JMVectorStruct endPoint;
-	endPoint.x = endX;
-	endPoint.y = endY;
-	endPoint.r = red;
-	endPoint.g = green;
-	endPoint.b = blue;
-	endPoint.i = intensity;
-	endPoint.deepblue = std::numeric_limits<uint16_t>::max();
-	endPoint.yellow = std::numeric_limits<uint16_t>::max();
-	endPoint.cyan = std::numeric_limits<uint16_t>::max();
-	endPoint.user4 = std::numeric_limits<uint16_t>::max();
+	JMVectorStruct end_point;
+	end_point.x = end_x;
+	end_point.y = end_y;
+	end_point.r = red;
+	end_point.g = green;
+	end_point.b = blue;
+	end_point.i = intensity;
+	end_point.deepblue = std::numeric_limits<uint16_t>::max();
+	end_point.yellow = std::numeric_limits<uint16_t>::max();
+	end_point.cyan = std::numeric_limits<uint16_t>::max();
+	end_point.user4 = std::numeric_limits<uint16_t>::max();
 
-	AddNewLine(startPoint, endPoint);
+	addNewLine(start_point, end_point);
 }
 
-void VectorImageBuilder::AddNewLine(JMVectorStruct& startPoint, JMVectorStruct& endPoint) {
-	if (!VectorImagePoints.empty()) {
-		JMVectorStruct lastPoint = VectorImagePoints.back();
-		double distanceToLastPointSquared = JMVectorStructDistanceSquared(startPoint, lastPoint);
-		if (distanceToLastPointSquared >= LineFirstPointIgnoreDistanceSquaredInProjectorRange ||
-		    lastPoint.i != startPoint.i || lastPoint.r != startPoint.r || lastPoint.g != startPoint.g ||
-		    lastPoint.b != startPoint.b ||
-		    lastPoint.cyan != startPoint.cyan || lastPoint.deepblue != startPoint.deepblue ||
-		    lastPoint.yellow != startPoint.yellow || lastPoint.user4 != startPoint.user4) {
-			if (lastPoint.i != 0) {
-				lastPoint.i = 0;
-				AddNewPoint(lastPoint);
+void VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct &end_point) {
+	if (!vector_image_points_.empty()) {
+		JMVectorStruct last_point = vector_image_points_.back();
+		double distance_to_last_point_squared = jmVectorStructDistanceSquared(start_point, last_point);
+		if (distance_to_last_point_squared >= line_first_point_ignore_distance_squared_in_projector_range_ ||
+		    last_point.i != start_point.i || last_point.r != start_point.r || last_point.g != start_point.g ||
+		    last_point.b != start_point.b ||
+		    last_point.cyan != start_point.cyan || last_point.deepblue != start_point.deepblue ||
+		    last_point.yellow != start_point.yellow || last_point.user4 != start_point.user4) {
+			if (last_point.i != 0) {
+				last_point.i = 0;
+				addNewPoint(last_point);
 			}
 
-			JMVectorStruct startPointOff = startPoint;
-			startPointOff.i = 0;
-			AddNewPoint(startPointOff);
-			AddNewPoint(startPoint);
+			JMVectorStruct start_point_off = start_point;
+			start_point_off.i = 0;
+			addNewPoint(start_point_off);
+			addNewPoint(start_point);
 		} else {
-			if (distanceToLastPointSquared > 0 && distanceToLastPointSquared < LineFirstPointMergeDistanceSquaredInProjectorRange) {
-				lastPoint.x = (int32_t)((lastPoint.x + startPoint.x) / 2.0);
-				lastPoint.y = (int32_t)((lastPoint.y + startPoint.y) / 2.0);
-				ReplaceLastPoint(lastPoint);
+			if (distance_to_last_point_squared > 0 && distance_to_last_point_squared < line_first_point_merge_distance_squared_in_projector_range_) {
+				last_point.x = (int32_t)((last_point.x + start_point.x) / 2.0);
+				last_point.y = (int32_t)((last_point.y + start_point.y) / 2.0);
+				replaceLastPoint(last_point);
 			}
 
-			if (VectorImagePoints.size() > 1) {
-				JMVectorStruct penultimatePoint = VectorImagePoints[VectorImagePoints.size() - 2];
-				double distanceToPenultimatePointSquared = JMVectorStructDistanceSquared(endPoint, penultimatePoint);
-				if (distanceToPenultimatePointSquared < LineFirstPointIgnoreDistanceSquaredInProjectorRange) {
-					RemoveLastPoint();
+			if (vector_image_points_.size() > 1) {
+				JMVectorStruct penultimate_point = vector_image_points_[vector_image_points_.size() - 2];
+				double distance_to_penultimate_point_squared = jmVectorStructDistanceSquared(end_point, penultimate_point);
+				if (distance_to_penultimate_point_squared < line_first_point_ignore_distance_squared_in_projector_range_) {
+					removeLastPoint();
 				}
 			}
 		}
 	} else {
-		AddNewPoint(startPoint);
+		addNewPoint(start_point);
 	}
 
-	AddNewPointWithLinearInterpolationFromLastPoint(endPoint);
+	addNewPointWithLinearInterpolationFromLastPoint(end_point);
 }
 
-bool VectorImageBuilder::AddNewPoint(double x, double y,
-                 uint16_t red, uint16_t green, uint16_t blue,
-                 uint16_t intensity, AxisPosition originAxisPosition) {
-	double xInProjectorOrigin;
-	double yInProjectorOrigin;
-	int32_t xInProjectorRange;
-	int32_t yInProjectorRange;
-	if (ConvertPointFromDrawingAreaToProjectorOrigin(x, y, xInProjectorOrigin, yInProjectorOrigin, originAxisPosition) &&
-	ConvertPointFromDrawingAreaInProjectorOriginToProjectorRange(xInProjectorOrigin, yInProjectorOrigin, xInProjectorRange, yInProjectorRange)) {
-		AddNewPoint(xInProjectorRange, yInProjectorRange, red, green, blue, intensity);
+bool VectorImageBuilder::addNewPoint(double x, double y,
+                                     uint16_t red, uint16_t green, uint16_t blue,
+                                     uint16_t intensity, AxisPosition origin_axis_position) {
+	double x_in_projector_origin;
+	double y_in_projector_origin;
+	int32_t x_in_projector_range;
+	int32_t y_in_projector_range;
+	if (convertPointFromDrawingAreaToProjectorOrigin(x, y, x_in_projector_origin, y_in_projector_origin, origin_axis_position) &&
+			convertPointFromDrawingAreaInProjectorOriginToProjectorRange(x_in_projector_origin, y_in_projector_origin, x_in_projector_range, y_in_projector_range)) {
+		addNewPoint(x_in_projector_range, y_in_projector_range, red, green, blue, intensity);
 		return true;
 	}
 	return false;
 }
 
-void VectorImageBuilder::AddNewPoint(int32_t x, int32_t y,
-                 uint16_t red, uint16_t green, uint16_t blue, uint16_t intensity) {
-	JMVectorStruct newPoint;
-	newPoint.x = x;
-	newPoint.y = y;
-	newPoint.r = red;
-	newPoint.g = green;
-	newPoint.b = blue;
-	newPoint.i = intensity;
-	newPoint.deepblue = std::numeric_limits<uint16_t>::max();
-	newPoint.yellow = std::numeric_limits<uint16_t>::max();
-	newPoint.cyan = std::numeric_limits<uint16_t>::max();
-	newPoint.user4 = std::numeric_limits<uint16_t>::max();
+void VectorImageBuilder::addNewPoint(int32_t x, int32_t y,
+                                     uint16_t red, uint16_t green, uint16_t blue, uint16_t intensity) {
+	JMVectorStruct new_point;
+	new_point.x = x;
+	new_point.y = y;
+	new_point.r = red;
+	new_point.g = green;
+	new_point.b = blue;
+	new_point.i = intensity;
+	new_point.deepblue = std::numeric_limits<uint16_t>::max();
+	new_point.yellow = std::numeric_limits<uint16_t>::max();
+	new_point.cyan = std::numeric_limits<uint16_t>::max();
+	new_point.user4 = std::numeric_limits<uint16_t>::max();
 
-	AddNewPoint(newPoint);
+	addNewPoint(new_point);
 }
 
-void VectorImageBuilder::AddNewPoint(JMVectorStruct& point) {
-	if (VectorImagePoints.empty()) {
-		JMVectorStruct pointStartOff = point;
-		pointStartOff.i = 0;
-		VectorImagePoints.push_back(pointStartOff);
+void VectorImageBuilder::addNewPoint(JMVectorStruct &point) {
+	if (vector_image_points_.empty()) {
+		JMVectorStruct point_start_off = point;
+		point_start_off.i = 0;
+		vector_image_points_.push_back(point_start_off);
 	}
-	VectorImagePoints.push_back(point);
+	vector_image_points_.push_back(point);
 }
 
-void VectorImageBuilder::AddNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct& point) {
-	JMVectorStruct lastPoint = VectorImagePoints.back();
-	double distanceToLastPoint = std::sqrt(JMVectorStructDistanceSquared(lastPoint, point));
-	int numberOfInterpolationPoints = (int)(distanceToLastPoint / (double)InterpolationDistanceInProjectorRange) - 1;
+void VectorImageBuilder::addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point) {
+	JMVectorStruct last_point = vector_image_points_.back();
+	double distance_to_last_point = std::sqrt(jmVectorStructDistanceSquared(last_point, point));
+	int number_of_interpolation_points = (int)(distance_to_last_point / (double)interpolation_distance_in_projector_range_) - 1;
 
-	if (numberOfInterpolationPoints > 0) {
-		double tIncrement = 1.0 / (double) numberOfInterpolationPoints;
-		double t = tIncrement;
-		for (int i = 0; i < numberOfInterpolationPoints; ++i) {
-			JMVectorStruct newPoint = lastPoint;
-			newPoint.x = (int32_t)LinearInterpolation(lastPoint.x, point.x, t);
-			newPoint.y = (int32_t)LinearInterpolation(lastPoint.y, point.y, t);
-			AddNewPoint(newPoint);
-			t += tIncrement;
+	if (number_of_interpolation_points > 0) {
+		double t_increment = 1.0 / (double) number_of_interpolation_points;
+		double t = t_increment;
+		for (int i = 0; i < number_of_interpolation_points; ++i) {
+			JMVectorStruct new_point = last_point;
+			new_point.x = (int32_t) linearInterpolation(last_point.x, point.x, t);
+			new_point.y = (int32_t) linearInterpolation(last_point.y, point.y, t);
+			addNewPoint(new_point);
+			t += t_increment;
 		}
 	}
 
-	AddNewPoint(point);
+	addNewPoint(point);
 }
 
-void VectorImageBuilder::CorrectRadialDistortion(JMVectorStruct& point) {
-	if (RadialDistortionCoefficientSecondDegree != 0 || RadialDistortionCoefficientFourthDegree != 0 || RadialDistortionCoefficientSixthDegree != 0) {
+void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point) {
+	if (radial_distortion_coefficient_second_degree_ != 0 || radial_distortion_coefficient_fourth_degree_ != 0 || radial_distortion_coefficient_sixth_degree_ != 0) {
 		double u = (double)point.x / (double)std::numeric_limits<int32_t >::max();
 		double v = (double)point.y / (double)std::numeric_limits<int32_t >::max();
-		double uInverted = ((double)std::numeric_limits<int32_t >::max() - std::abs((double)point.x)) / (double)std::numeric_limits<int32_t >::max();
-		double vInverted = ((double)std::numeric_limits<int32_t >::max() - std::abs((double)point.y)) / (double)std::numeric_limits<int32_t >::max();
+		double u_inverted = ((double)std::numeric_limits<int32_t >::max() - std::abs((double)point.x)) / (double)std::numeric_limits<int32_t >::max();
+		double v_inverted = ((double)std::numeric_limits<int32_t >::max() - std::abs((double)point.y)) / (double)std::numeric_limits<int32_t >::max();
 		double r = std::pow(u, 2.0) * std::pow(v, 2.0);
-		double rWithInvertedUV = std::pow(uInverted, 2.0) * std::pow(vInverted, 2.0);
-		double warp = RadialDistortionCoefficientSecondDegreeInvertedUV * rWithInvertedUV +
-		              RadialDistortionCoefficientSecondDegree * r +
-		              RadialDistortionCoefficientFourthDegree * r * r +
-		              RadialDistortionCoefficientSixthDegree  * r * r * r;
+		double r_with_inverted_uv = std::pow(u_inverted, 2.0) * std::pow(v_inverted, 2.0);
+		double warp = radial_distortion_coefficient_second_degree_inverted_uv_ * r_with_inverted_uv +
+		              radial_distortion_coefficient_second_degree_ * r +
+		              radial_distortion_coefficient_fourth_degree_ * r * r +
+		              radial_distortion_coefficient_sixth_degree_  * r * r * r;
 		point.x = (int)((1.0 + warp) * (double)point.x);
 	}
 }
 
-void VectorImageBuilder::CorrectRadialDistortionOnVectorImage() {
-	for (int i = 0; i < VectorImagePoints.size(); ++i) {
-		CorrectRadialDistortion(VectorImagePoints[i]);
+void VectorImageBuilder::correctRadialDistortionOnVectorImage() {
+	for (int i = 0; i < vector_image_points_.size(); ++i) {
+		correctRadialDistortion(vector_image_points_[i]);
 	}
 }
 
-void VectorImageBuilder::ReplaceLastPoint(JMVectorStruct& point) {
-	if (VectorImagePoints.empty())
-		VectorImagePoints.push_back(point);
+void VectorImageBuilder::replaceLastPoint(JMVectorStruct &point) {
+	if (vector_image_points_.empty())
+		vector_image_points_.push_back(point);
 	else
-		VectorImagePoints.back() = point;
+		vector_image_points_.back() = point;
 }
 
-void VectorImageBuilder::RemoveLastPoint() {
-	VectorImagePoints.pop_back();
+void VectorImageBuilder::removeLastPoint() {
+	vector_image_points_.pop_back();
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-double VectorImageBuilder::JMVectorStructDistanceSquared(JMVectorStruct first, JMVectorStruct second) {
+double VectorImageBuilder::jmVectorStructDistanceSquared(JMVectorStruct first, JMVectorStruct second) {
 	return  std::pow((double)second.x - (double)first.x, 2.0) + std::pow((double)second.y - (double)first.y, 2.0);
 }
 
-bool VectorImageBuilder::LineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
+bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
                                           double p2_x, double p2_y, double p3_x, double p3_y,
-                                          double& i_x, double& i_y) {
+                                          double &i_x, double &i_y) {
 	double s02_x, s02_y, s10_x, s10_y, s32_x, s32_y, s_numer, t_numer, denom, t;
 	s10_x = p1_x - p0_x;
 	s10_y = p1_y - p0_y;
@@ -540,7 +541,7 @@ bool VectorImageBuilder::LineIntersection(double p0_x, double p0_y, double p1_x,
 	return true;
 }
 
-double VectorImageBuilder::LinearInterpolation(double a, double b, double t) {
+double VectorImageBuilder::linearInterpolation(double a, double b, double t) {
 	return a * (1 - t) + b * t;
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
