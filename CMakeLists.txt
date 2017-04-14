@@ -11,9 +11,11 @@ option(build_for_x86 "Option for building for x86 or x64 arquitectures" OFF)
 if (build_for_x86)
     message("==> Building for x86")
     set(target_arquitecture 32)
+    set(communication_library jmlaser_x86.dll)
 else()
     message("==> Building for x64")
     set(target_arquitecture 64)
+    set(communication_library jmlaser_x64.dll)
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m${target_arquitecture}")
@@ -39,7 +41,7 @@ include_directories(
 #==================================================================================================
 
 add_library(jmlaser SHARED IMPORTED)
-set_property(TARGET jmlaser PROPERTY IMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/lib/jmlaser/jmlaser_x${target_arquitecture}.dll)
+set_property(TARGET jmlaser PROPERTY IMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/lib/jmlaser/${communication_library})
 
 add_library(jmlaser_projector SHARED src/jmlaser_projector.cpp)
 LIST(APPEND ${PROJECT_NAME}-libraries jmlaser_projector)
@@ -49,7 +51,7 @@ LIST(APPEND ${PROJECT_NAME}-libraries vector_image_builder)
 
 add_custom_command(TARGET jmlaser_projector POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${PROJECT_SOURCE_DIR}/lib/jmlaser/jmlaser_x${target_arquitecture}.dll"
+    "${PROJECT_SOURCE_DIR}/lib/jmlaser/${communication_library}"
     "${CMAKE_BINARY_DIR}/jmlaser.dll")
 
 

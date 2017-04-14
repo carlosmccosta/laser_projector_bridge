@@ -478,7 +478,7 @@ void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point) {
 }
 
 void VectorImageBuilder::correctRadialDistortionOnVectorImage() {
-	for (int i = 0; i < vector_image_points_.size(); ++i) {
+	for (size_t i = 0; i < vector_image_points_.size(); ++i) {
 		correctRadialDistortion(vector_image_points_[i]);
 	}
 }

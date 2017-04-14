@@ -9,7 +9,7 @@ void testJmlaserProjectorWithoutEnumeration() {
 }
 
 
-void testJmlaserProjectorSetup(int number_of_projectors) {
+void testJmlaserProjectorSetup(unsigned int number_of_projectors) {
 	for (unsigned int i = 0; i < number_of_projectors; ++i) {
 		laser_projector_bridge::JMLaserProjector laser_projector;
 
@@ -31,7 +31,7 @@ void testJmlaserProjectorSetup(int number_of_projectors) {
 		std::cout << laser_projector << "\n\n" << std::endl;
 
 		std::cout << ">>> |setupProjectorUsingFriendlyName(std::string(\"ILP 622 LAN\"))" << std::endl;
-		laser_projector.setupProjectorUsingFriendlyName(std::string("ILP 622 LAN"));
+		//laser_projector.setupProjectorUsingFriendlyName(std::string("ILP 622 LAN"));
 		std::cout << laser_projector << "\n\n" << std::endl;
 	}
 }
@@ -214,7 +214,7 @@ void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct>
 	points = vector_image_builder.getVectorImagePoints();
 }
 
-void testJmlaserOutput(int number_of_projectors) {
+void testJmlaserOutput(unsigned int number_of_projectors) {
 	std::vector<JMVectorStruct> points;
 	//createLaserOutputPattern(points);
 	createLaserOutputPatternUsingVectorImageBuilder(points);
@@ -254,8 +254,8 @@ int main(int argc, char **argv) {
 		std::cout << ">>> No projectors were found!" << std::endl;
 		return -1;
 	} else {
-		testJmlaserProjectorSetup(number_of_projectors);
-		testJmlaserOutput(number_of_projectors);
+		testJmlaserProjectorSetup((unsigned int)number_of_projectors);
+		testJmlaserOutput((unsigned int)number_of_projectors);
 	}
 
 	laser_projector_bridge::JMLaserProjector::jmLaserBridgeCloseDll();
