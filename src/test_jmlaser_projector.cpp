@@ -1,6 +1,8 @@
 #include <laser_projector_bridge/jmlaser_projector.h>
 #include <laser_projector_bridge/vector_image_builder.h>
 #include <climits>
+#include <chrono>
+#include <thread>
 
 void testJmlaserProjectorWithoutEnumeration() {
 	std::string projector_name = laser_projector_bridge::JMLaserProjector::jmLaserBridgeGetDeviceListEntry(0);
@@ -214,7 +216,44 @@ void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct>
 	points = vector_image_builder.getVectorImagePoints();
 }
 
-void testJmlaserOutput(unsigned int number_of_projectors) {
+void sendMovingHorizontalLine(laser_projector_bridge::JMLaserProjector& laser_projector, int64_t projection_time_per_line_ms = 20000, size_t number_of_lines = 1000, unsigned int projector_speed = 1000) {
+	std::vector<JMVectorStruct> points;
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, 0));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, USHRT_MAX));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, INT_MIN, USHRT_MAX));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, INT_MIN, 0));
+	int vertical_line_increment = (int)(std::numeric_limits<uint32_t>::max() / number_of_lines);
+	for (size_t i = 0; i < number_of_lines; ++i) {
+		laser_projector.sendVectorImageToProjector(points, projector_speed, 0);
+		std::this_thread::sleep_for(std::chrono::microseconds(projection_time_per_line_ms));
+		points[0].y += vertical_line_increment;
+		points[1].y += vertical_line_increment;
+		points[2].y += vertical_line_increment;
+		points[3].y += vertical_line_increment;
+	}
+	laser_projector.stopOutput();
+}
+
+void sendMovingVerticalLine(laser_projector_bridge::JMLaserProjector& laser_projector, int64_t projection_time_per_line_ms = 20000, size_t number_of_lines = 1000, unsigned int projector_speed = 1000) {
+	std::vector<JMVectorStruct> points;
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, 0));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, USHRT_MAX));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MAX, USHRT_MAX));
+	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MAX, 0));
+	int vertical_line_increment = (int)(std::numeric_limits<uint32_t>::max() / number_of_lines);
+	for (size_t i = 0; i < number_of_lines; ++i) {
+		laser_projector.sendVectorImageToProjector(points, projector_speed, 0);
+		std::this_thread::sleep_for(std::chrono::microseconds(projection_time_per_line_ms));
+		points[0].x += vertical_line_increment;
+		points[1].x += vertical_line_increment;
+		points[2].x += vertical_line_increment;
+		points[3].x += vertical_line_increment;
+	}
+	laser_projector.stopOutput();
+}
+
+
+void testJmlaserOutput(unsigned int number_of_projectors, bool send_test_patterns = true, bool send_moving_horizontal_line = true, bool send_moving_vertical_line = true) {
 	std::vector<JMVectorStruct> points;
 	//createLaserOutputPattern(points);
 	createLaserOutputPatternUsingVectorImageBuilder(points);
@@ -224,17 +263,29 @@ void testJmlaserOutput(unsigned int number_of_projectors) {
 		std::cout << ">>> |setupProjectorUsingIndex(i)" << std::endl;
 		laser_projector.setupProjectorUsingIndex(i);
 		std::cout << laser_projector << "\n\n" << std::endl;
-		laser_projector.startOutput();
 		std::cout << ">>> Sending pattern to projector " << i << std::endl;
-		if (laser_projector.sendVectorImageToProjector(points, 1000, 0)) {
-			std::cout << ">>> - Pattern was sent successfully" << std::endl;
-		} else {
-			std::cout << ">>> - Failed to send pattern" << std::endl;
+		laser_projector.startOutput();
+
+		if (send_moving_horizontal_line) {
+			sendMovingHorizontalLine(laser_projector);
 		}
-		std::cout << ">>> - Press ENTER to continue..." << std::endl;
-		std::string temp;
-		std::getline(std::cin, temp);
-		laser_projector.stopOutput();
+
+		if (send_moving_vertical_line) {
+			sendMovingVerticalLine(laser_projector);
+		}
+
+		if (send_test_patterns) {
+			if (laser_projector.sendVectorImageToProjector(points, 1000, 0)) {
+				std::cout << ">>> - Pattern was sent successfully" << std::endl;
+			} else {
+				std::cout << ">>> - Failed to send pattern" << std::endl;
+			}
+
+			std::cout << ">>> - Press ENTER to continue..." << std::endl;
+			std::string temp;
+			std::getline(std::cin, temp);
+			laser_projector.stopOutput();
+		}
 	}
 }
 
