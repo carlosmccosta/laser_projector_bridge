@@ -83,9 +83,9 @@ void createLaserOutputPatternPlusFullRange(std::vector<JMVectorStruct> &points) 
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,       INT_MIN, USHRT_MAX));
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,       INT_MAX, USHRT_MAX));
 	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, 0,       0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, 0,       USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, 0,       USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, 0,       0));
+//	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, 0,       USHRT_MAX));
+//	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, 0,       USHRT_MAX));
+//	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, 0,       0));
 }
 
 void createLaserOutputPatternPlusFullRangeUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
@@ -133,15 +133,15 @@ void createLaserOutputPatternCrossScaled(std::vector<JMVectorStruct> &points) {
 
 
 void createLaserOutputPattern(std::vector<JMVectorStruct> &points) {
-	createLaserOutputPatternSquareFullRange(points);
-	createLaserOutputPatternSquareScaled(points, 0.75);
-	createLaserOutputPatternSquareScaled(points, 0.6);
-	createLaserOutputPatternSquareScaled(points, 0.5);
-	createLaserOutputPatternSquareScaled(points, 0.4);
-	createLaserOutputPatternSquareScaled(points, 0.25);
+//	createLaserOutputPatternSquareFullRange(points);
+//	createLaserOutputPatternSquareScaled(points, 0.75);
+//	createLaserOutputPatternSquareScaled(points, 0.6);
+//	createLaserOutputPatternSquareScaled(points, 0.5);
+//	createLaserOutputPatternSquareScaled(points, 0.4);
+//	createLaserOutputPatternSquareScaled(points, 0.25);
 	createLaserOutputPatternPlusFullRange(points);
-	createLaserOutputPatternCrossFullRange(points);
-	createLaserOutputPatternCrossScaled(points);
+//	createLaserOutputPatternCrossFullRange(points);
+//	createLaserOutputPatternCrossScaled(points);
 }
 
 void createLaserOutputPatternHorizontalDiamondOutsideDrawingAreaUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
@@ -255,8 +255,8 @@ void sendMovingVerticalLine(laser_projector_bridge::JMLaserProjector& laser_proj
 
 void testJmlaserOutput(unsigned int number_of_projectors, bool send_test_patterns = true, bool send_moving_horizontal_line = true, bool send_moving_vertical_line = true) {
 	std::vector<JMVectorStruct> points;
-	//createLaserOutputPattern(points);
-	createLaserOutputPatternUsingVectorImageBuilder(points);
+//	createLaserOutputPattern(points);
+	//createLaserOutputPatternUsingVectorImageBuilder(points);
 
 	for (unsigned int i = 0; i < number_of_projectors; ++i) {
 		laser_projector_bridge::JMLaserProjector laser_projector;

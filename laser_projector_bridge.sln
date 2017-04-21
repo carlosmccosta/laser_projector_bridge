@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.3
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "laser_projector_bridge", "laser_projector_bridge.vcxproj", "{DD45DD5B-AE4D-40CB-9238-B41000193327}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "laser_projector_bridge", "laser_projector_bridge\laser_projector_bridge.vcxproj", "{DD45DD5B-AE4D-40CB-9238-B41000193327}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "laser_projector_bridge_tests", "laser_projector_bridge_tests\laser_projector_bridge_tests.vcxproj", "{DCA9892D-7A49-4366-9DF5-F1336FEDF851}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{DD45DD5B-AE4D-40CB-9238-B41000193327}.Release|x64.Build.0 = Release|x64
 		{DD45DD5B-AE4D-40CB-9238-B41000193327}.Release|x86.ActiveCfg = Release|Win32
 		{DD45DD5B-AE4D-40CB-9238-B41000193327}.Release|x86.Build.0 = Release|Win32
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Debug|x64.ActiveCfg = Debug|x64
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Debug|x64.Build.0 = Debug|x64
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Debug|x86.ActiveCfg = Debug|Win32
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Debug|x86.Build.0 = Debug|Win32
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Release|x64.ActiveCfg = Release|x64
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Release|x64.Build.0 = Release|x64
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Release|x86.ActiveCfg = Release|Win32
+		{DCA9892D-7A49-4366-9DF5-F1336FEDF851}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
