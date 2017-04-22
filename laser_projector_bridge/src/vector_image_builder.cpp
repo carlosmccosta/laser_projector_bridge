@@ -28,7 +28,7 @@ VectorImageBuilder::VectorImageBuilder() :
 		radial_distortion_coefficient_sixth_degree_(-0.005),
 		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
 		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0001, 2.0)),
-		interpolation_distance_in_projector_range_((int32_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002))
+		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002))
 		{}
 
 VectorImageBuilder::~VectorImageBuilder() {}
@@ -45,8 +45,8 @@ void VectorImageBuilder::startNewVectorImage() {
 
 void VectorImageBuilder::finishVectorImage() {
 	if (!vector_image_points_.empty()) {
-		JMVectorStruct& last_point = vector_image_points_.back();
-		if (last_point.i != 0) {
+		if (vector_image_points_.back().i != 0) {
+			JMVectorStruct last_point = vector_image_points_.back();
 			last_point.i = 0;
 			vector_image_points_.push_back(last_point);
 		}
@@ -442,22 +442,23 @@ void VectorImageBuilder::addNewPoint(JMVectorStruct &point) {
 }
 
 void VectorImageBuilder::addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point) {
-	JMVectorStruct last_point = vector_image_points_.back();
-	double distance_to_last_point = std::sqrt(jmVectorStructDistanceSquared(last_point, point));
-	int number_of_interpolation_points = (int)(distance_to_last_point / (double)interpolation_distance_in_projector_range_) - 1;
+	if (interpolation_distance_in_projector_range_ > 0) {
+		JMVectorStruct last_point = vector_image_points_.back();
+		double distance_to_last_point = std::sqrt(jmVectorStructDistanceSquared(last_point, point));
+		int64_t number_of_interpolation_points = (int64_t)(distance_to_last_point / (double)interpolation_distance_in_projector_range_) - 1;
 
-	if (number_of_interpolation_points > 0) {
-		double t_increment = 1.0 / (double) number_of_interpolation_points;
-		double t = t_increment;
-		for (int i = 0; i < number_of_interpolation_points; ++i) {
-			JMVectorStruct new_point = last_point;
-			new_point.x = (int32_t) linearInterpolation(last_point.x, point.x, t);
-			new_point.y = (int32_t) linearInterpolation(last_point.y, point.y, t);
-			addNewPoint(new_point);
-			t += t_increment;
+		if (number_of_interpolation_points > 0) {
+			double t_increment = 1.0 / (double)number_of_interpolation_points;
+			double t = t_increment;
+			for (int64_t i = 0; i < number_of_interpolation_points; ++i) {
+				JMVectorStruct new_point = last_point;
+				new_point.x = (int32_t)linearInterpolation(last_point.x, point.x, t);
+				new_point.y = (int32_t)linearInterpolation(last_point.y, point.y, t);
+				addNewPoint(new_point);
+				t += t_increment;
+			}
 		}
 	}
-
 	addNewPoint(point);
 }
 

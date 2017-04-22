@@ -90,7 +90,7 @@ class VectorImageBuilder {
 		inline double getRadialDistortionCoefficientSixthDegree() const { return radial_distortion_coefficient_sixth_degree_; }
 		inline double getLineFirstPointMergeDistanceSquaredInProjectorRange() const { return line_first_point_merge_distance_squared_in_projector_range_; }
 		inline double getLineFirstPointIgnoreDistanceSquaredInProjectorRange() const { return line_first_point_ignore_distance_squared_in_projector_range_; }
-		inline int32_t getInterpolationDistanceInProjectorRange() const { return interpolation_distance_in_projector_range_; }
+		inline int64_t getInterpolationDistanceInProjectorRange() const { return interpolation_distance_in_projector_range_; }
 		inline std::vector<JMVectorStruct>& getVectorImagePoints() { return vector_image_points_; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </gets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -106,7 +106,7 @@ class VectorImageBuilder {
 		inline void setRadialDistortionCoefficientSixthDegree(double radial_distortion_coefficient_sixth_degree) { VectorImageBuilder::radial_distortion_coefficient_sixth_degree_ = radial_distortion_coefficient_sixth_degree; }
 		inline void setLineFirstPointMergeDistanceSquaredInProjectorRange(double line_first_point_merge_distance_squared_in_projector_range) { VectorImageBuilder::line_first_point_merge_distance_squared_in_projector_range_ = line_first_point_merge_distance_squared_in_projector_range; }
 		inline void setLineFirstPointIgnoreDistanceSquaredInProjectorRange(double line_first_point_ignore_distance_squared_in_projector_range) { VectorImageBuilder::line_first_point_ignore_distance_squared_in_projector_range_ = line_first_point_ignore_distance_squared_in_projector_range; }
-		inline void setInterpolationDistanceInProjectorRange(int32_t interpolation_distance_in_projector_range) { VectorImageBuilder::interpolation_distance_in_projector_range_ = interpolation_distance_in_projector_range; }
+		inline void setInterpolationDistanceInProjectorRange(int64_t interpolation_distance_in_projector_range) { VectorImageBuilder::interpolation_distance_in_projector_range_ = interpolation_distance_in_projector_range; }
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </sets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// ============================================================================   </public-section>   =========================================================================
 
@@ -125,7 +125,7 @@ class VectorImageBuilder {
 		double radial_distortion_coefficient_sixth_degree_;
 		double line_first_point_merge_distance_squared_in_projector_range_;
 		double line_first_point_ignore_distance_squared_in_projector_range_;
-		int32_t interpolation_distance_in_projector_range_;
+		int64_t interpolation_distance_in_projector_range_;
 		std::vector<JMVectorStruct> vector_image_points_;
 	// ============================================================================   <protected-section>   =======================================================================
 };
