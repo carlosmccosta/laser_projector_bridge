@@ -75,7 +75,7 @@ class VectorImageBuilder {
 		static double jmVectorStructDistanceSquared(JMVectorStruct first, JMVectorStruct second);
 		static bool lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
 		                             double p2_x, double p2_y, double p3_x, double p3_y,
-		                             double &i_x, double &i_y);
+		                             double &i_x, double &i_y, double comparison_epsilon = 1e-8);
 		static double linearInterpolation(double a, double b, double t);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

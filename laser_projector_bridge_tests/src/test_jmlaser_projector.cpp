@@ -253,10 +253,10 @@ void sendMovingVerticalLine(laser_projector_bridge::JMLaserProjector& laser_proj
 }
 
 
-void testJmlaserOutput(unsigned int number_of_projectors, bool send_test_patterns = true, bool send_moving_horizontal_line = true, bool send_moving_vertical_line = true) {
+void testJmlaserOutput(unsigned int number_of_projectors, bool send_test_patterns = true, bool send_moving_horizontal_line = false, bool send_moving_vertical_line = false) {
 	std::vector<JMVectorStruct> points;
 //	createLaserOutputPattern(points);
-	//createLaserOutputPatternUsingVectorImageBuilder(points);
+	createLaserOutputPatternUsingVectorImageBuilder(points);
 
 	for (unsigned int i = 0; i < number_of_projectors; ++i) {
 		laser_projector_bridge::JMLaserProjector laser_projector;

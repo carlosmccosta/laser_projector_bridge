@@ -505,7 +505,7 @@ double VectorImageBuilder::jmVectorStructDistanceSquared(JMVectorStruct first, J
 
 bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
                                           double p2_x, double p2_y, double p3_x, double p3_y,
-                                          double &i_x, double &i_y) {
+                                          double &i_x, double &i_y, double comparison_epsilon) {
 	double s02_x, s02_y, s10_x, s10_y, s32_x, s32_y, t_numerator, denominator, t;
 	s10_x = p1_x - p0_x;
 	s10_y = p1_y - p0_y;
@@ -513,7 +513,7 @@ bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x,
 	s32_y = p3_y - p2_y;
 
 	denominator = s10_x * s32_y - s32_x * s10_y;
-	if (denominator == 0)
+	if (std::abs(denominator) < comparison_epsilon)
 		return false; // Collinear
 
 	s02_x = p0_x - p2_x;
