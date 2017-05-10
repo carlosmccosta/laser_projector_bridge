@@ -28,7 +28,8 @@ VectorImageBuilder::VectorImageBuilder() :
 		radial_distortion_coefficient_sixth_degree_(-0.005),
 		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
 		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0001, 2.0)),
-		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002))
+		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002)),
+		number_of_blanking_points_for_line_start_and_end_(0)
 		{}
 
 VectorImageBuilder::~VectorImageBuilder() {}
@@ -46,9 +47,12 @@ void VectorImageBuilder::startNewVectorImage() {
 void VectorImageBuilder::finishVectorImage() {
 	if (!vector_image_points_.empty()) {
 		if (vector_image_points_.back().i != 0) {
-			JMVectorStruct last_point = vector_image_points_.back();
-			last_point.i = 0;
-			vector_image_points_.push_back(last_point);
+			JMVectorStruct last_point_off = vector_image_points_.back();
+			last_point_off.i = 0;
+			vector_image_points_.push_back(last_point_off);
+
+			for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+				addNewPoint(last_point_off);
 		}
 		correctRadialDistortionOnVectorImage();
 		// todo: laser path optimization and blanking
@@ -374,9 +378,17 @@ void VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct 
 				addNewPoint(last_point);
 			}
 
+			JMVectorStruct last_point_off = last_point;
+			last_point_off.i = 0;
+			for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+				addNewPoint(last_point_off);
+
 			JMVectorStruct start_point_off = start_point;
 			start_point_off.i = 0;
 			addNewPoint(start_point_off);
+			for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+				addNewPoint(start_point_off);
+
 			addNewPoint(start_point);
 		} else {
 			if (distance_to_last_point_squared > 0 && distance_to_last_point_squared < line_first_point_merge_distance_squared_in_projector_range_) {
@@ -394,6 +406,13 @@ void VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct 
 			}
 		}
 	} else {
+		JMVectorStruct start_point_off = start_point;
+		start_point_off.i = 0;
+		addNewPoint(start_point_off);
+
+		for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+			addNewPoint(start_point_off);
+
 		addNewPoint(start_point);
 	}
 

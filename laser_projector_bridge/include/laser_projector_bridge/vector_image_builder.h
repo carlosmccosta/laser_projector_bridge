@@ -96,17 +96,18 @@ class VectorImageBuilder {
 
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <sets>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-		inline void setDrawingAreaWidth(double drawing_area_width) { VectorImageBuilder::drawing_area_width_ = drawing_area_width; }
-		inline void setDrawingAreaHeight(double drawing_area_height) { VectorImageBuilder::drawing_area_height_ = drawing_area_height; }
-		inline void setDrawingAreaXOffset(double drawing_area_x_offset) { VectorImageBuilder::drawing_area_x_offset_ = drawing_area_x_offset; }
-		inline void setDrawingAreaYOffset(double drawing_area_y_offset) { VectorImageBuilder::drawing_area_y_offset_ = drawing_area_y_offset; }
-		inline void setRadialDistortionCoefficientSecondDegreeInvertedUV(double radial_distortion_coefficient_second_degree_inverted_uv) { VectorImageBuilder::radial_distortion_coefficient_second_degree_inverted_uv_ = radial_distortion_coefficient_second_degree_inverted_uv; }
-		inline void setRadialDistortionCoefficientSecondDegree(double radial_distortion_coefficient_second_degree) { VectorImageBuilder::radial_distortion_coefficient_second_degree_ = radial_distortion_coefficient_second_degree; }
-		inline void setRadialDistortionCoefficientFourthDegree(double radial_distortion_coefficient_fourth_degree) { VectorImageBuilder::radial_distortion_coefficient_fourth_degree_ = radial_distortion_coefficient_fourth_degree; }
-		inline void setRadialDistortionCoefficientSixthDegree(double radial_distortion_coefficient_sixth_degree) { VectorImageBuilder::radial_distortion_coefficient_sixth_degree_ = radial_distortion_coefficient_sixth_degree; }
-		inline void setLineFirstPointMergeDistanceSquaredInProjectorRange(double line_first_point_merge_distance_squared_in_projector_range) { VectorImageBuilder::line_first_point_merge_distance_squared_in_projector_range_ = line_first_point_merge_distance_squared_in_projector_range; }
-		inline void setLineFirstPointIgnoreDistanceSquaredInProjectorRange(double line_first_point_ignore_distance_squared_in_projector_range) { VectorImageBuilder::line_first_point_ignore_distance_squared_in_projector_range_ = line_first_point_ignore_distance_squared_in_projector_range; }
-		inline void setInterpolationDistanceInProjectorRange(int64_t interpolation_distance_in_projector_range) { VectorImageBuilder::interpolation_distance_in_projector_range_ = interpolation_distance_in_projector_range; }
+		inline void setDrawingAreaWidth(double drawing_area_width) { drawing_area_width_ = drawing_area_width; }
+		inline void setDrawingAreaHeight(double drawing_area_height) { drawing_area_height_ = drawing_area_height; }
+		inline void setDrawingAreaXOffset(double drawing_area_x_offset) { drawing_area_x_offset_ = drawing_area_x_offset; }
+		inline void setDrawingAreaYOffset(double drawing_area_y_offset) { drawing_area_y_offset_ = drawing_area_y_offset; }
+		inline void setRadialDistortionCoefficientSecondDegreeInvertedUV(double radial_distortion_coefficient_second_degree_inverted_uv) { radial_distortion_coefficient_second_degree_inverted_uv_ = radial_distortion_coefficient_second_degree_inverted_uv; }
+		inline void setRadialDistortionCoefficientSecondDegree(double radial_distortion_coefficient_second_degree) { radial_distortion_coefficient_second_degree_ = radial_distortion_coefficient_second_degree; }
+		inline void setRadialDistortionCoefficientFourthDegree(double radial_distortion_coefficient_fourth_degree) { radial_distortion_coefficient_fourth_degree_ = radial_distortion_coefficient_fourth_degree; }
+		inline void setRadialDistortionCoefficientSixthDegree(double radial_distortion_coefficient_sixth_degree) { radial_distortion_coefficient_sixth_degree_ = radial_distortion_coefficient_sixth_degree; }
+		inline void setLineFirstPointMergeDistanceSquaredInProjectorRange(double line_first_point_merge_distance_squared_in_projector_range) { line_first_point_merge_distance_squared_in_projector_range_ = line_first_point_merge_distance_squared_in_projector_range; }
+		inline void setLineFirstPointIgnoreDistanceSquaredInProjectorRange(double line_first_point_ignore_distance_squared_in_projector_range) { line_first_point_ignore_distance_squared_in_projector_range_ = line_first_point_ignore_distance_squared_in_projector_range; }
+		inline void setInterpolationDistanceInProjectorRange(int64_t interpolation_distance_in_projector_range) { interpolation_distance_in_projector_range_ = interpolation_distance_in_projector_range; }
+		inline void setNumberOfBlankingPointsForLineStartAndEnd(size_t number_of_blanking_points_for_line_start) { number_of_blanking_points_for_line_start_and_end_ = number_of_blanking_points_for_line_start; }
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </sets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// ============================================================================   </public-section>   =========================================================================
 
@@ -126,6 +127,7 @@ class VectorImageBuilder {
 		double line_first_point_merge_distance_squared_in_projector_range_;
 		double line_first_point_ignore_distance_squared_in_projector_range_;
 		int64_t interpolation_distance_in_projector_range_;
+		size_t number_of_blanking_points_for_line_start_and_end_;
 		std::vector<JMVectorStruct> vector_image_points_;
 	// ============================================================================   <protected-section>   =======================================================================
 };
