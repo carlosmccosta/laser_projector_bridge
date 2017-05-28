@@ -46,6 +46,7 @@ class VectorImageBuilder {
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		void startNewVectorImage();
 		void finishVectorImage();
+		void addReverseImage();
 		bool convertProjectorOriginToDrawingAreaOrigin(double x, double y, double &new_x, double &new_y, AxisPosition drawing_area_origin_axis_position = BottomLeft);
 		bool convertPointFromDrawingAreaToProjectorOrigin(double x, double y, double &x_point_in_drawing_area_and_projector_origin, double &y_point_in_drawing_area_and_projector_origin, AxisPosition origin_axis_position = BottomLeft);
 		bool convertPointFromDrawingAreaInProjectorOriginToProjectorRange(double x_point_in_drawing_area_and_projector_origin, double y_point_in_drawing_area_and_projector_origin, int32_t &x_point_in_projector_range, int32_t &y_point_in_projector_range);

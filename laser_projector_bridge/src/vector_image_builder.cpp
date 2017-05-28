@@ -59,6 +59,15 @@ void VectorImageBuilder::finishVectorImage() {
 	}
 }
 
+
+void VectorImageBuilder::addReverseImage()
+{
+	for (int i = (int)vector_image_points_.size() - 1; i >= 0; --i) {
+		vector_image_points_.push_back(vector_image_points_[i]);
+	}
+}
+
+
 bool VectorImageBuilder::convertProjectorOriginToDrawingAreaOrigin(double x, double y, double &new_x, double &new_y, AxisPosition drawing_area_origin_axis_position) {
 	switch (drawing_area_origin_axis_position) {
 		case AxisPosition::TopLeft: {
