@@ -66,6 +66,8 @@ class VectorImageBuilder {
 		                 uint16_t red = std::numeric_limits<uint16_t>::max(), uint16_t green = std::numeric_limits<uint16_t>::max(), uint16_t blue = std::numeric_limits<uint16_t>::max(), uint16_t intensity = std::numeric_limits<uint16_t>::max());
 		void addNewPoint(JMVectorStruct &point);
 		void addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point);
+		void addLastPointTurnedOff();
+		void addLastPointBlankingPoints();
 		void correctRadialDistortion(JMVectorStruct &point);
 		void correctRadialDistortionOnVectorImage();
 		void replaceLastPoint(JMVectorStruct &point);

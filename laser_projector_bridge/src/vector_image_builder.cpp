@@ -60,8 +60,7 @@ void VectorImageBuilder::finishVectorImage() {
 }
 
 
-void VectorImageBuilder::addReverseImage()
-{
+void VectorImageBuilder::addReverseImage() {
 	for (int i = (int)vector_image_points_.size() - 1; i >= 0; --i) {
 		vector_image_points_.push_back(vector_image_points_[i]);
 	}
@@ -488,6 +487,23 @@ void VectorImageBuilder::addNewPointWithLinearInterpolationFromLastPoint(JMVecto
 		}
 	}
 	addNewPoint(point);
+}
+
+void VectorImageBuilder::addLastPointTurnedOff() {
+	if (!vector_image_points_.empty()) {
+		JMVectorStruct last_point_off = vector_image_points_.back();
+		last_point_off.i = 0;
+		addNewPoint(last_point_off);
+	}
+}
+
+void VectorImageBuilder::addLastPointBlankingPoints() {
+	if (!vector_image_points_.empty()) {
+		JMVectorStruct last_point_off = vector_image_points_.back();
+		last_point_off.i = 0;
+		for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+			addNewPoint(last_point_off);
+	}
 }
 
 void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point) {
