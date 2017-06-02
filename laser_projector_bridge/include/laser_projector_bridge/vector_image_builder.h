@@ -56,16 +56,16 @@ class VectorImageBuilder {
 		bool addNewLine(double start_x, double start_y, double end_x, double end_y,
 		                uint16_t red = std::numeric_limits<uint16_t>::max(), uint16_t green = std::numeric_limits<uint16_t>::max(), uint16_t blue = std::numeric_limits<uint16_t>::max(),
 		                uint16_t intensity = std::numeric_limits<uint16_t>::max(), AxisPosition origin_axis_position = BottomLeft);
-		void addNewLine(int32_t start_x, int32_t start_y, int32_t end_x, int32_t end_y,
+		bool addNewLine(int32_t start_x, int32_t start_y, int32_t end_x, int32_t end_y,
 		                uint16_t red = std::numeric_limits<uint16_t>::max(), uint16_t green = std::numeric_limits<uint16_t>::max(), uint16_t blue = std::numeric_limits<uint16_t>::max(), uint16_t intensity = std::numeric_limits<uint16_t>::max());
-		void addNewLine(JMVectorStruct &start_point, JMVectorStruct &end_point);
+		bool addNewLine(JMVectorStruct &start_point, JMVectorStruct &end_point);
 		bool addNewPoint(double x, double y,
 		                 uint16_t red = std::numeric_limits<uint16_t>::max(), uint16_t green = std::numeric_limits<uint16_t>::max(), uint16_t blue = std::numeric_limits<uint16_t>::max(),
 		                 uint16_t intensity = std::numeric_limits<uint16_t>::max(), AxisPosition origin_axis_position = BottomLeft);
-		void addNewPoint(int32_t x, int32_t y,
+		bool addNewPoint(int32_t x, int32_t y,
 		                 uint16_t red = std::numeric_limits<uint16_t>::max(), uint16_t green = std::numeric_limits<uint16_t>::max(), uint16_t blue = std::numeric_limits<uint16_t>::max(), uint16_t intensity = std::numeric_limits<uint16_t>::max());
-		void addNewPoint(JMVectorStruct &point);
-		void addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point);
+		bool addNewPoint(JMVectorStruct &point);
+		bool addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point);
 		void addLastPointTurnedOff();
 		void addLastPointBlankingPoints();
 		void correctRadialDistortion(JMVectorStruct &point);
@@ -95,6 +95,7 @@ class VectorImageBuilder {
 		inline double getLineFirstPointIgnoreDistanceSquaredInProjectorRange() const { return line_first_point_ignore_distance_squared_in_projector_range_; }
 		inline int64_t getInterpolationDistanceInProjectorRange() const { return interpolation_distance_in_projector_range_; }
 		inline std::vector<JMVectorStruct>& getVectorImagePoints() { return vector_image_points_; }
+		inline size_t getMaximumNumberOfPoints() { return maximum_number_of_points_; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </gets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -111,6 +112,7 @@ class VectorImageBuilder {
 		inline void setLineFirstPointIgnoreDistanceSquaredInProjectorRange(double line_first_point_ignore_distance_squared_in_projector_range) { line_first_point_ignore_distance_squared_in_projector_range_ = line_first_point_ignore_distance_squared_in_projector_range; }
 		inline void setInterpolationDistanceInProjectorRange(int64_t interpolation_distance_in_projector_range) { interpolation_distance_in_projector_range_ = interpolation_distance_in_projector_range; }
 		inline void setNumberOfBlankingPointsForLineStartAndEnd(size_t number_of_blanking_points_for_line_start) { number_of_blanking_points_for_line_start_and_end_ = number_of_blanking_points_for_line_start; }
+		inline void setMaximumNumberOfPoints(size_t maximum_number_of_points) { maximum_number_of_points_ = maximum_number_of_points; }
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </sets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// ============================================================================   </public-section>   =========================================================================
 
@@ -132,6 +134,7 @@ class VectorImageBuilder {
 		int64_t interpolation_distance_in_projector_range_;
 		size_t number_of_blanking_points_for_line_start_and_end_;
 		std::vector<JMVectorStruct> vector_image_points_;
+		size_t maximum_number_of_points_;
 	// ============================================================================   <protected-section>   =======================================================================
 };
 

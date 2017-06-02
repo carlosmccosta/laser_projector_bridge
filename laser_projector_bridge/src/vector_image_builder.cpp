@@ -29,7 +29,8 @@ VectorImageBuilder::VectorImageBuilder() :
 		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
 		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0001, 2.0)),
 		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002)),
-		number_of_blanking_points_for_line_start_and_end_(0)
+		number_of_blanking_points_for_line_start_and_end_(0),
+		maximum_number_of_points_(16000)
 		{}
 
 VectorImageBuilder::~VectorImageBuilder() {}
@@ -61,8 +62,11 @@ void VectorImageBuilder::finishVectorImage() {
 
 
 void VectorImageBuilder::addReverseImage() {
-	for (int i = (int)vector_image_points_.size() - 1; i >= 0; --i) {
-		vector_image_points_.push_back(vector_image_points_[i]);
+	if (vector_image_points_.size() * 2 <= maximum_number_of_points_)
+	{
+		for (int i = (int)vector_image_points_.size() - 1; i >= 0; --i) {
+			vector_image_points_.push_back(vector_image_points_[i]);
+		}
 	}
 }
 
@@ -339,11 +343,10 @@ bool VectorImageBuilder::addNewLine(double start_x, double start_y, double end_x
 	convertPointFromDrawingAreaInProjectorOriginToProjectorRange(start_x_in_projector_origin, start_y_in_projector_origin, start_x_in_projector_range, start_y_in_projector_range);
 	convertPointFromDrawingAreaInProjectorOriginToProjectorRange(end_x_in_projector_origin, end_y_in_projector_origin, end_x_in_projector_range, end_y_in_projector_range);
 
-	addNewLine(start_x_in_projector_range, start_y_in_projector_range, end_x_in_projector_range, end_y_in_projector_range, red, green, blue, intensity);
-	return true;
+	return addNewLine(start_x_in_projector_range, start_y_in_projector_range, end_x_in_projector_range, end_y_in_projector_range, red, green, blue, intensity);
 }
 
-void VectorImageBuilder::addNewLine(int32_t start_x, int32_t start_y, int32_t end_x, int32_t end_y,
+bool VectorImageBuilder::addNewLine(int32_t start_x, int32_t start_y, int32_t end_x, int32_t end_y,
                                     uint16_t red, uint16_t green, uint16_t blue, uint16_t intensity) {
 	JMVectorStruct start_point;
 	start_point.x = start_x;
@@ -369,10 +372,13 @@ void VectorImageBuilder::addNewLine(int32_t start_x, int32_t start_y, int32_t en
 	end_point.cyan = std::numeric_limits<uint16_t>::max();
 	end_point.user4 = std::numeric_limits<uint16_t>::max();
 
-	addNewLine(start_point, end_point);
+	return addNewLine(start_point, end_point);
 }
 
-void VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct &end_point) {
+bool VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct &end_point) {
+	if (vector_image_points_.size() + 2 > maximum_number_of_points_)
+		return false;
+
 	if (!vector_image_points_.empty()) {
 		JMVectorStruct last_point = vector_image_points_.back();
 		double distance_to_last_point_squared = jmVectorStructDistanceSquared(start_point, last_point);
@@ -424,7 +430,7 @@ void VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct 
 		addNewPoint(start_point);
 	}
 
-	addNewPointWithLinearInterpolationFromLastPoint(end_point);
+	return addNewPointWithLinearInterpolationFromLastPoint(end_point);
 }
 
 bool VectorImageBuilder::addNewPoint(double x, double y,
@@ -442,7 +448,7 @@ bool VectorImageBuilder::addNewPoint(double x, double y,
 	return false;
 }
 
-void VectorImageBuilder::addNewPoint(int32_t x, int32_t y,
+bool VectorImageBuilder::addNewPoint(int32_t x, int32_t y,
                                      uint16_t red, uint16_t green, uint16_t blue, uint16_t intensity) {
 	JMVectorStruct new_point;
 	new_point.x = x;
@@ -456,23 +462,34 @@ void VectorImageBuilder::addNewPoint(int32_t x, int32_t y,
 	new_point.cyan = std::numeric_limits<uint16_t>::max();
 	new_point.user4 = std::numeric_limits<uint16_t>::max();
 
-	addNewPoint(new_point);
+	return addNewPoint(new_point);
 }
 
-void VectorImageBuilder::addNewPoint(JMVectorStruct &point) {
-	if (vector_image_points_.empty()) {
-		JMVectorStruct point_start_off = point;
-		point_start_off.i = 0;
-		vector_image_points_.push_back(point_start_off);
+bool VectorImageBuilder::addNewPoint(JMVectorStruct &point) {
+	if (vector_image_points_.size() < maximum_number_of_points_)
+	{
+		if (vector_image_points_.empty()) {
+			JMVectorStruct point_start_off = point;
+			point_start_off.i = 0;
+			vector_image_points_.push_back(point_start_off);
+		}
+		vector_image_points_.push_back(point);
+		return true;
 	}
-	vector_image_points_.push_back(point);
+
+	return false;
 }
 
-void VectorImageBuilder::addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point) {
+bool VectorImageBuilder::addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point) {
 	if (interpolation_distance_in_projector_range_ > 0) {
 		JMVectorStruct last_point = vector_image_points_.back();
 		double distance_to_last_point = std::sqrt(jmVectorStructDistanceSquared(last_point, point));
 		int64_t number_of_interpolation_points = (int64_t)(distance_to_last_point / (double)interpolation_distance_in_projector_range_) - 1;
+
+		if (vector_image_points_.size() + number_of_interpolation_points > maximum_number_of_points_)
+		{
+			number_of_interpolation_points = maximum_number_of_points_ - vector_image_points_.size() - 1;
+		}
 
 		if (number_of_interpolation_points > 0) {
 			double t_increment = 1.0 / (double)number_of_interpolation_points;
@@ -486,7 +503,8 @@ void VectorImageBuilder::addNewPointWithLinearInterpolationFromLastPoint(JMVecto
 			}
 		}
 	}
-	addNewPoint(point);
+
+	return addNewPoint(point);
 }
 
 void VectorImageBuilder::addLastPointTurnedOff() {
