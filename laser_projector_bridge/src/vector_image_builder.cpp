@@ -28,8 +28,8 @@ VectorImageBuilder::VectorImageBuilder() :
 		radial_distortion_coefficient_sixth_degree_(-0.005),
 		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
 		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0001, 2.0)),
-		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.0002)),
-		number_of_blanking_points_for_line_start_and_end_(0),
+		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.002)),
+		number_of_blanking_points_for_line_start_and_end_(1),
 		maximum_number_of_points_(16000)
 		{}
 
@@ -554,7 +554,8 @@ void VectorImageBuilder::replaceLastPoint(JMVectorStruct &point) {
 }
 
 void VectorImageBuilder::removeLastPoint() {
-	vector_image_points_.pop_back();
+	if (!vector_image_points_.empty())
+		vector_image_points_.pop_back();
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
