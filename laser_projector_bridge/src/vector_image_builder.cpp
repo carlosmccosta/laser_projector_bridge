@@ -71,6 +71,37 @@ void VectorImageBuilder::addReverseImage() {
 }
 
 
+bool VectorImageBuilder::convertPointFromDrawingAreaToProjectorOrigin(double x, double y, double &x_point_in_drawing_area_and_projector_origin, double &y_point_in_drawing_area_and_projector_origin, AxisPosition origin_axis_position) {
+	switch (origin_axis_position) {
+		case AxisPosition::TopLeft: {
+			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
+			y_point_in_drawing_area_and_projector_origin = (drawing_area_height_ - y) - drawing_area_height_ * 0.5;
+			break;
+		}
+
+		case AxisPosition::BottomLeft: {
+			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
+			y_point_in_drawing_area_and_projector_origin = y - drawing_area_height_ * 0.5;
+			break;
+		}
+
+		case AxisPosition::Middle: {
+			x_point_in_drawing_area_and_projector_origin = x;
+			y_point_in_drawing_area_and_projector_origin = y;
+			break;
+		}
+
+		default: {
+			x_point_in_drawing_area_and_projector_origin = 0.0;
+			y_point_in_drawing_area_and_projector_origin = 0.0;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
 bool VectorImageBuilder::convertProjectorOriginToDrawingAreaOrigin(double x, double y, double &new_x, double &new_y, AxisPosition drawing_area_origin_axis_position) {
 	switch (drawing_area_origin_axis_position) {
 		case AxisPosition::TopLeft: {
@@ -101,35 +132,6 @@ bool VectorImageBuilder::convertProjectorOriginToDrawingAreaOrigin(double x, dou
 	return true;
 }
 
-bool VectorImageBuilder::convertPointFromDrawingAreaToProjectorOrigin(double x, double y, double &x_point_in_drawing_area_and_projector_origin, double &y_point_in_drawing_area_and_projector_origin, AxisPosition origin_axis_position) {
-	switch (origin_axis_position) {
-		case AxisPosition::TopLeft: {
-			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
-			y_point_in_drawing_area_and_projector_origin = (drawing_area_height_ - y) - drawing_area_height_ * 0.5;
-			break;
-		}
-
-		case AxisPosition::BottomLeft: {
-			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
-			y_point_in_drawing_area_and_projector_origin = y - drawing_area_height_ * 0.5;
-			break;
-		}
-
-		case AxisPosition::Middle: {
-			x_point_in_drawing_area_and_projector_origin = x;
-			y_point_in_drawing_area_and_projector_origin = y;
-			break;
-		}
-
-		default: {
-			x_point_in_drawing_area_and_projector_origin = 0.0;
-			y_point_in_drawing_area_and_projector_origin = 0.0;
-			return false;
-		}
-	}
-
-	return true;
-}
 
 bool VectorImageBuilder::convertPointFromDrawingAreaInProjectorOriginToProjectorRange(double x_point_in_drawing_area_and_projector_origin, double y_point_in_drawing_area_and_projector_origin, int32_t &x_point_in_projector_range,
                                                                                       int32_t &y_point_in_projector_range) {
@@ -524,6 +526,18 @@ void VectorImageBuilder::addLastPointBlankingPoints() {
 	}
 }
 
+void VectorImageBuilder::replaceLastPoint(JMVectorStruct &point) {
+	if (vector_image_points_.empty())
+		vector_image_points_.push_back(point);
+	else
+		vector_image_points_.back() = point;
+}
+
+void VectorImageBuilder::removeLastPoint() {
+	if (!vector_image_points_.empty())
+		vector_image_points_.pop_back();
+}
+
 void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point) {
 	if (radial_distortion_coefficient_second_degree_ != 0 || radial_distortion_coefficient_fourth_degree_ != 0 || radial_distortion_coefficient_sixth_degree_ != 0) {
 		double u = (double)point.x / (double)std::numeric_limits<int32_t >::max();
@@ -545,27 +559,11 @@ void VectorImageBuilder::correctRadialDistortionOnVectorImage() {
 		correctRadialDistortion(vector_image_points_[i]);
 	}
 }
-
-void VectorImageBuilder::replaceLastPoint(JMVectorStruct &point) {
-	if (vector_image_points_.empty())
-		vector_image_points_.push_back(point);
-	else
-		vector_image_points_.back() = point;
-}
-
-void VectorImageBuilder::removeLastPoint() {
-	if (!vector_image_points_.empty())
-		vector_image_points_.pop_back();
-}
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-double VectorImageBuilder::jmVectorStructDistanceSquared(JMVectorStruct first, JMVectorStruct second) {
-	return  std::pow((double)second.x - (double)first.x, 2.0) + std::pow((double)second.y - (double)first.y, 2.0);
-}
-
 bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
                                           double p2_x, double p2_y, double p3_x, double p3_y,
                                           double &i_x, double &i_y, double comparison_epsilon) {
@@ -594,6 +592,10 @@ bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x,
 
 double VectorImageBuilder::linearInterpolation(double a, double b, double t) {
 	return a * (1 - t) + b * t;
+}
+
+double VectorImageBuilder::jmVectorStructDistanceSquared(const JMVectorStruct& first, const JMVectorStruct& second) {
+	return  std::pow((double)second.x - (double)first.x, 2.0) + std::pow((double)second.y - (double)first.y, 2.0);
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions/>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // ===============================================================================  </public-section>   ===========================================================================
