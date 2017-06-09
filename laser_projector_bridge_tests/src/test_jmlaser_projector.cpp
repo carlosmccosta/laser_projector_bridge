@@ -1,8 +1,10 @@
 #include <laser_projector_bridge/jmlaser_projector.h>
 #include <laser_projector_bridge/vector_image_builder.h>
+#include <laser_projector_bridge/pattern_builder.h>
 #include <climits>
 #include <chrono>
 #include <thread>
+
 
 void testJmlaserProjectorWithoutEnumeration() {
 	std::string projector_name = laser_projector_bridge::JMLaserProjector::jmLaserBridgeGetDeviceListEntry(0);
@@ -39,154 +41,16 @@ void testJmlaserProjectorSetup(unsigned int number_of_projectors) {
 }
 
 
-void createLaserOutputPatternSquareFullRange(std::vector<JMVectorStruct> &points) {
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, 0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0      , INT_MIN, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, INT_MIN, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, 0      , USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, INT_MAX, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0      , INT_MAX, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MAX, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, 0      , USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, INT_MIN, 0));
-}
-
-
-void createLaserOutputPatternSquareScaled(std::vector<JMVectorStruct> &points, double position_scale = 0.9) {
-	unsigned short intensity = (unsigned short)(USHRT_MAX * 0.9);
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), 0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), intensity));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MIN * position_scale), intensity));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MAX * position_scale), intensity));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MAX * position_scale), intensity));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), intensity));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), 0));
-}
-
-void createLaserOutputPatternSquareScaledUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder, double scale = 1.0) {
-	double x_offset = (vector_image_builder.getDrawingAreaWidth() - (vector_image_builder.getDrawingAreaWidth() * scale)) * 0.5;
-	double y_offset = (vector_image_builder.getDrawingAreaHeight() - (vector_image_builder.getDrawingAreaHeight() * scale)) * 0.5;
-	double x_min = x_offset;
-	double x_max = vector_image_builder.getDrawingAreaWidth() - x_offset;
-	double y_min = y_offset;
-	double y_max = vector_image_builder.getDrawingAreaHeight() - y_offset;
-	vector_image_builder.addNewLine(x_min, y_min, x_max, y_min);
-	vector_image_builder.addNewLine(x_max, y_min, x_max, y_max);
-	vector_image_builder.addNewLine(x_max, y_max, x_min, y_max);
-	vector_image_builder.addNewLine(x_min, y_max, x_min, y_min);
-}
-
-void createLaserOutputPatternPlusFullRange(std::vector<JMVectorStruct> &points) {
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,       INT_MIN, 0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,       INT_MIN, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,       INT_MAX, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, 0,       0));
-//	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN, 0,       USHRT_MAX));
-//	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, 0,       USHRT_MAX));
-//	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX, 0,       0));
-}
-
-void createLaserOutputPatternPlusFullRangeUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-	double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-	double half_height = vector_image_builder.getDrawingAreaHeight() * 0.5;
-	vector_image_builder.addNewLine(0.0, half_height, vector_image_builder.getDrawingAreaWidth(), half_height);
-	vector_image_builder.addNewLine(half_width, 0.0, half_width, vector_image_builder.getDrawingAreaHeight());
-}
-
-
-void createLaserOutputPatternCrossFullRange(std::vector<JMVectorStruct> &points) {
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN,     INT_MIN,     0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN,     INT_MIN,     USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN / 2, INT_MIN / 2, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,           0,           USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX / 2, INT_MAX / 2, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX,     INT_MAX,     USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX,     INT_MIN,     0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX,     INT_MIN,     USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MAX / 2, INT_MIN / 2, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,           0,           USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN / 2, INT_MAX / 2, USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN,     INT_MAX,     USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(INT_MIN,     INT_MAX,     0));
-}
-
-void createLaserOutputPatternCrossFullRangeUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-	vector_image_builder.addNewLine(INT_MIN, INT_MAX, INT_MAX, INT_MIN);
-	vector_image_builder.addNewLine(INT_MIN, INT_MIN, INT_MAX, INT_MAX);
-}
-
-void createLaserOutputPatternCrossScaled(std::vector<JMVectorStruct> &points) {
-	double position_scale = 0.75;
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), 0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MIN * position_scale), USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,                               0,                               USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MAX * position_scale), USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MAX * position_scale), 0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MIN * position_scale), 0));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MAX * position_scale), (int)(INT_MIN * position_scale), USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint(0,                               0,                               USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MAX * position_scale), USHRT_MAX));
-	points.push_back(laser_projector_bridge::JMLaserProjector::createSingleColorLaserPoint((int)(INT_MIN * position_scale), (int)(INT_MAX * position_scale), 0));
-}
-
-
 void createLaserOutputPattern(std::vector<JMVectorStruct> &points) {
-//	createLaserOutputPatternSquareFullRange(points);
-//	createLaserOutputPatternSquareScaled(points, 0.75);
-//	createLaserOutputPatternSquareScaled(points, 0.6);
-//	createLaserOutputPatternSquareScaled(points, 0.5);
-//	createLaserOutputPatternSquareScaled(points, 0.4);
-//	createLaserOutputPatternSquareScaled(points, 0.25);
-	createLaserOutputPatternPlusFullRange(points);
-//	createLaserOutputPatternCrossFullRange(points);
-//	createLaserOutputPatternCrossScaled(points);
-}
-
-void createLaserOutputPatternHorizontalDiamondOutsideDrawingAreaUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-	double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-	double half_hHeight = vector_image_builder.getDrawingAreaHeight() * 0.5;
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, half_hHeight, half_width, vector_image_builder.getDrawingAreaHeight() * 0.75);
-	vector_image_builder.addNewLine(half_width, vector_image_builder.getDrawingAreaHeight() * 0.75, vector_image_builder.getDrawingAreaWidth() * 1.25, half_hHeight);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, half_hHeight, half_width, vector_image_builder.getDrawingAreaHeight() * 0.25);
-	vector_image_builder.addNewLine(half_width, vector_image_builder.getDrawingAreaHeight() * 0.25, vector_image_builder.getDrawingAreaWidth() * -0.25, half_hHeight);
-}
-
-void createLaserOutputPatternVerticalDiamondOutsideDrawingAreaUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-	double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-	double half_height = vector_image_builder.getDrawingAreaHeight() * 0.5;
-	vector_image_builder.addNewLine(half_height, vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 0.75, half_width);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaHeight() * 0.75, half_width, half_height, vector_image_builder.getDrawingAreaWidth() * 1.25);
-	vector_image_builder.addNewLine(half_height, vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 0.25, half_width);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaHeight() * 0.25, half_width, half_height, vector_image_builder.getDrawingAreaWidth() * -0.25);
-}
-
-void createLaserOutputPatternCrossOutsideDrawingAreaUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.25, vector_image_builder.getDrawingAreaHeight() * 0.25);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.15, vector_image_builder.getDrawingAreaHeight() * 0.25);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.35, vector_image_builder.getDrawingAreaHeight() * 0.25);
-
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.25, vector_image_builder.getDrawingAreaHeight() * 0.75);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.15, vector_image_builder.getDrawingAreaHeight() * 0.75);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.35, vector_image_builder.getDrawingAreaHeight() * 0.75);
-
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.75, vector_image_builder.getDrawingAreaHeight() * 0.25);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.65, vector_image_builder.getDrawingAreaHeight() * 0.25);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.85, vector_image_builder.getDrawingAreaHeight() * 0.25);
-
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.75, vector_image_builder.getDrawingAreaHeight() * 0.75);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.65, vector_image_builder.getDrawingAreaHeight() * 0.75);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.85, vector_image_builder.getDrawingAreaHeight() * 0.75);
-}
-
-void createLaserOutputPatternPlusOutsideDrawingAreaUsingVectorImageBuilder(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-	double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-	double half_height = vector_image_builder.getDrawingAreaHeight() * 0.5;
-	vector_image_builder.addNewLine(half_width * 0.5, vector_image_builder.getDrawingAreaHeight() * 0.25, half_width * 0.5, vector_image_builder.getDrawingAreaHeight() * 1.25);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 0.25, half_height * 0.5, vector_image_builder.getDrawingAreaWidth() * 1.25, half_height * 0.5);
-	vector_image_builder.addNewLine(half_width * 1.5, vector_image_builder.getDrawingAreaHeight() * -0.25, half_width * 1.5, vector_image_builder.getDrawingAreaHeight() * 0.75);
-	vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, half_height * 1.5, vector_image_builder.getDrawingAreaWidth() * 0.75, half_height * 1.5);
+//	laser_projector_bridge::pattern_builder::createSquareFullRange(points);
+//	laser_projector_bridge::pattern_builder::createSquareScaled(points, 0.75);
+//	laser_projector_bridge::pattern_builder::createSquareScaled(points, 0.6);
+//	laser_projector_bridge::pattern_builder::createSquareScaled(points, 0.5);
+//	laser_projector_bridge::pattern_builder::createSquareScaled(points, 0.4);
+//	laser_projector_bridge::pattern_builder::createSquareScaled(points, 0.25);
+	laser_projector_bridge::pattern_builder::createPlusFullRange(points);
+//	laser_projector_bridge::pattern_builder::createCrossFullRange(points);
+//	laser_projector_bridge::pattern_builder::createCrossScaled(points);
 }
 
 
@@ -201,20 +65,23 @@ void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct>
 	vector_image_builder.setRadialDistortionCoefficientSixthDegree(-0.005);
 	vector_image_builder.startNewVectorImage();
 
+	laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 6, 6, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3), INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3));
+
 	for (double scale = 0.0; scale <= 1.0; scale += 0.1)
-		createLaserOutputPatternSquareScaledUsingVectorImageBuilder(vector_image_builder, scale);
+		laser_projector_bridge::pattern_builder::createSquareScaled(vector_image_builder, scale);
 
-	createLaserOutputPatternPlusFullRangeUsingVectorImageBuilder(vector_image_builder);
-	createLaserOutputPatternCrossFullRangeUsingVectorImageBuilder(vector_image_builder);
+	laser_projector_bridge::pattern_builder::createPlusFullRange(vector_image_builder);
+	laser_projector_bridge::pattern_builder::createCrossFullRange(vector_image_builder);
 
-	createLaserOutputPatternHorizontalDiamondOutsideDrawingAreaUsingVectorImageBuilder(vector_image_builder);
-	createLaserOutputPatternVerticalDiamondOutsideDrawingAreaUsingVectorImageBuilder(vector_image_builder);
-	createLaserOutputPatternCrossOutsideDrawingAreaUsingVectorImageBuilder(vector_image_builder);
-	createLaserOutputPatternPlusOutsideDrawingAreaUsingVectorImageBuilder(vector_image_builder);
+	laser_projector_bridge::pattern_builder::createHorizontalDiamondOutsideDrawingArea(vector_image_builder);
+	laser_projector_bridge::pattern_builder::createVerticalDiamondOutsideDrawingArea(vector_image_builder);
+	laser_projector_bridge::pattern_builder::createCrossOutsideDrawingArea(vector_image_builder);
+	laser_projector_bridge::pattern_builder::createPlusOutsideDrawingArea(vector_image_builder);
 
 	vector_image_builder.finishVectorImage();
 	points = vector_image_builder.getVectorImagePoints();
 }
+
 
 void sendMovingHorizontalLine(laser_projector_bridge::JMLaserProjector& laser_projector, int64_t projection_time_per_line_ms = 20000, size_t number_of_lines = 1000, unsigned int projector_speed = 1000) {
 	std::vector<JMVectorStruct> points;
@@ -233,6 +100,7 @@ void sendMovingHorizontalLine(laser_projector_bridge::JMLaserProjector& laser_pr
 	}
 	laser_projector.stopOutput();
 }
+
 
 void sendMovingVerticalLine(laser_projector_bridge::JMLaserProjector& laser_projector, int64_t projection_time_per_line_ms = 20000, size_t number_of_lines = 1000, unsigned int projector_speed = 1000) {
 	std::vector<JMVectorStruct> points;

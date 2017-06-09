@@ -21,6 +21,9 @@
     <ClCompile Include="src\jmlaser_projector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\pattern_builder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\laser_projector_bridge\jmlaser.h">
@@ -30,6 +33,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\laser_projector_bridge\vector_image_builder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\laser_projector_bridge\pattern_builder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

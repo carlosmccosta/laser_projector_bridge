@@ -157,12 +157,14 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\pattern_builder.cpp" />
     <ClCompile Include="src\jmlaser_projector.cpp" />
     <ClCompile Include="src\vector_image_builder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\laser_projector_bridge\jmlaser.h" />
     <ClInclude Include="include\laser_projector_bridge\jmlaser_projector.h" />
+    <ClInclude Include="include\laser_projector_bridge\pattern_builder.h" />
     <ClInclude Include="include\laser_projector_bridge\vector_image_builder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
