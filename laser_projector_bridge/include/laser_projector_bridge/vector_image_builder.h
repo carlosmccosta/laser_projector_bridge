@@ -87,9 +87,12 @@ class VectorImageBuilder {
 		inline double getDrawingAreaHeight() const { return drawing_area_height_; }
 		inline double getDrawingAreaXOffset() const { return drawing_area_x_offset_; }
 		inline double getDrawingAreaYOffset() const { return drawing_area_y_offset_; }
-		inline double getRadialDistortionCoefficientSecondDegreeInvertedUV() const { return radial_distortion_coefficient_second_degree_inverted_uv_; }
+		inline double getRadialDistortionCoefficientFirstDegreeScalingX() const { return radial_distortion_coefficient_scaling_x_; }
+		inline double getRadialDistortionCoefficientFirstDegree() const { return radial_distortion_coefficient_first_degree_; }
 		inline double getRadialDistortionCoefficientSecondDegree() const { return radial_distortion_coefficient_second_degree_; }
+		inline double getRadialDistortionCoefficientThirdDegree() const { return radial_distortion_coefficient_third_degree_; }
 		inline double getRadialDistortionCoefficientFourthDegree() const { return radial_distortion_coefficient_fourth_degree_; }
+		inline double getRadialDistortionCoefficientFifthDegree() const { return radial_distortion_coefficient_fifth_degree_; }
 		inline double getRadialDistortionCoefficientSixthDegree() const { return radial_distortion_coefficient_sixth_degree_; }
 		inline double getLineFirstPointMergeDistanceSquaredInProjectorRange() const { return line_first_point_merge_distance_squared_in_projector_range_; }
 		inline double getLineFirstPointIgnoreDistanceSquaredInProjectorRange() const { return line_first_point_ignore_distance_squared_in_projector_range_; }
@@ -104,9 +107,12 @@ class VectorImageBuilder {
 		inline void setDrawingAreaHeight(double drawing_area_height) { drawing_area_height_ = drawing_area_height; }
 		inline void setDrawingAreaXOffset(double drawing_area_x_offset) { drawing_area_x_offset_ = drawing_area_x_offset; }
 		inline void setDrawingAreaYOffset(double drawing_area_y_offset) { drawing_area_y_offset_ = drawing_area_y_offset; }
-		inline void setRadialDistortionCoefficientSecondDegreeInvertedUV(double radial_distortion_coefficient_second_degree_inverted_uv) { radial_distortion_coefficient_second_degree_inverted_uv_ = radial_distortion_coefficient_second_degree_inverted_uv; }
+		inline void setRadialDistortionCoefficientScalingX(double radial_distortion_coefficient_scaling_x) { radial_distortion_coefficient_scaling_x_ = radial_distortion_coefficient_scaling_x; }
+		inline void setRadialDistortionCoefficientFirstDegree(double radial_distortion_coefficient_first_degree) { radial_distortion_coefficient_first_degree_ = radial_distortion_coefficient_first_degree; }
 		inline void setRadialDistortionCoefficientSecondDegree(double radial_distortion_coefficient_second_degree) { radial_distortion_coefficient_second_degree_ = radial_distortion_coefficient_second_degree; }
+		inline void setRadialDistortionCoefficientThirdDegree(double radial_distortion_coefficient_third_degree) { radial_distortion_coefficient_third_degree_ = radial_distortion_coefficient_third_degree; }
 		inline void setRadialDistortionCoefficientFourthDegree(double radial_distortion_coefficient_fourth_degree) { radial_distortion_coefficient_fourth_degree_ = radial_distortion_coefficient_fourth_degree; }
+		inline void setRadialDistortionCoefficientFifthDegree(double radial_distortion_coefficient_fifth_degree) { radial_distortion_coefficient_fifth_degree_ = radial_distortion_coefficient_fifth_degree; }
 		inline void setRadialDistortionCoefficientSixthDegree(double radial_distortion_coefficient_sixth_degree) { radial_distortion_coefficient_sixth_degree_ = radial_distortion_coefficient_sixth_degree; }
 		inline void setLineFirstPointMergeDistanceSquaredInProjectorRange(double line_first_point_merge_distance_squared_in_projector_range) { line_first_point_merge_distance_squared_in_projector_range_ = line_first_point_merge_distance_squared_in_projector_range; }
 		inline void setLineFirstPointIgnoreDistanceSquaredInProjectorRange(double line_first_point_ignore_distance_squared_in_projector_range) { line_first_point_ignore_distance_squared_in_projector_range_ = line_first_point_ignore_distance_squared_in_projector_range; }
@@ -125,9 +131,12 @@ class VectorImageBuilder {
 		double drawing_area_y_offset_;
 		double drawing_area_to_projector_range_x_scale_;
 		double drawing_area_to_projector_range_y_scale_;
-		double radial_distortion_coefficient_second_degree_inverted_uv_;
+		double radial_distortion_coefficient_scaling_x_;
+		double radial_distortion_coefficient_first_degree_;
 		double radial_distortion_coefficient_second_degree_;
+		double radial_distortion_coefficient_third_degree_;
 		double radial_distortion_coefficient_fourth_degree_;
+		double radial_distortion_coefficient_fifth_degree_;
 		double radial_distortion_coefficient_sixth_degree_;
 		double line_first_point_merge_distance_squared_in_projector_range_;
 		double line_first_point_ignore_distance_squared_in_projector_range_;

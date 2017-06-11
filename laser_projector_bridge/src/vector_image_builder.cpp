@@ -22,14 +22,17 @@ VectorImageBuilder::VectorImageBuilder() :
 		drawing_area_y_offset_(0.0),
 		drawing_area_to_projector_range_x_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
 		drawing_area_to_projector_range_y_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
-		radial_distortion_coefficient_second_degree_inverted_uv_(0.08),
-		radial_distortion_coefficient_second_degree_(-0.044),
-		radial_distortion_coefficient_fourth_degree_(-0.007),
-		radial_distortion_coefficient_sixth_degree_(-0.005),
+		radial_distortion_coefficient_scaling_x_(0.084),
+		radial_distortion_coefficient_first_degree_(-0.073),
+		radial_distortion_coefficient_second_degree_(-0.013),
+		radial_distortion_coefficient_third_degree_(-0.005),
+		radial_distortion_coefficient_fourth_degree_(0.0),
+		radial_distortion_coefficient_fifth_degree_(0.0),
+		radial_distortion_coefficient_sixth_degree_(0.0),
 		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
-		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0001, 2.0)),
+		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.001, 2.0)),
 		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.002)),
-		number_of_blanking_points_for_line_start_and_end_(1),
+		number_of_blanking_points_for_line_start_and_end_(2),
 		maximum_number_of_points_(16000)
 		{}
 
@@ -539,19 +542,18 @@ void VectorImageBuilder::removeLastPoint() {
 }
 
 void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point) {
-	if (radial_distortion_coefficient_second_degree_ != 0 || radial_distortion_coefficient_fourth_degree_ != 0 || radial_distortion_coefficient_sixth_degree_ != 0) {
-		double u = (double)point.x / (double)std::numeric_limits<int32_t >::max();
-		double v = (double)point.y / (double)std::numeric_limits<int32_t >::max();
-		double u_inverted = ((double)std::numeric_limits<int32_t >::max() - std::abs((double)point.x)) / (double)std::numeric_limits<int32_t >::max();
-		double v_inverted = ((double)std::numeric_limits<int32_t >::max() - std::abs((double)point.y)) / (double)std::numeric_limits<int32_t >::max();
-		double r = std::pow(u, 2.0) * std::pow(v, 2.0);
-		double r_with_inverted_uv = std::pow(u_inverted, 2.0) * std::pow(v_inverted, 2.0);
-		double warp = radial_distortion_coefficient_second_degree_inverted_uv_ * r_with_inverted_uv +
-		              radial_distortion_coefficient_second_degree_ * r +
-		              radial_distortion_coefficient_fourth_degree_ * r * r +
-		              radial_distortion_coefficient_sixth_degree_  * r * r * r;
-		point.x = (int)((1.0 + warp) * (double)point.x);
-	}
+	double u = std::abs((double)point.x) / (double)std::numeric_limits<int32_t >::max();
+	double v = std::abs((double)point.y) / (double)std::numeric_limits<int32_t >::max();
+	double r = std::sqrt(std::pow(u, 2.0) + std::pow(v, 2.0));
+	double warp =
+		radial_distortion_coefficient_scaling_x_ +
+		radial_distortion_coefficient_first_degree_  * r +
+		radial_distortion_coefficient_second_degree_ * std::pow(r, 2.0) +
+		radial_distortion_coefficient_third_degree_  * std::pow(r, 3.0) +
+		radial_distortion_coefficient_fourth_degree_ * std::pow(r, 4.0) +
+		radial_distortion_coefficient_fifth_degree_  * std::pow(r, 5.0) +
+		radial_distortion_coefficient_sixth_degree_  * std::pow(r, 6.0);
+	point.x = (int)((1.0 + warp) * (double)point.x);
 }
 
 void VectorImageBuilder::correctRadialDistortionOnVectorImage() {

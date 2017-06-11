@@ -56,22 +56,27 @@ void createLaserOutputPattern(std::vector<JMVectorStruct> &points) {
 
 void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct> &points) {
 	laser_projector_bridge::VectorImageBuilder vector_image_builder;
-	vector_image_builder.setInterpolationDistanceInProjectorRange((int32_t)(UINT32_MAX * 0.05));
+	vector_image_builder.setInterpolationDistanceInProjectorRange((int32_t)(UINT32_MAX * 0.025));
 	vector_image_builder.setLineFirstPointIgnoreDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0013, 2));
 	vector_image_builder.setLineFirstPointMergeDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0005, 2));
-	vector_image_builder.setRadialDistortionCoefficientSecondDegreeInvertedUV(0.08);
-	vector_image_builder.setRadialDistortionCoefficientSecondDegree(-0.044);
-	vector_image_builder.setRadialDistortionCoefficientFourthDegree(-0.007);
-	vector_image_builder.setRadialDistortionCoefficientSixthDegree(-0.005);
+	vector_image_builder.setNumberOfBlankingPointsForLineStartAndEnd(2);
+	vector_image_builder.setRadialDistortionCoefficientScalingX(0.084);
+	vector_image_builder.setRadialDistortionCoefficientFirstDegree(-0.073);
+	vector_image_builder.setRadialDistortionCoefficientSecondDegree(-0.013);
+	vector_image_builder.setRadialDistortionCoefficientThirdDegree(-0.005);
+	vector_image_builder.setRadialDistortionCoefficientFourthDegree(0.0);
+	vector_image_builder.setRadialDistortionCoefficientFifthDegree(0.0);
+	vector_image_builder.setRadialDistortionCoefficientSixthDegree(0.0);
 	vector_image_builder.startNewVectorImage();
 
-	laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 6, 6, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3), INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3));
-
-	for (double scale = 0.0; scale <= 1.0; scale += 0.1)
-		laser_projector_bridge::pattern_builder::createSquareScaled(vector_image_builder, scale);
+	laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 10, 10, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN, INT32_MIN);
+	//laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 6, 6, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3), INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3));
 
 	laser_projector_bridge::pattern_builder::createPlusFullRange(vector_image_builder);
 	laser_projector_bridge::pattern_builder::createCrossFullRange(vector_image_builder);
+
+	for (double scale = 0.0; scale <= 1.0; scale += 0.1)
+		laser_projector_bridge::pattern_builder::createSquareScaled(vector_image_builder, scale);
 
 	laser_projector_bridge::pattern_builder::createHorizontalDiamondOutsideDrawingArea(vector_image_builder);
 	laser_projector_bridge::pattern_builder::createVerticalDiamondOutsideDrawingArea(vector_image_builder);
@@ -143,7 +148,7 @@ void testJmlaserOutput(unsigned int number_of_projectors, bool send_test_pattern
 		}
 
 		if (send_test_patterns) {
-			if (laser_projector.sendVectorImageToProjector(points, 1000, 0)) {
+			if (laser_projector.sendVectorImageToProjector(points, 6000, 0)) {
 				std::cout << ">>> - Pattern was sent successfully" << std::endl;
 			} else {
 				std::cout << ">>> - Failed to send pattern" << std::endl;
