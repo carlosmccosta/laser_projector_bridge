@@ -15,25 +15,23 @@ namespace laser_projector_bridge {
 
 // ===============================================================================  <public-section>   ============================================================================
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <constructors-destructor>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-VectorImageBuilder::VectorImageBuilder() :
+	VectorImageBuilder::VectorImageBuilder() :
 		drawing_area_width_(2000.0),
 		drawing_area_height_(2000.0),
-		drawing_area_x_offset_(0.0),
-		drawing_area_y_offset_(0.0),
-		drawing_area_to_projector_range_x_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
-		drawing_area_to_projector_range_y_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
-		radial_distortion_coefficient_scaling_x_(0.084),
-		radial_distortion_coefficient_first_degree_(-0.073),
-		radial_distortion_coefficient_second_degree_(-0.013),
-		radial_distortion_coefficient_third_degree_(-0.005),
-		radial_distortion_coefficient_fourth_degree_(0.0),
-		radial_distortion_coefficient_fifth_degree_(0.0),
-		radial_distortion_coefficient_sixth_degree_(0.0),
+		drawing_area_x_focal_length_in_pixels_(2750.0),
+		drawing_area_y_focal_length_in_pixels_(2750.0),
+		distance_between_mirrors_in_projector_range_percentage_(0.01),
+		minimum_projector_range_value_for_clipping_((int32_t)((double)std::numeric_limits<int32_t>::min() * 0.98)),
+		maximum_projector_range_value_for_clipping_((int32_t)((double)std::numeric_limits<int32_t>::max() * 0.98)),
 		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
 		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.001, 2.0)),
 		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.002)),
 		number_of_blanking_points_for_line_start_and_end_(2),
-		maximum_number_of_points_(16000)
+		maximum_number_of_points_(16000),
+		drawing_area_x_offset_(0.0),
+		drawing_area_y_offset_(0.0),
+		drawing_area_to_projector_range_x_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
+		drawing_area_to_projector_range_y_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0)
 		{}
 
 VectorImageBuilder::~VectorImageBuilder() {}
@@ -142,10 +140,10 @@ bool VectorImageBuilder::convertPointFromDrawingAreaInProjectorOriginToProjector
 
 	double x_with_offset = x_point_in_drawing_area_and_projector_origin - drawing_area_x_offset_;
 	if (x_with_offset < drawing_area_width_ * -0.5) {
-		x_point_in_projector_range = std::numeric_limits<int32_t >::min();
+		x_point_in_projector_range = minimum_projector_range_value_for_clipping_;
 		point_overflow = true;
 	} else if (x_with_offset > drawing_area_width_ * 0.5) {
-		x_point_in_projector_range = std::numeric_limits<int32_t >::max();
+		x_point_in_projector_range = maximum_projector_range_value_for_clipping_;
 		point_overflow = true;
 	} else {
 		x_point_in_projector_range = (int32_t)((x_point_in_drawing_area_and_projector_origin - drawing_area_x_offset_) * drawing_area_to_projector_range_x_scale_);
@@ -153,10 +151,10 @@ bool VectorImageBuilder::convertPointFromDrawingAreaInProjectorOriginToProjector
 
 	double y_with_offset = y_point_in_drawing_area_and_projector_origin - drawing_area_y_offset_;
 	if (y_with_offset < drawing_area_height_ * -0.5) {
-		y_point_in_projector_range = std::numeric_limits<int32_t >::min();
+		y_point_in_projector_range = minimum_projector_range_value_for_clipping_;
 		point_overflow = true;
 	} else if (x_with_offset > drawing_area_height_ * 0.5) {
-		y_point_in_projector_range = std::numeric_limits<int32_t >::max();
+		y_point_in_projector_range = maximum_projector_range_value_for_clipping_;
 		point_overflow = true;
 	} else {
 		y_point_in_projector_range = (int32_t)((y_point_in_drawing_area_and_projector_origin - drawing_area_y_offset_) * drawing_area_to_projector_range_y_scale_);
@@ -541,31 +539,46 @@ void VectorImageBuilder::removeLastPoint() {
 		vector_image_points_.pop_back();
 }
 
-void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point) {
-	double u = std::abs((double)point.x) / (double)std::numeric_limits<int32_t >::max();
-	double v = std::abs((double)point.y) / (double)std::numeric_limits<int32_t >::max();
-	double r = std::sqrt(std::pow(u, 2.0) + std::pow(v, 2.0));
-	double warp =
-		radial_distortion_coefficient_scaling_x_ +
-		radial_distortion_coefficient_first_degree_  * r +
-		radial_distortion_coefficient_second_degree_ * std::pow(r, 2.0) +
-		radial_distortion_coefficient_third_degree_  * std::pow(r, 3.0) +
-		radial_distortion_coefficient_fourth_degree_ * std::pow(r, 4.0) +
-		radial_distortion_coefficient_fifth_degree_  * std::pow(r, 5.0) +
-		radial_distortion_coefficient_sixth_degree_  * std::pow(r, 6.0);
-	point.x = (int)((1.0 + warp) * (double)point.x);
+void VectorImageBuilder::correctRadialDistortionOnVectorImage() {
+	double distance_to_x_image_plane = computeDistanceToImagePlane(drawing_area_x_focal_length_in_pixels_, drawing_area_width_, (double)std::numeric_limits<uint32_t>::max());
+	double distance_to_y_image_plane = computeDistanceToImagePlane(drawing_area_y_focal_length_in_pixels_, drawing_area_height_, (double)std::numeric_limits<uint32_t>::max());
+
+	for (size_t i = 0; i < vector_image_points_.size(); ++i) {
+		correctRadialDistortion(vector_image_points_[i], distance_to_x_image_plane, distance_to_y_image_plane, distance_between_mirrors_in_projector_range_percentage_ * std::numeric_limits<uint32_t>::max());
+	}
 }
 
-void VectorImageBuilder::correctRadialDistortionOnVectorImage() {
-	for (size_t i = 0; i < vector_image_points_.size(); ++i) {
-		correctRadialDistortion(vector_image_points_[i]);
-	}
+void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point, double distance_to_x_image_plane, double distance_to_y_image_plane, double distance_between_mirrors) {
+	if (point.x <= minimum_projector_range_value_for_clipping_)
+		point.x = minimum_projector_range_value_for_clipping_;
+	else if (point.x >= maximum_projector_range_value_for_clipping_)
+		point.x = maximum_projector_range_value_for_clipping_;
+
+	if (point.y <= minimum_projector_range_value_for_clipping_)
+		point.y = maximum_projector_range_value_for_clipping_;
+	else if (point.y >= maximum_projector_range_value_for_clipping_)
+		point.y = maximum_projector_range_value_for_clipping_;
+
+	double y_denominator = distance_between_mirrors - distance_to_y_image_plane;
+	double galvo_y_angle = std::atan((double)point.y / y_denominator);
+	double x_denominator = distance_between_mirrors * (((distance_to_x_image_plane - distance_between_mirrors) / (distance_between_mirrors * std::cos(galvo_y_angle))) + 1);
+	double galvo_x_angle = std::atan((double)point.x / x_denominator);
+	double new_y = -(std::tan(galvo_y_angle) * distance_to_y_image_plane);
+	double new_x = (std::tan(galvo_x_angle) * distance_to_x_image_plane);
+
+	point.x = static_cast<int32_t>(new_x);
+	point.y = static_cast<int32_t>(new_y);
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+double VectorImageBuilder::computeDistanceToImagePlane(double focalLengthInPixels, double imageSizeInPixels, double projectorRange) {
+	double fov = std::atan(imageSizeInPixels / focalLengthInPixels / 2.0) * 2.0;
+	return (projectorRange / 2.0 / std::tan(fov / 2));
+}
+
 bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
                                           double p2_x, double p2_y, double p3_x, double p3_y,
                                           double &i_x, double &i_y, double comparison_epsilon) {

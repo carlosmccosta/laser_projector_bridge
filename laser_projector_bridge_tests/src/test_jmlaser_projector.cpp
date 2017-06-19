@@ -54,34 +54,32 @@ void createLaserOutputPattern(std::vector<JMVectorStruct> &points) {
 }
 
 
-void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct> &points) {
+void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct> &points, bool show_distortion_correction_only = true) {
 	laser_projector_bridge::VectorImageBuilder vector_image_builder;
 	vector_image_builder.setInterpolationDistanceInProjectorRange((int32_t)(UINT32_MAX * 0.025));
 	vector_image_builder.setLineFirstPointIgnoreDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0013, 2));
 	vector_image_builder.setLineFirstPointMergeDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0005, 2));
 	vector_image_builder.setNumberOfBlankingPointsForLineStartAndEnd(2);
-	vector_image_builder.setRadialDistortionCoefficientScalingX(0.084);
-	vector_image_builder.setRadialDistortionCoefficientFirstDegree(-0.073);
-	vector_image_builder.setRadialDistortionCoefficientSecondDegree(-0.013);
-	vector_image_builder.setRadialDistortionCoefficientThirdDegree(-0.005);
-	vector_image_builder.setRadialDistortionCoefficientFourthDegree(0.0);
-	vector_image_builder.setRadialDistortionCoefficientFifthDegree(0.0);
-	vector_image_builder.setRadialDistortionCoefficientSixthDegree(0.0);
+	vector_image_builder.setDrawingAreaXFocalLengthInPixels(2753.0);
+	vector_image_builder.setDrawingAreaYFocalLengthInPixels(2753.0);
+	vector_image_builder.setDistanceBetweenMirrorsInProjectorRangePercentage(0.01);
 	vector_image_builder.startNewVectorImage();
 
-	laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 10, 10, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN, INT32_MIN);
-	//laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 6, 6, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3), INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3));
+	if (show_distortion_correction_only) {
+		laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 10, 10, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN, INT32_MIN);
+		//laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 6, 6, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3), INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3));
+	} else {
+		laser_projector_bridge::pattern_builder::createPlusFullRange(vector_image_builder);
+		laser_projector_bridge::pattern_builder::createCrossFullRange(vector_image_builder);
 
-	laser_projector_bridge::pattern_builder::createPlusFullRange(vector_image_builder);
-	laser_projector_bridge::pattern_builder::createCrossFullRange(vector_image_builder);
+		for (double scale = 0.0; scale <= 1.0; scale += 0.1)
+			laser_projector_bridge::pattern_builder::createSquareScaled(vector_image_builder, scale);
 
-	for (double scale = 0.0; scale <= 1.0; scale += 0.1)
-		laser_projector_bridge::pattern_builder::createSquareScaled(vector_image_builder, scale);
-
-	laser_projector_bridge::pattern_builder::createHorizontalDiamondOutsideDrawingArea(vector_image_builder);
-	laser_projector_bridge::pattern_builder::createVerticalDiamondOutsideDrawingArea(vector_image_builder);
-	laser_projector_bridge::pattern_builder::createCrossOutsideDrawingArea(vector_image_builder);
-	laser_projector_bridge::pattern_builder::createPlusOutsideDrawingArea(vector_image_builder);
+		laser_projector_bridge::pattern_builder::createHorizontalDiamondOutsideDrawingArea(vector_image_builder);
+		laser_projector_bridge::pattern_builder::createVerticalDiamondOutsideDrawingArea(vector_image_builder);
+		laser_projector_bridge::pattern_builder::createCrossOutsideDrawingArea(vector_image_builder);
+		laser_projector_bridge::pattern_builder::createPlusOutsideDrawingArea(vector_image_builder);
+	}
 
 	vector_image_builder.finishVectorImage();
 	points = vector_image_builder.getVectorImagePoints();

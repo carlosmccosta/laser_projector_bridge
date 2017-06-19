@@ -68,13 +68,14 @@ class VectorImageBuilder {
 		bool addNewPointWithLinearInterpolationFromLastPoint(JMVectorStruct &point);
 		void addLastPointTurnedOff();
 		void addLastPointBlankingPoints();
-		void correctRadialDistortion(JMVectorStruct &point);
-		void correctRadialDistortionOnVectorImage();
 		void replaceLastPoint(JMVectorStruct &point);
 		void removeLastPoint();
+		void correctRadialDistortionOnVectorImage();
+		void correctRadialDistortion(JMVectorStruct &point, double distance_to_x_image_plane, double distance_to_y_image_plane, double distance_between_mirrors);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		static double computeDistanceToImagePlane(double focalLengthInPixels, double imageSizeInPixels, double projectorRange);
 		static bool lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
 		                             double p2_x, double p2_y, double p3_x, double p3_y,
 		                             double &i_x, double &i_y, double comparison_epsilon = 1e-8);
@@ -85,40 +86,36 @@ class VectorImageBuilder {
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <gets>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		inline double getDrawingAreaWidth() const { return drawing_area_width_; }
 		inline double getDrawingAreaHeight() const { return drawing_area_height_; }
-		inline double getDrawingAreaXOffset() const { return drawing_area_x_offset_; }
-		inline double getDrawingAreaYOffset() const { return drawing_area_y_offset_; }
-		inline double getRadialDistortionCoefficientFirstDegreeScalingX() const { return radial_distortion_coefficient_scaling_x_; }
-		inline double getRadialDistortionCoefficientFirstDegree() const { return radial_distortion_coefficient_first_degree_; }
-		inline double getRadialDistortionCoefficientSecondDegree() const { return radial_distortion_coefficient_second_degree_; }
-		inline double getRadialDistortionCoefficientThirdDegree() const { return radial_distortion_coefficient_third_degree_; }
-		inline double getRadialDistortionCoefficientFourthDegree() const { return radial_distortion_coefficient_fourth_degree_; }
-		inline double getRadialDistortionCoefficientFifthDegree() const { return radial_distortion_coefficient_fifth_degree_; }
-		inline double getRadialDistortionCoefficientSixthDegree() const { return radial_distortion_coefficient_sixth_degree_; }
+		inline double getDrawingAreaXFocalLengthInPixels() const { return drawing_area_x_focal_length_in_pixels_; }
+		inline double getDrawingAreaYFocalLengthInPixels() const { return drawing_area_y_focal_length_in_pixels_; }
+		inline double getDistanceBetweenMirrorsInProjectorRangePercentage() const { return distance_between_mirrors_in_projector_range_percentage_; }
+		inline int32_t getMinimumProjectorRangeValueForClipping() { return minimum_projector_range_value_for_clipping_; }
+		inline int32_t getMaximumProjectorRangeValueForClipping() { return maximum_projector_range_value_for_clipping_; }
 		inline double getLineFirstPointMergeDistanceSquaredInProjectorRange() const { return line_first_point_merge_distance_squared_in_projector_range_; }
 		inline double getLineFirstPointIgnoreDistanceSquaredInProjectorRange() const { return line_first_point_ignore_distance_squared_in_projector_range_; }
 		inline int64_t getInterpolationDistanceInProjectorRange() const { return interpolation_distance_in_projector_range_; }
 		inline std::vector<JMVectorStruct>& getVectorImagePoints() { return vector_image_points_; }
 		inline size_t getMaximumNumberOfPoints() { return maximum_number_of_points_; }
+		inline double getDrawingAreaXOffset() const { return drawing_area_x_offset_; }
+		inline double getDrawingAreaYOffset() const { return drawing_area_y_offset_; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </gets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <sets>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		inline void setDrawingAreaWidth(double drawing_area_width) { drawing_area_width_ = drawing_area_width; }
 		inline void setDrawingAreaHeight(double drawing_area_height) { drawing_area_height_ = drawing_area_height; }
-		inline void setDrawingAreaXOffset(double drawing_area_x_offset) { drawing_area_x_offset_ = drawing_area_x_offset; }
-		inline void setDrawingAreaYOffset(double drawing_area_y_offset) { drawing_area_y_offset_ = drawing_area_y_offset; }
-		inline void setRadialDistortionCoefficientScalingX(double radial_distortion_coefficient_scaling_x) { radial_distortion_coefficient_scaling_x_ = radial_distortion_coefficient_scaling_x; }
-		inline void setRadialDistortionCoefficientFirstDegree(double radial_distortion_coefficient_first_degree) { radial_distortion_coefficient_first_degree_ = radial_distortion_coefficient_first_degree; }
-		inline void setRadialDistortionCoefficientSecondDegree(double radial_distortion_coefficient_second_degree) { radial_distortion_coefficient_second_degree_ = radial_distortion_coefficient_second_degree; }
-		inline void setRadialDistortionCoefficientThirdDegree(double radial_distortion_coefficient_third_degree) { radial_distortion_coefficient_third_degree_ = radial_distortion_coefficient_third_degree; }
-		inline void setRadialDistortionCoefficientFourthDegree(double radial_distortion_coefficient_fourth_degree) { radial_distortion_coefficient_fourth_degree_ = radial_distortion_coefficient_fourth_degree; }
-		inline void setRadialDistortionCoefficientFifthDegree(double radial_distortion_coefficient_fifth_degree) { radial_distortion_coefficient_fifth_degree_ = radial_distortion_coefficient_fifth_degree; }
-		inline void setRadialDistortionCoefficientSixthDegree(double radial_distortion_coefficient_sixth_degree) { radial_distortion_coefficient_sixth_degree_ = radial_distortion_coefficient_sixth_degree; }
+		inline void setDrawingAreaXFocalLengthInPixels(double drawing_area_x_focal_length_in_pixels) { drawing_area_x_focal_length_in_pixels_ = drawing_area_x_focal_length_in_pixels; }
+		inline void setDrawingAreaYFocalLengthInPixels(double drawing_area_y_focal_length_in_pixels) { drawing_area_y_focal_length_in_pixels_ = drawing_area_y_focal_length_in_pixels; }
+		inline void setDistanceBetweenMirrorsInProjectorRangePercentage(double distance_between_mirrors_in_projector_range_percentage) { distance_between_mirrors_in_projector_range_percentage_ = distance_between_mirrors_in_projector_range_percentage; }
+		inline void setMinimumProjectorRangeValueForClipping(int32_t minimum_projector_range_value_for_clipping) { minimum_projector_range_value_for_clipping_ = minimum_projector_range_value_for_clipping; }
+		inline void setMaximumProjectorRangeValueForClipping(int32_t maximum_projector_range_value_for_clipping) { maximum_projector_range_value_for_clipping_ = maximum_projector_range_value_for_clipping; }
 		inline void setLineFirstPointMergeDistanceSquaredInProjectorRange(double line_first_point_merge_distance_squared_in_projector_range) { line_first_point_merge_distance_squared_in_projector_range_ = line_first_point_merge_distance_squared_in_projector_range; }
 		inline void setLineFirstPointIgnoreDistanceSquaredInProjectorRange(double line_first_point_ignore_distance_squared_in_projector_range) { line_first_point_ignore_distance_squared_in_projector_range_ = line_first_point_ignore_distance_squared_in_projector_range; }
 		inline void setInterpolationDistanceInProjectorRange(int64_t interpolation_distance_in_projector_range) { interpolation_distance_in_projector_range_ = interpolation_distance_in_projector_range; }
 		inline void setNumberOfBlankingPointsForLineStartAndEnd(size_t number_of_blanking_points_for_line_start) { number_of_blanking_points_for_line_start_and_end_ = number_of_blanking_points_for_line_start; }
 		inline void setMaximumNumberOfPoints(size_t maximum_number_of_points) { maximum_number_of_points_ = maximum_number_of_points; }
+		inline void setDrawingAreaXOffset(double drawing_area_x_offset) { drawing_area_x_offset_ = drawing_area_x_offset; }
+		inline void setDrawingAreaYOffset(double drawing_area_y_offset) { drawing_area_y_offset_ = drawing_area_y_offset; }
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </sets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// ============================================================================   </public-section>   =========================================================================
 
@@ -127,23 +124,21 @@ class VectorImageBuilder {
 	protected:
 		double drawing_area_width_;
 		double drawing_area_height_;
-		double drawing_area_x_offset_;
-		double drawing_area_y_offset_;
-		double drawing_area_to_projector_range_x_scale_;
-		double drawing_area_to_projector_range_y_scale_;
-		double radial_distortion_coefficient_scaling_x_;
-		double radial_distortion_coefficient_first_degree_;
-		double radial_distortion_coefficient_second_degree_;
-		double radial_distortion_coefficient_third_degree_;
-		double radial_distortion_coefficient_fourth_degree_;
-		double radial_distortion_coefficient_fifth_degree_;
-		double radial_distortion_coefficient_sixth_degree_;
+		double drawing_area_x_focal_length_in_pixels_;
+		double drawing_area_y_focal_length_in_pixels_;
+		double distance_between_mirrors_in_projector_range_percentage_;
+		int32_t minimum_projector_range_value_for_clipping_;
+		int32_t maximum_projector_range_value_for_clipping_;
 		double line_first_point_merge_distance_squared_in_projector_range_;
 		double line_first_point_ignore_distance_squared_in_projector_range_;
 		int64_t interpolation_distance_in_projector_range_;
 		size_t number_of_blanking_points_for_line_start_and_end_;
 		std::vector<JMVectorStruct> vector_image_points_;
 		size_t maximum_number_of_points_;
+		double drawing_area_x_offset_;
+		double drawing_area_y_offset_;
+		double drawing_area_to_projector_range_x_scale_;
+		double drawing_area_to_projector_range_y_scale_;
 	// ============================================================================   <protected-section>   =======================================================================
 };
 
