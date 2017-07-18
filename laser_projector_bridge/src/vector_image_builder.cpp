@@ -555,7 +555,7 @@ void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point, double d
 		point.x = maximum_projector_range_value_for_clipping_;
 
 	if (point.y <= minimum_projector_range_value_for_clipping_)
-		point.y = maximum_projector_range_value_for_clipping_;
+		point.y = minimum_projector_range_value_for_clipping_;
 	else if (point.y >= maximum_projector_range_value_for_clipping_)
 		point.y = maximum_projector_range_value_for_clipping_;
 
@@ -566,8 +566,16 @@ void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point, double d
 	double new_y = -(std::tan(galvo_y_angle) * distance_to_y_image_plane);
 	double new_x = (std::tan(galvo_x_angle) * distance_to_x_image_plane);
 
-	point.x = static_cast<int32_t>(new_x);
-	point.y = static_cast<int32_t>(new_y);
+	bool underflowX = (point.x < 0 && new_x > 0);
+	bool underflowY = (point.y < 0 && new_y > 0);
+	bool overflowX = (point.x > 0 && new_x < 0);
+	bool overflowY = (point.y > 0 && new_y < 0);
+
+	if (!((underflowX || overflowX) && std::abs(point.x) > (double)std::numeric_limits<int32_t>::max() * 0.5))
+		point.x = static_cast<int32_t>(new_x);
+
+	if (!((underflowY || overflowY) && std::abs(point.y) > (double)std::numeric_limits<int32_t>::max() * 0.5))
+		point.y = static_cast<int32_t>(new_y);
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
