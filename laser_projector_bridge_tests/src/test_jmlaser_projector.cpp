@@ -60,9 +60,10 @@ void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct>
 	vector_image_builder.setLineFirstPointIgnoreDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0013, 2));
 	vector_image_builder.setLineFirstPointMergeDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0005, 2));
 	vector_image_builder.setNumberOfBlankingPointsForLineStartAndEnd(2);
-	vector_image_builder.setDrawingAreaXFocalLengthInPixels(2753.0);
-	vector_image_builder.setDrawingAreaYFocalLengthInPixels(2753.0);
-	vector_image_builder.setDistanceBetweenMirrorsInProjectorRangePercentage(0.01);
+	vector_image_builder.getProjectionModelProperties().setFocalLengthXInPixels(2753.0);
+	vector_image_builder.getProjectionModelProperties().setFocalLengthYInPixels(2753.0);
+	vector_image_builder.getProjectionModelProperties().setDistanceBetweenMirrors(0.001);
+	vector_image_builder.getProjectionModelProperties().setDistanceToImagePlane(2753.0);
 	vector_image_builder.startNewVectorImage();
 
 	if (show_distortion_correction_only) {
@@ -176,7 +177,7 @@ int main(int argc, char **argv) {
 		std::cout << ">>> No projectors were found!" << std::endl;
 		return -1;
 	} else {
-		testJmlaserProjectorSetup((unsigned int)number_of_projectors);
+		//testJmlaserProjectorSetup((unsigned int)number_of_projectors);
 		testJmlaserOutput((unsigned int)number_of_projectors);
 	}
 

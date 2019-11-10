@@ -159,7 +159,12 @@ int JMLaserProjector::jmLaserBridgeOpenDevice(const std::string& projector_name)
 	if (JMLaserProjector::jmLaserBridgeEnumerateDevices() <= 0) { return 0; }
 	std::vector<char> projector_name_c(projector_name.begin(), projector_name.end());
 	projector_name_c.push_back('\0');
-	return jmLaserOpenDevice(projector_name_c.data());
+	int open_status = jmLaserOpenDevice(projector_name_c.data());
+	if (open_status == JMLASER_ERROR_NOT_ENUMERATED) {
+		if (jmLaserEnumerateDevices() <= 0) { return 0; }
+		open_status = jmLaserOpenDevice(projector_name_c.data());
+	}
+	return open_status;
 }
 
 int JMLaserProjector::jmLaserBridgeGetMaxFrameSize(int projector_handle) {
@@ -309,7 +314,7 @@ bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& p
 	if (speed < (unsigned int)projector_minimum_speed_) speed = (unsigned int)projector_minimum_speed_;
 	if (speed > (unsigned int)projector_maximum_speed_) speed = (unsigned int)projector_maximum_speed_;
 
-	if (projector_handle_ >= 0 && !points.empty() && repetitions >= 0 && projector_maximum_number_of_vectors_per_frame_ > 0) {
+	if (projector_handle_ >= 0 && !points.empty() && projector_maximum_number_of_vectors_per_frame_ > 0) {
 		if (points.size() > (size_t)projector_maximum_number_of_vectors_per_frame_) {
 			points.resize((size_t)projector_maximum_number_of_vectors_per_frame_);
 			points.back().i = 0;
@@ -339,9 +344,14 @@ bool JMLaserProjector::sendVectorImageToProjector(std::vector<JMVectorStruct>& p
 }
 
 bool JMLaserProjector::stopOutput() {
-	if (projector_handle_ >= 0 && projector_output_started_ && jmLaserStopOutput(projector_handle_) == 0) {
-		projector_output_started_ = false;
-		return true;
+	if (projector_handle_ >= 0 && projector_output_started_) {
+		std::vector<JMVectorStruct> points;
+		points.push_back(createSingleColorLaserPoint(0, 0, 0));
+		sendVectorImageToProjector(points, projector_minimum_speed_);
+		if (jmLaserStopOutput(projector_handle_) == 0) {
+			projector_output_started_ = false;
+			return true;
+		}
 	}
 	return false;
 }

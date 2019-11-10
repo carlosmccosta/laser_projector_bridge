@@ -75,12 +75,12 @@ namespace laser_projector_bridge {
 
 
 		void createSquareScaled(laser_projector_bridge::VectorImageBuilder &vector_image_builder, double scale) {
-			double x_offset = (vector_image_builder.getDrawingAreaWidth() - (vector_image_builder.getDrawingAreaWidth() * scale)) * 0.5;
-			double y_offset = (vector_image_builder.getDrawingAreaHeight() - (vector_image_builder.getDrawingAreaHeight() * scale)) * 0.5;
+			double x_offset = (vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() - (vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * scale)) * 0.5;
+			double y_offset = (vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() - (vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * scale)) * 0.5;
 			double x_min = x_offset;
-			double x_max = vector_image_builder.getDrawingAreaWidth() - x_offset;
+			double x_max = vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() - x_offset;
 			double y_min = y_offset;
-			double y_max = vector_image_builder.getDrawingAreaHeight() - y_offset;
+			double y_max = vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() - y_offset;
 			vector_image_builder.addNewLine(x_min, y_min, x_max, y_min);
 			vector_image_builder.addNewLine(x_max, y_min, x_max, y_max);
 			vector_image_builder.addNewLine(x_max, y_max, x_min, y_max);
@@ -100,10 +100,10 @@ namespace laser_projector_bridge {
 
 
 		void createPlusFullRange(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-			double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-			double half_height = vector_image_builder.getDrawingAreaHeight() * 0.5;
-			vector_image_builder.addNewLine(0.0, half_height, vector_image_builder.getDrawingAreaWidth(), half_height);
-			vector_image_builder.addNewLine(half_width, 0.0, half_width, vector_image_builder.getDrawingAreaHeight());
+			double half_width = vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.5;
+			double half_height = vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.5;
+			vector_image_builder.addNewLine(0.0, half_height, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels(), half_height);
+			vector_image_builder.addNewLine(half_width, 0.0, half_width, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels());
 		}
 
 
@@ -146,51 +146,51 @@ namespace laser_projector_bridge {
 
 
 		void createHorizontalDiamondOutsideDrawingArea(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-			double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-			double half_hHeight = vector_image_builder.getDrawingAreaHeight() * 0.5;
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, half_hHeight, half_width, vector_image_builder.getDrawingAreaHeight() * 0.75);
-			vector_image_builder.addNewLine(half_width, vector_image_builder.getDrawingAreaHeight() * 0.75, vector_image_builder.getDrawingAreaWidth() * 1.25, half_hHeight);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, half_hHeight, half_width, vector_image_builder.getDrawingAreaHeight() * 0.25);
-			vector_image_builder.addNewLine(half_width, vector_image_builder.getDrawingAreaHeight() * 0.25, vector_image_builder.getDrawingAreaWidth() * -0.25, half_hHeight);
+			double half_width = vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.5;
+			double half_hHeight = vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.5;
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, half_hHeight, half_width, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
+			vector_image_builder.addNewLine(half_width, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, half_hHeight);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, half_hHeight, half_width, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25);
+			vector_image_builder.addNewLine(half_width, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, half_hHeight);
 		}
 
 
 		void createVerticalDiamondOutsideDrawingArea(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-			double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-			double half_height = vector_image_builder.getDrawingAreaHeight() * 0.5;
-			vector_image_builder.addNewLine(half_height, vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 0.75, half_width);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaHeight() * 0.75, half_width, half_height, vector_image_builder.getDrawingAreaWidth() * 1.25);
-			vector_image_builder.addNewLine(half_height, vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 0.25, half_width);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaHeight() * 0.25, half_width, half_height, vector_image_builder.getDrawingAreaWidth() * -0.25);
+			double half_width = vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.5;
+			double half_height = vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.5;
+			vector_image_builder.addNewLine(half_height, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75, half_width);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75, half_width, half_height, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25);
+			vector_image_builder.addNewLine(half_height, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25, half_width);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25, half_width, half_height, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25);
 		}
 
 
 		void createCrossOutsideDrawingArea(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.25, vector_image_builder.getDrawingAreaHeight() * 0.25);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.15, vector_image_builder.getDrawingAreaHeight() * 0.25);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.35, vector_image_builder.getDrawingAreaHeight() * 0.25);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.15, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.35, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25);
 
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.25, vector_image_builder.getDrawingAreaHeight() * 0.75);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.15, vector_image_builder.getDrawingAreaHeight() * 0.75);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.35, vector_image_builder.getDrawingAreaHeight() * 0.75);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.15, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.35, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
 
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.75, vector_image_builder.getDrawingAreaHeight() * 0.25);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.65, vector_image_builder.getDrawingAreaHeight() * 0.25);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * -0.25, vector_image_builder.getDrawingAreaWidth() * 0.85, vector_image_builder.getDrawingAreaHeight() * 0.25);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.75, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.65, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * -0.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.85, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25);
 
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.75, vector_image_builder.getDrawingAreaHeight() * 0.75);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.65, vector_image_builder.getDrawingAreaHeight() * 0.75);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 1.25, vector_image_builder.getDrawingAreaHeight() * 1.25, vector_image_builder.getDrawingAreaWidth() * 0.85, vector_image_builder.getDrawingAreaHeight() * 0.75);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.75, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.65, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 1.25, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.85, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
 		}
 
 
 		void createPlusOutsideDrawingArea(laser_projector_bridge::VectorImageBuilder &vector_image_builder) {
-			double half_width = vector_image_builder.getDrawingAreaWidth() * 0.5;
-			double half_height = vector_image_builder.getDrawingAreaHeight() * 0.5;
-			vector_image_builder.addNewLine(half_width * 0.5, vector_image_builder.getDrawingAreaHeight() * 0.25, half_width * 0.5, vector_image_builder.getDrawingAreaHeight() * 1.25);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * 0.25, half_height * 0.5, vector_image_builder.getDrawingAreaWidth() * 1.25, half_height * 0.5);
-			vector_image_builder.addNewLine(half_width * 1.5, vector_image_builder.getDrawingAreaHeight() * -0.25, half_width * 1.5, vector_image_builder.getDrawingAreaHeight() * 0.75);
-			vector_image_builder.addNewLine(vector_image_builder.getDrawingAreaWidth() * -0.25, half_height * 1.5, vector_image_builder.getDrawingAreaWidth() * 0.75, half_height * 1.5);
+			double half_width = vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.5;
+			double half_height = vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.5;
+			vector_image_builder.addNewLine(half_width * 0.5, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.25, half_width * 0.5, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 1.25);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.25, half_height * 0.5, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 1.25, half_height * 0.5);
+			vector_image_builder.addNewLine(half_width * 1.5, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * -0.25, half_width * 1.5, vector_image_builder.getProjectionModelProperties().getImageHeightInPixels() * 0.75);
+			vector_image_builder.addNewLine(vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * -0.25, half_height * 1.5, vector_image_builder.getProjectionModelProperties().getImageWidthInPixels() * 0.75, half_height * 1.5);
 		}
 	}
 }

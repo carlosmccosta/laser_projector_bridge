@@ -16,20 +16,16 @@ namespace laser_projector_bridge {
 // ===============================================================================  <public-section>   ============================================================================
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <constructors-destructor>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	VectorImageBuilder::VectorImageBuilder() :
-		drawing_area_width_(2000.0),
-		drawing_area_height_(2000.0),
-		drawing_area_x_focal_length_in_pixels_(2750.0),
-		drawing_area_y_focal_length_in_pixels_(2750.0),
-		distance_between_mirrors_in_projector_range_percentage_(0.01),
-		minimum_projector_range_value_for_clipping_((int32_t)((double)std::numeric_limits<int32_t>::min() * 0.98)),
-		maximum_projector_range_value_for_clipping_((int32_t)((double)std::numeric_limits<int32_t>::max() * 0.98)),
-		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
-		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.001, 2.0)),
-		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.002)),
-		number_of_blanking_points_for_line_start_and_end_(2),
-		maximum_number_of_points_(16000),
 		drawing_area_x_offset_(0.0),
 		drawing_area_y_offset_(0.0),
+		minimum_projector_range_value_for_clipping_((int32_t)((double)std::numeric_limits<int32_t>::min() * 0.99)),
+		maximum_projector_range_value_for_clipping_((int32_t)((double)std::numeric_limits<int32_t>::max() * 0.99)),
+		trim_points_outside_drawing_area_(true),
+		line_first_point_merge_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.0005, 2.0)),
+		line_first_point_ignore_distance_squared_in_projector_range_(std::pow((double)std::numeric_limits<uint32_t>::max() * 0.001, 2.0)),
+		interpolation_distance_in_projector_range_((int64_t)((double)std::numeric_limits<uint32_t>::max() * 0.001)),
+		number_of_blanking_points_for_line_start_and_end_(15),
+		maximum_number_of_points_(16000),
 		drawing_area_to_projector_range_x_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0),
 		drawing_area_to_projector_range_y_scale_((double)std::numeric_limits<uint32_t>::max() / 2000.0)
 		{}
@@ -42,21 +38,14 @@ VectorImageBuilder::~VectorImageBuilder() {}
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 void VectorImageBuilder::startNewVectorImage() {
 	vector_image_points_.clear();
-	drawing_area_to_projector_range_x_scale_ = ((double)std::numeric_limits<uint32_t>::max()) / drawing_area_width_;
-	drawing_area_to_projector_range_y_scale_ = ((double)std::numeric_limits<uint32_t>::max()) / drawing_area_height_;
+	drawing_area_to_projector_range_x_scale_ = ((double)std::numeric_limits<uint32_t>::max()) / projection_model_properties_.getImageWidthInPixels();
+	drawing_area_to_projector_range_y_scale_ = ((double)std::numeric_limits<uint32_t>::max()) / projection_model_properties_.getImageHeightInPixels();
 }
 
 void VectorImageBuilder::finishVectorImage() {
 	if (!vector_image_points_.empty()) {
-		if (vector_image_points_.back().i != 0) {
-			JMVectorStruct last_point_off = vector_image_points_.back();
-			last_point_off.i = 0;
-			vector_image_points_.push_back(last_point_off);
-
-			for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
-				addNewPoint(last_point_off);
-		}
-		correctRadialDistortionOnVectorImage();
+		addLastPointBlankingPoints();
+		correctDistortionOnVectorImage();
 		// todo: laser path optimization and blanking
 	}
 }
@@ -72,17 +61,17 @@ void VectorImageBuilder::addReverseImage() {
 }
 
 
-bool VectorImageBuilder::convertPointFromDrawingAreaToProjectorOrigin(double x, double y, double &x_point_in_drawing_area_and_projector_origin, double &y_point_in_drawing_area_and_projector_origin, AxisPosition origin_axis_position) {
-	switch (origin_axis_position) {
+bool VectorImageBuilder::convertPointFromDrawingAreaOriginToProjectorOrigin(double x, double y, double &x_point_in_drawing_area_and_projector_origin, double &y_point_in_drawing_area_and_projector_origin, AxisPosition projector_origin_axis_position) {
+	switch (projector_origin_axis_position) {
 		case AxisPosition::TopLeft: {
-			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
-			y_point_in_drawing_area_and_projector_origin = (drawing_area_height_ - y) - drawing_area_height_ * 0.5;
+			x_point_in_drawing_area_and_projector_origin = x - projection_model_properties_.getImageWidthInPixels() * 0.5;
+			y_point_in_drawing_area_and_projector_origin = (projection_model_properties_.getImageHeightInPixels() - y) - projection_model_properties_.getImageHeightInPixels() * 0.5;
 			break;
 		}
 
 		case AxisPosition::BottomLeft: {
-			x_point_in_drawing_area_and_projector_origin = x - drawing_area_width_ * 0.5;
-			y_point_in_drawing_area_and_projector_origin = y - drawing_area_height_ * 0.5;
+			x_point_in_drawing_area_and_projector_origin = x - projection_model_properties_.getImageWidthInPixels() * 0.5;
+			y_point_in_drawing_area_and_projector_origin = y - projection_model_properties_.getImageHeightInPixels() * 0.5;
 			break;
 		}
 
@@ -103,29 +92,29 @@ bool VectorImageBuilder::convertPointFromDrawingAreaToProjectorOrigin(double x, 
 }
 
 
-bool VectorImageBuilder::convertProjectorOriginToDrawingAreaOrigin(double x, double y, double &new_x, double &new_y, AxisPosition drawing_area_origin_axis_position) {
+bool VectorImageBuilder::convertPointFromProjectorOriginToDrawingAreaOrigin(double x, double y, double &x_point_in_drawing_area_origin, double &y_point_in_drawing_area_origin, AxisPosition drawing_area_origin_axis_position) {
 	switch (drawing_area_origin_axis_position) {
 		case AxisPosition::TopLeft: {
-			new_x = x + drawing_area_width_ * 0.5;
-			new_y = (drawing_area_height_ - y) + drawing_area_height_ * 0.5;
+			x_point_in_drawing_area_origin = x + projection_model_properties_.getImageWidthInPixels() * 0.5;
+			y_point_in_drawing_area_origin = (projection_model_properties_.getImageHeightInPixels() - y) + projection_model_properties_.getImageHeightInPixels() * 0.5;
 			break;
 		}
 
 		case AxisPosition::BottomLeft: {
-			new_x = x + drawing_area_width_ * 0.5;
-			new_y = y + drawing_area_height_ * 0.5;
+			x_point_in_drawing_area_origin = x + projection_model_properties_.getImageWidthInPixels() * 0.5;
+			y_point_in_drawing_area_origin = y + projection_model_properties_.getImageHeightInPixels() * 0.5;
 			break;
 		}
 
 		case AxisPosition::Middle: {
-			new_x = x;
-			new_y = y;
+			x_point_in_drawing_area_origin = x;
+			y_point_in_drawing_area_origin = y;
 			break;
 		}
 
 		default: {
-			new_x = 0.0;
-			new_y = 0.0;
+			x_point_in_drawing_area_origin = 0.0;
+			y_point_in_drawing_area_origin = 0.0;
 			return false;
 		}
 	}
@@ -139,10 +128,10 @@ bool VectorImageBuilder::convertPointFromDrawingAreaInProjectorOriginToProjector
 	bool point_overflow = false;
 
 	double x_with_offset = x_point_in_drawing_area_and_projector_origin - drawing_area_x_offset_;
-	if (x_with_offset < drawing_area_width_ * -0.5) {
+	if (x_with_offset < projection_model_properties_.getImageWidthInPixels() * -0.5) {
 		x_point_in_projector_range = minimum_projector_range_value_for_clipping_;
 		point_overflow = true;
-	} else if (x_with_offset > drawing_area_width_ * 0.5) {
+	} else if (x_with_offset > projection_model_properties_.getImageWidthInPixels() * 0.5) {
 		x_point_in_projector_range = maximum_projector_range_value_for_clipping_;
 		point_overflow = true;
 	} else {
@@ -150,10 +139,10 @@ bool VectorImageBuilder::convertPointFromDrawingAreaInProjectorOriginToProjector
 	}
 
 	double y_with_offset = y_point_in_drawing_area_and_projector_origin - drawing_area_y_offset_;
-	if (y_with_offset < drawing_area_height_ * -0.5) {
+	if (y_with_offset < projection_model_properties_.getImageHeightInPixels() * -0.5) {
 		y_point_in_projector_range = minimum_projector_range_value_for_clipping_;
 		point_overflow = true;
-	} else if (x_with_offset > drawing_area_height_ * 0.5) {
+	} else if (x_with_offset > projection_model_properties_.getImageHeightInPixels() * 0.5) {
 		y_point_in_projector_range = maximum_projector_range_value_for_clipping_;
 		point_overflow = true;
 	} else {
@@ -166,7 +155,7 @@ bool VectorImageBuilder::convertPointFromDrawingAreaInProjectorOriginToProjector
 bool VectorImageBuilder::convertPointFromProjectorRangeToDrawingArea(int32_t x_point_in_projector_range, int32_t y_point_in_projector_range, double &x_point_in_drawing_area_range, double &y_point_in_drawing_area_range, AxisPosition origin_axis_position) {
 	double x_point_in_drawing_area_and_projector_origin = ((double)x_point_in_projector_range / drawing_area_to_projector_range_x_scale_) + drawing_area_x_offset_;
 	double y_point_in_drawing_area_and_projector_origin = ((double)y_point_in_projector_range / drawing_area_to_projector_range_y_scale_) + drawing_area_y_offset_;
-	return convertProjectorOriginToDrawingAreaOrigin(x_point_in_drawing_area_and_projector_origin, y_point_in_drawing_area_and_projector_origin, x_point_in_drawing_area_range, y_point_in_drawing_area_range, origin_axis_position);
+	return convertPointFromProjectorOriginToDrawingAreaOrigin(x_point_in_drawing_area_and_projector_origin, y_point_in_drawing_area_and_projector_origin, x_point_in_drawing_area_range, y_point_in_drawing_area_range, origin_axis_position);
 }
 
 bool VectorImageBuilder::trimLineInDrawingAreaAndProjectorOrigin(double &start_x_in_projector_origin, double &start_y_in_projector_origin, double &end_x_in_projector_origin, double &end_y_in_projector_origin) {
@@ -188,8 +177,8 @@ bool VectorImageBuilder::trimLineInDrawingAreaAndProjectorOrigin(double &start_x
 		valid_point_y = start_y_in_projector_origin;
 	}
 
-	double half_width = drawing_area_width_ * 0.5;
-	double half_height = drawing_area_height_ * 0.5;
+	double half_width = projection_model_properties_.getImageWidthInPixels() * 0.5;
+	double half_height = projection_model_properties_.getImageHeightInPixels() * 0.5;
 	double x_intersection = 0.0, y_intersection = 0.0;
 
 	// left
@@ -320,8 +309,8 @@ bool VectorImageBuilder::trimLineInDrawingAreaAndProjectorOrigin(double &start_x
 }
 
 bool VectorImageBuilder::isPointInProjectorOriginWithinDrawingArea(double x, double y) {
-	double half_width = drawing_area_width_ * 0.5;
-	double half_height = drawing_area_height_ * 0.5;
+	double half_width = projection_model_properties_.getImageWidthInPixels() * 0.5;
+	double half_height = projection_model_properties_.getImageHeightInPixels() * 0.5;
 	return (x >= -half_width && x <= half_width && y >= -half_height && y <= half_height);
 }
 
@@ -333,8 +322,8 @@ bool VectorImageBuilder::addNewLine(double start_x, double start_y, double end_x
 	double end_x_in_projector_origin;
 	double end_y_in_projector_origin;
 
-	if (!convertPointFromDrawingAreaToProjectorOrigin(start_x, start_y, start_x_in_projector_origin, start_y_in_projector_origin, origin_axis_position)) { return false; }
-	if (!convertPointFromDrawingAreaToProjectorOrigin(end_x, end_y, end_x_in_projector_origin, end_y_in_projector_origin, origin_axis_position)) { return false; }
+	if (!convertPointFromDrawingAreaOriginToProjectorOrigin(start_x, start_y, start_x_in_projector_origin, start_y_in_projector_origin, origin_axis_position)) { return false; }
+	if (!convertPointFromDrawingAreaOriginToProjectorOrigin(end_x, end_y, end_x_in_projector_origin, end_y_in_projector_origin, origin_axis_position)) { return false; }
 
 	if (!trimLineInDrawingAreaAndProjectorOrigin(start_x_in_projector_origin, start_y_in_projector_origin, end_x_in_projector_origin, end_y_in_projector_origin)) { return false; }
 
@@ -385,30 +374,30 @@ bool VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct 
 	if (!vector_image_points_.empty()) {
 		JMVectorStruct last_point = vector_image_points_.back();
 		double distance_to_last_point_squared = jmVectorStructDistanceSquared(start_point, last_point);
-		if (distance_to_last_point_squared >= line_first_point_ignore_distance_squared_in_projector_range_ ||
-		    last_point.i != start_point.i || last_point.r != start_point.r || last_point.g != start_point.g ||
-		    last_point.b != start_point.b ||
-		    last_point.cyan != start_point.cyan || last_point.deepblue != start_point.deepblue ||
-		    last_point.yellow != start_point.yellow || last_point.user4 != start_point.user4) {
-			if (last_point.i != 0) {
-				last_point.i = 0;
-				addNewPoint(last_point);
-			}
 
-			JMVectorStruct last_point_off = last_point;
-			last_point_off.i = 0;
-			for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
-				addNewPoint(last_point_off);
+		bool start_point_different_than_last_point = false;
 
-			JMVectorStruct start_point_off = start_point;
-			start_point_off.i = 0;
-			addNewPoint(start_point_off);
-			for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
-				addNewPoint(start_point_off);
+		// check if points are the same using the ignore distance as threshold
+		if (line_first_point_ignore_distance_squared_in_projector_range_ > 0 && distance_to_last_point_squared >= line_first_point_ignore_distance_squared_in_projector_range_) {
+			start_point_different_than_last_point = true;
+		}
+		else
+		// check if points are the same using their coordinates (when ignore distance threshold is not active)
+		if (line_first_point_ignore_distance_squared_in_projector_range_ <= 0 && (last_point.x != start_point.x || last_point.y != start_point.y)) {
+			start_point_different_than_last_point = true;
+		}
+		else
+		// check if colors are different when points are considered the same
+		if (last_point.i != start_point.i || last_point.r != start_point.r || last_point.g != start_point.g || last_point.b != start_point.b ||
+			last_point.cyan != start_point.cyan || last_point.deepblue != start_point.deepblue || last_point.yellow != start_point.yellow || last_point.user4 != start_point.user4) {
+			start_point_different_than_last_point = true;
+		}
 
-			addNewPoint(start_point);
+		if (start_point_different_than_last_point) {
+			addLastPointBlankingPoints();
+			addFirstPointBlankingPoints(start_point);
 		} else {
-			if (distance_to_last_point_squared > 0 && distance_to_last_point_squared < line_first_point_merge_distance_squared_in_projector_range_) {
+			if (distance_to_last_point_squared > 0 && line_first_point_merge_distance_squared_in_projector_range_ > 0 && distance_to_last_point_squared < line_first_point_merge_distance_squared_in_projector_range_) {
 				last_point.x = (int32_t)((last_point.x + start_point.x) / 2.0);
 				last_point.y = (int32_t)((last_point.y + start_point.y) / 2.0);
 				replaceLastPoint(last_point);
@@ -423,14 +412,7 @@ bool VectorImageBuilder::addNewLine(JMVectorStruct &start_point, JMVectorStruct 
 			}
 		}
 	} else {
-		JMVectorStruct start_point_off = start_point;
-		start_point_off.i = 0;
-		addNewPoint(start_point_off);
-
-		for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
-			addNewPoint(start_point_off);
-
-		addNewPoint(start_point);
+		addFirstPointBlankingPoints(start_point);
 	}
 
 	return addNewPointWithLinearInterpolationFromLastPoint(end_point);
@@ -443,7 +425,7 @@ bool VectorImageBuilder::addNewPoint(double x, double y,
 	double y_in_projector_origin;
 	int32_t x_in_projector_range;
 	int32_t y_in_projector_range;
-	if (convertPointFromDrawingAreaToProjectorOrigin(x, y, x_in_projector_origin, y_in_projector_origin, origin_axis_position) &&
+	if (convertPointFromDrawingAreaOriginToProjectorOrigin(x, y, x_in_projector_origin, y_in_projector_origin, origin_axis_position) &&
 			convertPointFromDrawingAreaInProjectorOriginToProjectorRange(x_in_projector_origin, y_in_projector_origin, x_in_projector_range, y_in_projector_range)) {
 		addNewPoint(x_in_projector_range, y_in_projector_range, red, green, blue, intensity);
 		return true;
@@ -471,7 +453,7 @@ bool VectorImageBuilder::addNewPoint(int32_t x, int32_t y,
 bool VectorImageBuilder::addNewPoint(JMVectorStruct &point) {
 	if (vector_image_points_.size() < maximum_number_of_points_)
 	{
-		if (vector_image_points_.empty()) {
+		if (vector_image_points_.empty() && point.i > 0) {
 			JMVectorStruct point_start_off = point;
 			point_start_off.i = 0;
 			vector_image_points_.push_back(point_start_off);
@@ -520,10 +502,17 @@ void VectorImageBuilder::addLastPointTurnedOff() {
 
 void VectorImageBuilder::addLastPointBlankingPoints() {
 	if (!vector_image_points_.empty()) {
-		JMVectorStruct last_point_off = vector_image_points_.back();
-		last_point_off.i = 0;
+		JMVectorStruct last_point = vector_image_points_.back();
+
+		if (last_point.i != 0) {
+			for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+				addNewPoint(last_point);
+		}
+
+		last_point.i = 0;
+		addNewPoint(last_point);
 		for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
-			addNewPoint(last_point_off);
+			addNewPoint(last_point);
 	}
 }
 
@@ -539,52 +528,208 @@ void VectorImageBuilder::removeLastPoint() {
 		vector_image_points_.pop_back();
 }
 
-void VectorImageBuilder::correctRadialDistortionOnVectorImage() {
-	double distance_to_x_image_plane = computeDistanceToImagePlane(drawing_area_x_focal_length_in_pixels_, drawing_area_width_, (double)std::numeric_limits<uint32_t>::max());
-	double distance_to_y_image_plane = computeDistanceToImagePlane(drawing_area_y_focal_length_in_pixels_, drawing_area_height_, (double)std::numeric_limits<uint32_t>::max());
+void VectorImageBuilder::addFirstPointBlankingPoints(JMVectorStruct &start_point) {
+	JMVectorStruct start_point_off = start_point;
+	start_point_off.i = 0;
+	addNewPoint(start_point_off);
+	for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+		addNewPoint(start_point_off);
 
-	for (size_t i = 0; i < vector_image_points_.size(); ++i) {
-		correctRadialDistortion(vector_image_points_[i], distance_to_x_image_plane, distance_to_y_image_plane, distance_between_mirrors_in_projector_range_percentage_ * std::numeric_limits<uint32_t>::max());
-	}
+	addNewPoint(start_point);
+	for (size_t i = 0; i < number_of_blanking_points_for_line_start_and_end_; ++i)
+		addNewPoint(start_point);
 }
 
-void VectorImageBuilder::correctRadialDistortion(JMVectorStruct &point, double distance_to_x_image_plane, double distance_to_y_image_plane, double distance_between_mirrors) {
-	if (point.x <= minimum_projector_range_value_for_clipping_)
-		point.x = minimum_projector_range_value_for_clipping_;
-	else if (point.x >= maximum_projector_range_value_for_clipping_)
-		point.x = maximum_projector_range_value_for_clipping_;
+void VectorImageBuilder::correctDistortionOnVectorImage() {
+	double distance_to_image_plane_for_updating_new_x = computeDistanceToImagePlane(projection_model_properties_.getFocalLengthXInPixels(), projection_model_properties_.getImageWidthInPixels());
+	double distance_to_image_plane_for_updating_new_y = computeDistanceToImagePlane(projection_model_properties_.getFocalLengthYInPixels(), projection_model_properties_.getImageHeightInPixels());
 
-	if (point.y <= minimum_projector_range_value_for_clipping_)
-		point.y = minimum_projector_range_value_for_clipping_;
-	else if (point.y >= maximum_projector_range_value_for_clipping_)
-		point.y = maximum_projector_range_value_for_clipping_;
+	double image_plane_to_drawing_area_x_scale, image_plane_to_drawing_area_y_scale;
+	computeScalingFactorsFromImagePlaneToDrawingArea(
+		projection_model_properties_.getFocalLengthXInPixels(), projection_model_properties_.getImageWidthInPixels(),
+		projection_model_properties_.getFocalLengthYInPixels(), projection_model_properties_.getImageHeightInPixels(),
+		projection_model_properties_.getDistanceBetweenMirrors(), projection_model_properties_.getDistanceToImagePlane(),
+		image_plane_to_drawing_area_x_scale, image_plane_to_drawing_area_y_scale);
 
-	double y_denominator = distance_between_mirrors - distance_to_y_image_plane;
-	double galvo_y_angle = std::atan((double)point.y / y_denominator);
-	double x_denominator = distance_between_mirrors * (((distance_to_x_image_plane - distance_between_mirrors) / (distance_between_mirrors * std::cos(galvo_y_angle))) + 1);
-	double galvo_x_angle = std::atan((double)point.x / x_denominator);
-	double new_y = -(std::tan(galvo_y_angle) * distance_to_y_image_plane);
-	double new_x = (std::tan(galvo_x_angle) * distance_to_x_image_plane);
+	std::vector<JMVectorStruct> vector_image_points_trimmed;
 
-	bool underflowX = (point.x < 0 && new_x > 0);
-	bool underflowY = (point.y < 0 && new_y > 0);
-	bool overflowX = (point.x > 0 && new_x < 0);
-	bool overflowY = (point.y > 0 && new_y < 0);
+	for (size_t i = 0; i < vector_image_points_.size(); ++i) {
+		JMVectorStruct point = vector_image_points_[i];
+		double original_x = (double)point.x / drawing_area_to_projector_range_x_scale_;
+		double original_y = (double)point.y / drawing_area_to_projector_range_y_scale_;
+		double new_x = original_x;
+		double new_y = original_y;
 
-	if (!((underflowX || overflowX) && std::abs(point.x) > (double)std::numeric_limits<int32_t>::max() * 0.5))
-		point.x = static_cast<int32_t>(new_x);
+		if (projection_model_properties_.getDistanceBetweenMirrors() != 0.0) {
+			if (projection_model_properties_.getChangeToPrincipalPointOriginWhenCorrectingGalvanometerDistortion()) {
+				new_x = changeFromDrawingAreaOriginToPrincipalPointOrigin(new_x, projection_model_properties_.getImageWidthInPixels(), projection_model_properties_.getPrincipalPointXInPixels());
+				new_y = changeFromDrawingAreaOriginToPrincipalPointOrigin(new_y, projection_model_properties_.getImageHeightInPixels(), projection_model_properties_.getPrincipalPointYInPixels());
+			}
 
-	if (!((underflowY || overflowY) && std::abs(point.y) > (double)std::numeric_limits<int32_t>::max() * 0.5))
-		point.y = static_cast<int32_t>(new_y);
+			if (projection_model_properties_.getComputeDistanceToImagePlane()) {
+				correctGalvanometerMirrorsDistortion(new_x, new_y, projection_model_properties_.getDistanceBetweenMirrors(), (distance_to_image_plane_for_updating_new_x + distance_to_image_plane_for_updating_new_y) / 2.0, distance_to_image_plane_for_updating_new_x, distance_to_image_plane_for_updating_new_y);
+			} else {
+				correctGalvanometerMirrorsDistortion(new_x, new_y, projection_model_properties_.getDistanceBetweenMirrors(), projection_model_properties_.getDistanceToImagePlane(), projection_model_properties_.getDistanceToImagePlane(), projection_model_properties_.getDistanceToImagePlane());
+			}
+
+			if (projection_model_properties_.getScaleImagePlanePointsUsingIntrinsics()) {
+				new_x *= image_plane_to_drawing_area_x_scale;
+				new_y *= image_plane_to_drawing_area_y_scale;
+			}
+
+			if (projection_model_properties_.getChangeToPrincipalPointOriginWhenCorrectingGalvanometerDistortion()) {
+				new_x = changeFromPrincipalPointOriginToDrawingAreaOrigin(new_x, projection_model_properties_.getImageWidthInPixels(), projection_model_properties_.getPrincipalPointXInPixels());
+				new_y = changeFromPrincipalPointOriginToDrawingAreaOrigin(new_y, projection_model_properties_.getImageHeightInPixels(), projection_model_properties_.getPrincipalPointYInPixels());
+			}
+		}
+
+		if (projection_model_properties_.hasLensDistortionCoefficients()) {
+			correctLensDistortion(new_x, new_y, projection_model_properties_);
+		}
+
+		bool point_outside_drawing_area = false;
+		if (new_x < -projection_model_properties_.getImageWidthInPixels() / 2.0 || new_x > projection_model_properties_.getImageWidthInPixels() / 2.0 ||
+			new_y < -projection_model_properties_.getImageHeightInPixels() / 2.0 || new_y > projection_model_properties_.getImageHeightInPixels() / 2.0)
+		{
+			point_outside_drawing_area = true;
+			if (trim_points_outside_drawing_area_)
+			{
+				if (i == 0)
+				{
+					trimLineInDrawingAreaAndProjectorOrigin(original_x, original_y, new_x, new_y);
+				}
+				else
+				{
+					JMVectorStruct previousPoint = vector_image_points_[i - 1];
+					double previousPointX = (double)previousPoint.x / drawing_area_to_projector_range_x_scale_;
+					double previousPointY = (double)previousPoint.y / drawing_area_to_projector_range_y_scale_;
+					trimLineInDrawingAreaAndProjectorOrigin(previousPointX, previousPointY, new_x, new_y);
+				}
+			}
+		}
+
+		if (!point_outside_drawing_area || (point_outside_drawing_area && trim_points_outside_drawing_area_))
+		{
+			new_x *= drawing_area_to_projector_range_x_scale_;
+			new_y *= drawing_area_to_projector_range_y_scale_;
+
+			point.x = (int32_t)new_x;
+			point.y = (int32_t)new_y;
+
+			if (new_x <= minimum_projector_range_value_for_clipping_)
+				point.x = minimum_projector_range_value_for_clipping_;
+			else if (new_x >= maximum_projector_range_value_for_clipping_)
+				point.x = maximum_projector_range_value_for_clipping_;
+
+			if (new_y <= minimum_projector_range_value_for_clipping_)
+				point.y = minimum_projector_range_value_for_clipping_;
+			else if (new_y >= maximum_projector_range_value_for_clipping_)
+				point.y = maximum_projector_range_value_for_clipping_;
+
+			if (trim_points_outside_drawing_area_)
+				vector_image_points_[i] = point;
+			else
+				vector_image_points_trimmed.push_back(point);
+		} else {
+			if (point.i == 0 && !vector_image_points_trimmed.empty()) {
+				JMVectorStruct previousPoint = vector_image_points_trimmed.back();
+				previousPoint.i = 0;
+				vector_image_points_trimmed.push_back(previousPoint);
+			}
+		}
+	}
+
+	if (!trim_points_outside_drawing_area_)
+	{
+		vector_image_points_.swap(vector_image_points_trimmed);
+	}
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-double VectorImageBuilder::computeDistanceToImagePlane(double focalLengthInPixels, double imageSizeInPixels, double projectorRange) {
-	double fov = std::atan(imageSizeInPixels / focalLengthInPixels / 2.0) * 2.0;
-	return (projectorRange / 2.0 / std::tan(fov / 2));
+void VectorImageBuilder::correctGalvanometerMirrorsDistortion(double& x, double& y, double distance_between_mirrors, double distance_to_image_plane, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y) {
+	double galvo_x_angle;
+	double galvo_y_angle;
+	drawingAreaToGalvoAngles(x, y, distance_between_mirrors, distance_to_image_plane, galvo_x_angle, galvo_y_angle);
+	pinHoleAnglesToDrawingArea(galvo_x_angle, galvo_y_angle, distance_to_image_plane_for_updating_new_x, distance_to_image_plane_for_updating_new_y, x, y);
+
+	// Reverse of above
+	//drawingAreaToPinHoleAngles(x, y, distance_to_image_plane_for_updating_new_x, distance_to_image_plane_for_updating_new_y, galvo_x_angle, galvo_y_angle);
+	//galvoAnglesToDrawingArea(galvo_x_angle, galvo_y_angle, distance_between_mirrors, distance_to_image_plane, x, y);
+}
+
+void VectorImageBuilder::drawingAreaToGalvoAngles(double x, double y, double distance_between_mirrors, double distance_to_image_plane, double& galvo_x_angle, double& galvo_y_angle) {
+	double yDenominator = distance_to_image_plane - distance_between_mirrors;
+	galvo_y_angle = std::atan(y / yDenominator);
+	double xDenominator = distance_between_mirrors * (((distance_to_image_plane - distance_between_mirrors) / (std::cos(galvo_y_angle) * distance_between_mirrors)) + 1);
+	galvo_x_angle = std::atan(x / xDenominator);
+}
+
+void VectorImageBuilder::galvoAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_between_mirrors, double distance_to_image_plane, double& x, double& y) {
+	x = std::tan(galvo_x_angle) * distance_between_mirrors * (((distance_to_image_plane - distance_between_mirrors) / (std::cos(galvo_y_angle) * distance_between_mirrors)) + 1);
+	y = std::tan(galvo_y_angle) * (distance_to_image_plane - distance_between_mirrors);
+}
+
+void VectorImageBuilder::drawingAreaToPinHoleAngles(double x, double y, double distance_to_image_plane_for_x, double distance_to_image_plane_for_y, double& xAngle, double& yAngle) {
+	xAngle = std::atan(x / distance_to_image_plane_for_x);
+	yAngle = std::atan(y / distance_to_image_plane_for_y);
+}
+
+void VectorImageBuilder::pinHoleAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y, double& x, double& y) {
+	// Pinhole angles to screen (TODO: improve conversion because galvos do not have a center of projection)
+	x = std::tan(galvo_x_angle) * distance_to_image_plane_for_updating_new_x;
+	y = std::tan(galvo_y_angle) * distance_to_image_plane_for_updating_new_y;
+}
+
+double VectorImageBuilder::computeDistanceToImagePlane(double focal_length_in_pixels, double image_size_in_pixels) {
+	double fov = computeFieldOfView(focal_length_in_pixels, image_size_in_pixels);
+	return ((image_size_in_pixels / 2.0) / std::tan(fov / 2));
+}
+
+double VectorImageBuilder::computeFieldOfView(double focal_length_in_pixels, double image_size_in_pixels) {
+	return std::atan(image_size_in_pixels / (focal_length_in_pixels * 2.0)) * 2.0;
+}
+
+void VectorImageBuilder::computeScalingFactorsFromImagePlaneToDrawingArea(double focal_length_in_pixels_x, double image_size_in_pixels_x, double focal_length_in_pixels_y, double image_size_in_pixels_y, double distance_between_mirrors, double distance_to_image_plane, double& x_scale, double& y_scale) {
+	double fovX = computeFieldOfView(focal_length_in_pixels_x, image_size_in_pixels_x);
+	double fovY = computeFieldOfView(focal_length_in_pixels_y, image_size_in_pixels_y);
+	double x, y;
+	galvoAnglesToDrawingArea(fovX / 2.0, fovY / 2.0, distance_between_mirrors, distance_to_image_plane, x, y);
+	x_scale = image_size_in_pixels_x / x;
+	y_scale = image_size_in_pixels_y / y;
+}
+
+double VectorImageBuilder::changeFromDrawingAreaOriginToPrincipalPointOrigin(double drawing_area_value, double image_size, double principal_point) {
+	return (drawing_area_value + (image_size / 2.0)) - principal_point;
+}
+
+double VectorImageBuilder::changeFromPrincipalPointOriginToDrawingAreaOrigin(double drawing_area_value, double image_size, double principal_point) {
+	return (drawing_area_value - (image_size / 2.0)) + principal_point;
+}
+
+void VectorImageBuilder::correctLensDistortion(double& x, double& y, const ProjectionModelProperties& projection_model_properties)
+{
+	double normalizedX = changeFromDrawingAreaOriginToPrincipalPointOrigin(x, projection_model_properties.getImageWidthInPixels(), projection_model_properties.getPrincipalPointXInPixels()) / projection_model_properties.getFocalLengthXInPixels();
+	double normalizedY = changeFromDrawingAreaOriginToPrincipalPointOrigin(y, projection_model_properties.getImageHeightInPixels(), projection_model_properties.getPrincipalPointYInPixels()) / projection_model_properties.getFocalLengthYInPixels();
+	double distanceSquared = normalizedX * normalizedX + normalizedY * normalizedY;
+
+	double radialDistortionCorrectionScalingFactor = (1 +
+		projection_model_properties.getRadialDistortionCorrectionFirstCoefficient() * distanceSquared +
+		projection_model_properties.getRadialDistortionCorrectionSecondCoefficient() * distanceSquared * distanceSquared +
+		projection_model_properties.getRadialDistortionCorrectionThirdCoefficient() * distanceSquared * distanceSquared * distanceSquared);
+
+	double tangentialDistortionCorrectionOffsetFactorX = 2 * projection_model_properties.getTangencialDistortionCorrectionFirstCoefficient() * normalizedX * normalizedY +
+		projection_model_properties.getTangencialDistortionCorrectionSecondCoefficient() * (distanceSquared + 2 * normalizedX * normalizedX);
+	double tangentialDistortionCorrectionOffsetFactorY = projection_model_properties.getTangencialDistortionCorrectionFirstCoefficient() * (distanceSquared + 2 * normalizedY * normalizedY) +
+		2 * projection_model_properties.getTangencialDistortionCorrectionSecondCoefficient() * normalizedX * normalizedY;
+
+	double normalizedXUndistorted = normalizedX * radialDistortionCorrectionScalingFactor + tangentialDistortionCorrectionOffsetFactorX;
+	double normalizedYUndistorted = normalizedY * radialDistortionCorrectionScalingFactor + tangentialDistortionCorrectionOffsetFactorY;
+
+	x = changeFromPrincipalPointOriginToDrawingAreaOrigin(normalizedXUndistorted * projection_model_properties.getFocalLengthXInPixels(), projection_model_properties.getImageWidthInPixels(), projection_model_properties.getPrincipalPointXInPixels());
+	y = changeFromPrincipalPointOriginToDrawingAreaOrigin(normalizedYUndistorted * projection_model_properties.getFocalLengthYInPixels(), projection_model_properties.getImageHeightInPixels(), projection_model_properties.getPrincipalPointYInPixels());
 }
 
 bool VectorImageBuilder::lineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,

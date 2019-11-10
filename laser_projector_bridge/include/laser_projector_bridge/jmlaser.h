@@ -28,8 +28,8 @@ extern "C"
 /* Represented in 32bit range: [-2147483648, 2147483647]                */
 /************************************************************************/
 struct JMVectorStruct {
-	int x;						// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
-	int y;						// 32 bit signed, 0 is center of Y axis projection	[-INT_MAX, INT_MAX]
+	int32_t x;						// 32 bit signed, 0 is center of X axis projection	[-INT_MAX, INT_MAX]
+	int32_t y;						// 32 bit signed, 0 is center of Y axis projection	[-INT_MAX, INT_MAX]
 	unsigned short r;			// 16 bit unsigned	[0, USHRT_MAX]
 	unsigned short g;			// 16 bit unsigned	[0, USHRT_MAX]
 	unsigned short b;			// 16 bit unsigned	[0, USHRT_MAX]

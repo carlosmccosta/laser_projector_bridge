@@ -86,7 +86,7 @@
     </PostBuildEvent>
     <Lib>
       <AdditionalLibraryDirectories>lib\jmlaser</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jmlaser_x64.lib</AdditionalDependencies>
+      <AdditionalDependencies>jmlaser_x86.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +130,7 @@
     </PostBuildEvent>
     <Lib>
       <AdditionalLibraryDirectories>lib\jmlaser</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jmlaser_x64.lib</AdditionalDependencies>
+      <AdditionalDependencies>jmlaser_x86.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -165,6 +165,7 @@
     <ClInclude Include="include\laser_projector_bridge\jmlaser.h" />
     <ClInclude Include="include\laser_projector_bridge\jmlaser_projector.h" />
     <ClInclude Include="include\laser_projector_bridge\pattern_builder.h" />
+    <ClInclude Include="include\laser_projector_bridge\projection_model_properties.h" />
     <ClInclude Include="include\laser_projector_bridge\vector_image_builder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

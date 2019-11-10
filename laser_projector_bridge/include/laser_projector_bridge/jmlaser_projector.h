@@ -70,7 +70,7 @@ class JMLaserProjector {
 		bool closeProjector();
 		bool setProjectorFriendlyName(const std::string& projector_friendly_name);
 		bool startOutput();
-		bool sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed, unsigned int repetitions, bool add_reverse_image = false);
+		bool sendVectorImageToProjector(std::vector<JMVectorStruct>& points, unsigned int speed = 42000, unsigned int repetitions = 0, bool add_reverse_image = false);
 		bool stopOutput();
 		friend std::ostream& operator<<(std::ostream& os, const JMLaserProjector& dt);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
