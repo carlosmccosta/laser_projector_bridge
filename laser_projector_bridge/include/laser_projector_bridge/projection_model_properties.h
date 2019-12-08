@@ -33,8 +33,8 @@ class ProjectionModelProperties {
 			radial_distortion_correction_first_coefficient_(0),
 			radial_distortion_correction_second_coefficient_(0),
 			radial_distortion_correction_third_coefficient_(0),
-			tangencial_distortion_correction_first_coefficient_(0),
-			tangencial_distortion_correction_second_coefficient_(0) {}
+			tangential_distortion_correction_first_coefficient_(0),
+			tangential_distortion_correction_second_coefficient_(0) {}
 
 		virtual ~ProjectionModelProperties() {}
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </constructors-destructor>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -54,15 +54,15 @@ class ProjectionModelProperties {
 		inline double getRadialDistortionCorrectionFirstCoefficient() const { return radial_distortion_correction_first_coefficient_; }
 		inline double getRadialDistortionCorrectionSecondCoefficient() const { return radial_distortion_correction_second_coefficient_; }
 		inline double getRadialDistortionCorrectionThirdCoefficient() const { return radial_distortion_correction_third_coefficient_; }
-		inline double getTangencialDistortionCorrectionFirstCoefficient() const { return tangencial_distortion_correction_first_coefficient_; }
-		inline double getTangencialDistortionCorrectionSecondCoefficient() const { return tangencial_distortion_correction_second_coefficient_; }
+		inline double getTangencialDistortionCorrectionFirstCoefficient() const { return tangential_distortion_correction_first_coefficient_; }
+		inline double getTangencialDistortionCorrectionSecondCoefficient() const { return tangential_distortion_correction_second_coefficient_; }
 		inline bool hasLensDistortionCoefficients()
 		{
 			return (radial_distortion_correction_first_coefficient_ != 0 ||
 					radial_distortion_correction_second_coefficient_ != 0 ||
 					radial_distortion_correction_third_coefficient_ != 0 ||
-					tangencial_distortion_correction_first_coefficient_ != 0 ||
-					tangencial_distortion_correction_second_coefficient_ != 0);
+					tangential_distortion_correction_first_coefficient_ != 0 ||
+					tangential_distortion_correction_second_coefficient_ != 0);
 		}
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </gets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -82,8 +82,8 @@ class ProjectionModelProperties {
 		inline void setRadialDistortionCorrectionFirstCoefficient(double _radial_distortion_correction_first_coefficient) { radial_distortion_correction_first_coefficient_ = _radial_distortion_correction_first_coefficient; }
 		inline void setRadialDistortionCorrectionSecondCoefficient(double _radial_distortion_correction_second_coefficient) { radial_distortion_correction_second_coefficient_ = _radial_distortion_correction_second_coefficient; }
 		inline void setRadialDistortionCorrectionThirdCoefficient(double _radial_distortion_correction_third_coefficient) { radial_distortion_correction_third_coefficient_ = _radial_distortion_correction_third_coefficient; }
-		inline void setTangencialDistortionCorrectionFirstCoefficient(double _tangencial_distortion_correction_first_coefficient) { tangencial_distortion_correction_first_coefficient_ = _tangencial_distortion_correction_first_coefficient; }
-		inline void setTangencialDistortionCorrectionSecondCoefficient(double _tangencial_distortion_correction_second_coefficient) { tangencial_distortion_correction_second_coefficient_ = _tangencial_distortion_correction_second_coefficient; }
+		inline void setTangentialDistortionCorrectionFirstCoefficient(double _tangential_distortion_correction_first_coefficient) { tangential_distortion_correction_first_coefficient_ = _tangential_distortion_correction_first_coefficient; }
+		inline void setTangentialDistortionCorrectionSecondCoefficient(double _tangential_distortion_correction_second_coefficient) { tangential_distortion_correction_second_coefficient_ = _tangential_distortion_correction_second_coefficient; }
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </sets>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// ============================================================================   </public-section>   =========================================================================
 
@@ -104,8 +104,8 @@ class ProjectionModelProperties {
 		double radial_distortion_correction_first_coefficient_;
 		double radial_distortion_correction_second_coefficient_;
 		double radial_distortion_correction_third_coefficient_;
-		double tangencial_distortion_correction_first_coefficient_;
-		double tangencial_distortion_correction_second_coefficient_;
+		double tangential_distortion_correction_first_coefficient_;
+		double tangential_distortion_correction_second_coefficient_;
 	// ============================================================================   <protected-section>   =======================================================================
 };
 
