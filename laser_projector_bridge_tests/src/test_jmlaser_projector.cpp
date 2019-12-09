@@ -60,14 +60,17 @@ void createLaserOutputPatternUsingVectorImageBuilder(std::vector<JMVectorStruct>
 	vector_image_builder.setLineFirstPointIgnoreDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0013, 2));
 	vector_image_builder.setLineFirstPointMergeDistanceSquaredInProjectorRange(std::pow(UINT32_MAX * 0.0005, 2));
 	vector_image_builder.setNumberOfBlankingPointsForLineStartAndEnd(2);
-	vector_image_builder.getProjectionModelProperties().setFocalLengthXInPixels(2753.0);
-	vector_image_builder.getProjectionModelProperties().setFocalLengthYInPixels(2753.0);
+	vector_image_builder.getProjectionModelProperties().setFocalLengthXInPixels(2820.0);
+	vector_image_builder.getProjectionModelProperties().setFocalLengthYInPixels(2787.0);
+	vector_image_builder.getProjectionModelProperties().setPrincipalPointXInPixels(950.0);
+	vector_image_builder.getProjectionModelProperties().setPrincipalPointYInPixels(1028.0);
 	vector_image_builder.getProjectionModelProperties().setDistanceBetweenMirrors(0.001);
-	vector_image_builder.getProjectionModelProperties().setDistanceToImagePlane(2753.0);
+	vector_image_builder.getProjectionModelProperties().setDistanceToImagePlaneForCorrectingDistortion(2804.0);
 	vector_image_builder.startNewVectorImage();
 
 	if (show_distortion_correction_only) {
-		laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 10, 10, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN, INT32_MIN);
+		int grid_columns = 22, grid_rows = 22;
+		laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, grid_columns, grid_rows, UINT32_MAX / grid_columns, UINT32_MAX / grid_rows, INT32_MIN, INT32_MIN);
 		//laser_projector_bridge::pattern_builder::createGridInProjectorRange(vector_image_builder, 6, 6, UINT32_MAX / 10, UINT32_MAX / 10, INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3), INT32_MIN + (int32_t)((UINT32_MAX / 10) * 3));
 	} else {
 		laser_projector_bridge::pattern_builder::createPlusFullRange(vector_image_builder);

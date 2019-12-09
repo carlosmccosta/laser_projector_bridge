@@ -76,11 +76,11 @@ class VectorImageBuilder {
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-		static void correctGalvanometerMirrorsDistortion(double& x, double& y, double distance_between_mirrors, double distance_to_image_plane, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y);
+		static void correctGalvanometerMirrorsDistortion(double& x, double& y, double distance_between_mirrors, double distance_to_image_plane_for_correcting_distortion, double distance_to_image_plane_for_converting_x_galvo_angle_to_drawing_area, double distance_to_image_plane_for_converting_y_galvo_angle_to_drawing_area, bool use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area);
 		static void drawingAreaToGalvoAngles(double x, double y, double distance_between_mirrors, double distance_to_image_plane, double& galvo_x_angle, double& galvo_y_angle);
 		static void galvoAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_between_mirrors, double distance_to_image_plane, double& x, double& y);
-		static void drawingAreaToPinHoleAngles(double x, double y, double distance_to_image_plane_for_x, double distance_to_image_plane_for_y, double& xAngle, double& yAngle);
-		static void pinHoleAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y, double& x, double& y);
+		static void drawingAreaToPinHoleAngles(double x, double y, double distance_to_image_plane_for_x, double distance_to_image_plane_for_y, double& xAngle, double& yAngle, bool use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area);
+		static void pinHoleAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y, double& x, double& y, bool use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area);
 		static double computeDistanceToImagePlane(double focal_length_in_pixels, double image_size_in_pixels);
 		static double computeFieldOfView(double focal_length_in_pixels, double image_size_in_pixels);
 		static void computeScalingFactorsFromImagePlaneToDrawingArea(double focal_length_in_pixels_x, double image_size_in_pixels_x, double focal_length_in_pixels_y, double image_size_in_pixels_y, double distance_between_mirrors, double distance_to_image_plane, double& x_scale, double& y_scale);

@@ -541,14 +541,17 @@ void VectorImageBuilder::addFirstPointBlankingPoints(JMVectorStruct &start_point
 }
 
 void VectorImageBuilder::correctDistortionOnVectorImage() {
-	double distance_to_image_plane_for_updating_new_x = computeDistanceToImagePlane(projection_model_properties_.getFocalLengthXInPixels(), projection_model_properties_.getImageWidthInPixels());
-	double distance_to_image_plane_for_updating_new_y = computeDistanceToImagePlane(projection_model_properties_.getFocalLengthYInPixels(), projection_model_properties_.getImageHeightInPixels());
+	if (projection_model_properties_.getComputeDistancesToImagePlanes()) {
+		projection_model_properties_.setDistanceToImagePlaneForConvertingXGalvoAngleToDrawingArea(computeDistanceToImagePlane(projection_model_properties_.getFocalLengthXInPixels(), projection_model_properties_.getImageWidthInPixels()));
+		projection_model_properties_.setDistanceToImagePlaneForConvertingYGalvoAngleToDrawingArea(computeDistanceToImagePlane(projection_model_properties_.getFocalLengthYInPixels(), projection_model_properties_.getImageHeightInPixels()));
+		projection_model_properties_.setDistanceToImagePlaneForCorrectingDistortion(projection_model_properties_.getDistanceToImagePlaneForConvertingXGalvoAngleToDrawingArea());
+	}
 
 	double image_plane_to_drawing_area_x_scale, image_plane_to_drawing_area_y_scale;
 	computeScalingFactorsFromImagePlaneToDrawingArea(
 		projection_model_properties_.getFocalLengthXInPixels(), projection_model_properties_.getImageWidthInPixels(),
 		projection_model_properties_.getFocalLengthYInPixels(), projection_model_properties_.getImageHeightInPixels(),
-		projection_model_properties_.getDistanceBetweenMirrors(), projection_model_properties_.getDistanceToImagePlane(),
+		projection_model_properties_.getDistanceBetweenMirrors(), projection_model_properties_.getDistanceToImagePlaneForCorrectingDistortion(),
 		image_plane_to_drawing_area_x_scale, image_plane_to_drawing_area_y_scale);
 
 	std::vector<JMVectorStruct> vector_image_points_trimmed;
@@ -566,11 +569,11 @@ void VectorImageBuilder::correctDistortionOnVectorImage() {
 				new_y = changeFromDrawingAreaOriginToPrincipalPointOrigin(new_y, projection_model_properties_.getImageHeightInPixels(), projection_model_properties_.getPrincipalPointYInPixels());
 			}
 
-			if (projection_model_properties_.getComputeDistanceToImagePlane()) {
-				correctGalvanometerMirrorsDistortion(new_x, new_y, projection_model_properties_.getDistanceBetweenMirrors(), (distance_to_image_plane_for_updating_new_x + distance_to_image_plane_for_updating_new_y) / 2.0, distance_to_image_plane_for_updating_new_x, distance_to_image_plane_for_updating_new_y);
-			} else {
-				correctGalvanometerMirrorsDistortion(new_x, new_y, projection_model_properties_.getDistanceBetweenMirrors(), projection_model_properties_.getDistanceToImagePlane(), projection_model_properties_.getDistanceToImagePlane(), projection_model_properties_.getDistanceToImagePlane());
-			}
+			correctGalvanometerMirrorsDistortion(new_x, new_y, projection_model_properties_.getDistanceBetweenMirrors(),
+				projection_model_properties_.getDistanceToImagePlaneForCorrectingDistortion(),
+				projection_model_properties_.getDistanceToImagePlaneForConvertingXGalvoAngleToDrawingArea(),
+				projection_model_properties_.getDistanceToImagePlaneForConvertingYGalvoAngleToDrawingArea(),
+				projection_model_properties_.getUseRayToPlaneIntersectionForConvertingGalvosAnglesToDrawingArea());
 
 			if (projection_model_properties_.getScaleImagePlanePointsUsingIntrinsics()) {
 				new_x *= image_plane_to_drawing_area_x_scale;
@@ -649,15 +652,15 @@ void VectorImageBuilder::correctDistortionOnVectorImage() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-void VectorImageBuilder::correctGalvanometerMirrorsDistortion(double& x, double& y, double distance_between_mirrors, double distance_to_image_plane, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y) {
+void VectorImageBuilder::correctGalvanometerMirrorsDistortion(double& x, double& y, double distance_between_mirrors, double distance_to_image_plane_for_correcting_distortion, double distance_to_image_plane_for_converting_x_galvo_angle_to_drawing_area, double distance_to_image_plane_for_converting_y_galvo_angle_to_drawing_area, bool use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area) {
 	double galvo_x_angle;
 	double galvo_y_angle;
-	drawingAreaToGalvoAngles(x, y, distance_between_mirrors, distance_to_image_plane, galvo_x_angle, galvo_y_angle);
-	pinHoleAnglesToDrawingArea(galvo_x_angle, galvo_y_angle, distance_to_image_plane_for_updating_new_x, distance_to_image_plane_for_updating_new_y, x, y);
+	drawingAreaToGalvoAngles(x, y, distance_between_mirrors, distance_to_image_plane_for_correcting_distortion, galvo_x_angle, galvo_y_angle);
+	pinHoleAnglesToDrawingArea(galvo_x_angle, galvo_y_angle, distance_to_image_plane_for_converting_x_galvo_angle_to_drawing_area, distance_to_image_plane_for_converting_y_galvo_angle_to_drawing_area, x, y, use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area);
 
 	// Reverse of above
-	//drawingAreaToPinHoleAngles(x, y, distance_to_image_plane_for_updating_new_x, distance_to_image_plane_for_updating_new_y, galvo_x_angle, galvo_y_angle);
-	//galvoAnglesToDrawingArea(galvo_x_angle, galvo_y_angle, distance_between_mirrors, distance_to_image_plane, x, y);
+	//drawingAreaToPinHoleAngles(x, y, distance_to_image_plane_for_converting_x_galvo_angle_to_drawing_area, distance_to_image_plane_for_converting_y_galvo_angle_to_drawing_area, galvo_x_angle, galvo_y_angle);
+	//galvoAnglesToDrawingArea(galvo_x_angle, galvo_y_angle, distance_between_mirrors, distance_to_image_plane_for_correcting_distortion, x, y, use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area);
 }
 
 void VectorImageBuilder::drawingAreaToGalvoAngles(double x, double y, double distance_between_mirrors, double distance_to_image_plane, double& galvo_x_angle, double& galvo_y_angle) {
@@ -672,15 +675,26 @@ void VectorImageBuilder::galvoAnglesToDrawingArea(double galvo_x_angle, double g
 	y = std::tan(galvo_y_angle) * (distance_to_image_plane - distance_between_mirrors);
 }
 
-void VectorImageBuilder::drawingAreaToPinHoleAngles(double x, double y, double distance_to_image_plane_for_x, double distance_to_image_plane_for_y, double& xAngle, double& yAngle) {
-	xAngle = std::atan(x / distance_to_image_plane_for_x);
-	yAngle = std::atan(y / distance_to_image_plane_for_y);
+void VectorImageBuilder::drawingAreaToPinHoleAngles(double x, double y, double distance_to_image_plane_for_x, double distance_to_image_plane_for_y, double& xAngle, double& yAngle, bool use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area) {
+	if (use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area) {
+		xAngle = std::atan(x / distance_to_image_plane_for_x);
+		yAngle = std::atan(y / distance_to_image_plane_for_y);
+	} else {
+		xAngle = std::asin(x / distance_to_image_plane_for_x);
+		yAngle = std::asin(y / distance_to_image_plane_for_y);
+	}
 }
 
-void VectorImageBuilder::pinHoleAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y, double& x, double& y) {
+void VectorImageBuilder::pinHoleAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y, double& x, double& y, bool use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area) {
 	// Pinhole angles to screen (TODO: improve conversion because galvos do not have a center of projection)
-	x = std::tan(galvo_x_angle) * distance_to_image_plane_for_updating_new_x;
-	y = std::tan(galvo_y_angle) * distance_to_image_plane_for_updating_new_y;
+	if (use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area) {
+		x = std::tan(galvo_x_angle) * distance_to_image_plane_for_updating_new_x;
+		y = std::tan(galvo_y_angle) * distance_to_image_plane_for_updating_new_y;
+	} else {
+		x = std::sin(galvo_x_angle) * distance_to_image_plane_for_updating_new_x;
+		y = std::sin(galvo_y_angle) * distance_to_image_plane_for_updating_new_y;
+	}
+	
 }
 
 double VectorImageBuilder::computeDistanceToImagePlane(double focal_length_in_pixels, double image_size_in_pixels) {
@@ -720,10 +734,10 @@ void VectorImageBuilder::correctLensDistortion(double& x, double& y, const Proje
 		projection_model_properties.getRadialDistortionCorrectionSecondCoefficient() * distanceSquared * distanceSquared +
 		projection_model_properties.getRadialDistortionCorrectionThirdCoefficient() * distanceSquared * distanceSquared * distanceSquared);
 
-	double tangentialDistortionCorrectionOffsetFactorX = 2 * projection_model_properties.getTangencialDistortionCorrectionFirstCoefficient() * normalizedX * normalizedY +
-		projection_model_properties.getTangencialDistortionCorrectionSecondCoefficient() * (distanceSquared + 2 * normalizedX * normalizedX);
-	double tangentialDistortionCorrectionOffsetFactorY = projection_model_properties.getTangencialDistortionCorrectionFirstCoefficient() * (distanceSquared + 2 * normalizedY * normalizedY) +
-		2 * projection_model_properties.getTangencialDistortionCorrectionSecondCoefficient() * normalizedX * normalizedY;
+	double tangentialDistortionCorrectionOffsetFactorX = 2 * projection_model_properties.getTangentialDistortionCorrectionFirstCoefficient() * normalizedX * normalizedY +
+		projection_model_properties.getTangentialDistortionCorrectionSecondCoefficient() * (distanceSquared + 2 * normalizedX * normalizedX);
+	double tangentialDistortionCorrectionOffsetFactorY = projection_model_properties.getTangentialDistortionCorrectionFirstCoefficient() * (distanceSquared + 2 * normalizedY * normalizedY) +
+		2 * projection_model_properties.getTangentialDistortionCorrectionSecondCoefficient() * normalizedX * normalizedY;
 
 	double normalizedXUndistorted = normalizedX * radialDistortionCorrectionScalingFactor + tangentialDistortionCorrectionOffsetFactorX;
 	double normalizedYUndistorted = normalizedY * radialDistortionCorrectionScalingFactor + tangentialDistortionCorrectionOffsetFactorY;
