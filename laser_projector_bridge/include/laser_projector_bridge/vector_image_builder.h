@@ -73,6 +73,7 @@ class VectorImageBuilder {
 		void removeLastPoint();
 		void addFirstPointBlankingPoints(JMVectorStruct &start_point);
 		void correctDistortionOnVectorImage();
+		void computeScalingFactorsFromImagePlaneToDrawingArea(double& x_scale, double& y_scale);
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   <static functions>   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -83,7 +84,6 @@ class VectorImageBuilder {
 		static void pinHoleAnglesToDrawingArea(double galvo_x_angle, double galvo_y_angle, double distance_to_image_plane_for_updating_new_x, double distance_to_image_plane_for_updating_new_y, double& x, double& y, bool use_ray_to_plane_intersection_for_converting_galvos_angles_to_drawing_area);
 		static double computeDistanceToImagePlane(double focal_length_in_pixels, double image_size_in_pixels);
 		static double computeFieldOfView(double focal_length_in_pixels, double image_size_in_pixels);
-		static void computeScalingFactorsFromImagePlaneToDrawingArea(double focal_length_in_pixels_x, double image_size_in_pixels_x, double focal_length_in_pixels_y, double image_size_in_pixels_y, double distance_between_mirrors, double distance_to_image_plane, double& x_scale, double& y_scale);
 		static double changeFromDrawingAreaOriginToPrincipalPointOrigin(double drawing_area_value, double image_size, double principal_point);
 		static double changeFromPrincipalPointOriginToDrawingAreaOrigin(double drawing_area_value, double image_size, double principal_point);
 		static void correctLensDistortion(double& x, double& y, const ProjectionModelProperties& projection_model_properties);

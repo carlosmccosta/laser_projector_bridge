@@ -548,11 +548,7 @@ void VectorImageBuilder::correctDistortionOnVectorImage() {
 	}
 
 	double image_plane_to_drawing_area_x_scale, image_plane_to_drawing_area_y_scale;
-	computeScalingFactorsFromImagePlaneToDrawingArea(
-		projection_model_properties_.getFocalLengthXInPixels(), projection_model_properties_.getImageWidthInPixels(),
-		projection_model_properties_.getFocalLengthYInPixels(), projection_model_properties_.getImageHeightInPixels(),
-		projection_model_properties_.getDistanceBetweenMirrors(), projection_model_properties_.getDistanceToImagePlaneForCorrectingDistortion(),
-		image_plane_to_drawing_area_x_scale, image_plane_to_drawing_area_y_scale);
+	computeScalingFactorsFromImagePlaneToDrawingArea(image_plane_to_drawing_area_x_scale, image_plane_to_drawing_area_y_scale);
 
 	std::vector<JMVectorStruct> vector_image_points_trimmed;
 
@@ -647,6 +643,18 @@ void VectorImageBuilder::correctDistortionOnVectorImage() {
 		vector_image_points_.swap(vector_image_points_trimmed);
 	}
 }
+
+void VectorImageBuilder::computeScalingFactorsFromImagePlaneToDrawingArea(double& x_scale, double& y_scale) {
+	double fovX = computeFieldOfView(projection_model_properties_.getFocalLengthXInPixels(), projection_model_properties_.getImageWidthInPixels());
+	double fovY = computeFieldOfView(projection_model_properties_.getFocalLengthYInPixels(), projection_model_properties_.getImageHeightInPixels());
+
+	double x, y;
+	galvoAnglesToDrawingArea(fovX / 2.0, fovY / 2.0, projection_model_properties_.getDistanceBetweenMirrors(), projection_model_properties_.getDistanceToImagePlaneForCorrectingDistortion(), x, y);
+	//pinHoleAnglesToDrawingArea(fovX / 2.0, fovY / 2.0, projection_model_properties_.getDistanceToImagePlaneForConvertingXGalvoAngleToDrawingArea(), projection_model_properties_.getDistanceToImagePlaneForConvertingYGalvoAngleToDrawingArea(), x, y, projection_model_properties_.getUseRayToPlaneIntersectionForConvertingGalvosAnglesToDrawingArea());
+
+	x_scale = x / (projection_model_properties_.getImageWidthInPixels() / 2);
+	y_scale = y / (projection_model_properties_.getImageHeightInPixels() / 2);
+}
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </functions>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -704,15 +712,6 @@ double VectorImageBuilder::computeDistanceToImagePlane(double focal_length_in_pi
 
 double VectorImageBuilder::computeFieldOfView(double focal_length_in_pixels, double image_size_in_pixels) {
 	return std::atan(image_size_in_pixels / (focal_length_in_pixels * 2.0)) * 2.0;
-}
-
-void VectorImageBuilder::computeScalingFactorsFromImagePlaneToDrawingArea(double focal_length_in_pixels_x, double image_size_in_pixels_x, double focal_length_in_pixels_y, double image_size_in_pixels_y, double distance_between_mirrors, double distance_to_image_plane, double& x_scale, double& y_scale) {
-	double fovX = computeFieldOfView(focal_length_in_pixels_x, image_size_in_pixels_x);
-	double fovY = computeFieldOfView(focal_length_in_pixels_y, image_size_in_pixels_y);
-	double x, y;
-	galvoAnglesToDrawingArea(fovX / 2.0, fovY / 2.0, distance_between_mirrors, distance_to_image_plane, x, y);
-	x_scale = image_size_in_pixels_x / x;
-	y_scale = image_size_in_pixels_y / y;
 }
 
 double VectorImageBuilder::changeFromDrawingAreaOriginToPrincipalPointOrigin(double drawing_area_value, double image_size, double principal_point) {
