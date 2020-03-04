@@ -137,11 +137,22 @@ std::string JMLaserProjector::jmLaserBridgeGetFriendlyName(const std::string& pr
 	if (device_friendly_name_length > 0) {
 		char *device_friendly_name = new char[device_friendly_name_length];
 		if (jmLaserGetFriendlyName(projector_name_c.data(), device_friendly_name, (unsigned int) device_friendly_name_length) == 0) {
-			device_friendly_name[device_friendly_name_length - 1] = '\0';
+			std::vector<char> projector_friendly_name_vector;
+			for (int i = 0; i < device_friendly_name_length; ++i)
+			{
+				if (device_friendly_name[i] != '\0')
+				{
+					projector_friendly_name_vector.push_back(device_friendly_name[i]);
+				}
+			}
+			projector_friendly_name_vector.push_back('\0');
+
+			std::string device_friendly_name_str(projector_friendly_name_vector.data());
+			delete[] device_friendly_name;
+			return device_friendly_name_str;
 		}
-		std::string device_friendly_name_str(device_friendly_name);
+
 		delete[] device_friendly_name;
-		return device_friendly_name_str;
 	}
 	return std::string("");
 }
